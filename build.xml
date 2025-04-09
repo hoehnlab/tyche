@@ -1,0 +1,154 @@
+<!-- Build type linked model -->
+<project basedir="." default="build_jar_all_TypeLinked" name="BUILD_TYPE_LINKED">
+    <description>
+        Build TypeLinked.
+        JUnit test is available for this build.
+        $Id: build_TypeLinked.xml $
+    </description>
+    <!-- set global properties for this build -->
+    <property name="TypeLinkedDir" location="../type-linked-time-trees/" />
+    <property name="beastClassicDir" location="../beast-classic"/>
+    <property name="srcTypeLinked" location="src" />
+    <property name="buildTypeLinked" location="build" />
+    <property name="libTypeLinked" location="lib" />
+    <property name="release_dir" value="release" />
+    <property name="distTypeLinked" location="${buildTypeLinked}/dist" />
+    <property name="beast2path" location="../beast2" />
+    <property name="libBeast2" location="${beast2path}/lib" />
+    <property name="srcBeast2" location="${beast2path}/src" />
+    <property name="beast2classpath" location="${beast2path}/build" />
+    <property name="libClassic" location="${beastClassicDir}/lib"/>
+    <property name="srcClassic" location="${beastClassicDir}/src" />
+    <property name="beastClassicClasspath" location="${beastClassicDir}/build" />
+    <property name="Package_dir" value="${release_dir}/package" />
+    <import file="${beast2path}/build.xml" />
+    <import file="${beastClassicDir}/build.xml"/>
+    <property name="main_class_BEAST" value="beast.app.BeastMCMC" />
+    <property name="report" value="${buildTypeLinked}/junitreport"/>
+    <path id="classpath">
+        <pathelement path="${buildTypeLinked}"/>
+        <fileset dir="${libBeast2}" includes="junit-4.8.2.jar"/>
+        <pathelement path="${beast2classpath}"/>
+        <pathelement path="${beastClassicClasspath}"/>
+        <fileset dir="${libBeast2}" includes="beagle.jar"/>
+    </path>
+    <!-- start -->
+    <target name="initTypeLinked">
+        <echo message="${ant.project.name}: ${ant.file}" />
+        <mkdir dir="${release_dir}" />
+    </target>
+    <target name="cleanTypeLinked">
+        <delete dir="${buildTypeLinked}" />
+    </target>
+
+<!--    <target name="find-classic" depends="init">-->
+<!--        <available file="${beastClassicDir}" property="localClassicAvailable"/>-->
+<!--    </target>-->
+
+    <!-- clean previous build, and then compile Java source code, and Juint test -->
+    <target name="build_all_TypeLinked" depends="cleanTypeLinked,compile-allTypeLinked,junitTypeLinked" description="Clean and Build all run-time stuff">
+    </target>
+
+    <!-- clean previous build, compile Java source code, and Junit test, and make the beast.jar and beauti.jar -->
+    <target name="build_jar_all_TypeLinked" depends="cleanTypeLinked,compile-allTypeLinked,junitTypeLinked" description="Clean and Build all run-time stuff">
+    </target>
+
+    <!-- No JUnit Test, clean previous build, compile Java source code, and make the TypeLinked.jar and beauti.jar -->
+    <target name="build_jar_all_TypeLinked_NoJUnitTest" depends="cleanTypeLinked,compile-allTypeLinked" description="Clean and Build all run-time stuff">
+    </target>
+
+    <!-- compile Java source code -->
+    <target name="compile-allTypeLinked" depends="initTypeLinked,compile-all">
+        <!-- Capture the path as a delimited property using the refid attribute -->
+        <property name="myclasspath" refid="classpath"/>
+        <!-- Emit the property to the ant console -->
+        <echo message="Classpath = ${myclasspath}"/>
+        <mkdir dir="${buildTypeLinked}" />
+        <mkdir dir="${distTypeLinked}" />
+        <!-- Compile the java code from ${srcTypeLinked} into ${buildTypeLinked} /bin -->
+        <javac srcdir="${srcTypeLinked}" destdir="${buildTypeLinked}" classpathref="classpath" fork="true" memoryinitialsize="256m" memorymaximumsize="256m">
+            <include name="beast/**/**" />
+            <!-- compile JUnit test classes -->
+            <include name="test/beast/**" />
+        </javac>
+        <!-- make the jar files after compiling? i guess -->
+        <!--        TODO (jf): figure out if this is the right/best place for this -->
+        <jar jarfile="${distTypeLinked}/TypeLinked.src.jar">
+            <fileset dir="${srcTypeLinked}">
+                <include name="beast/base/evolution/branchratemodel/*.java"/>
+                <include name="**/*.java" />
+                <include name="**/*.png" />
+                <include name="**/*.xsl" />
+            </fileset>
+        </jar>
+        <jar jarfile="${distTypeLinked}/TypeLinked.package.jar">
+            <manifest>
+                <attribute name="Built-By" value="${user.name}" />
+            </manifest>
+            <fileset dir="${buildTypeLinked}">
+                <include name="**/*.class" />
+                <include name="**/*.png" />
+                <include name="**/*.properties" />
+            </fileset>
+        </jar>
+        <echo message="Successfully compiled." />
+    </target>
+
+
+    <!-- run beast.jar -->
+    <target name="run_TypeLinked">
+        <java jar="${distTypeLinked}/TypeLinked.jar" fork="true" />
+    </target>
+
+    <!-- JUnit test -->
+    <target name="junitTypeLinked">
+        <mkdir dir="${report}" />
+        <junit printsummary="yes"> <!--showoutput='yes'-->
+            <classpath>
+                <path refid="classpath" />
+                <path location="${buildTypeLinked}" />
+            </classpath>
+            <formatter type="xml" />
+            <batchtest fork="yes" todir="${report}">
+                <fileset dir="${srcTypeLinked}">
+                    <include name="test/**/*Test.java"/>
+                </fileset>
+                <fileset dir="${srcBeast2}">
+                    <include name="test/beast/integration/**/*Test.java"/>
+                    <exclude name="test/beast/integration/**/ResumeTest.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <echo message="JUnit test finished." />
+    </target>
+    <target name="junitreport">
+        <junitreport todir="${report}">
+            <fileset dir="${report}" includes="*.xml"/>
+            <report format="frames" todir="${report}"/>
+        </junitreport>
+        <echo message="JUnit test report finished." />
+    </target>
+    <target name="package"
+            depends="build_jar_all_TypeLinked_NoJUnitTest"
+            description="release BEAST 2 package version of TypeLinked">
+        <delete dir="${Package_dir}" />
+        <!-- Create the release directory -->
+        <mkdir dir="${Package_dir}" />
+        <mkdir dir="${Package_dir}/lib" />
+        <mkdir dir="${Package_dir}/fxtemplates" />
+        <copy todir="${Package_dir}/lib">
+            <fileset dir="${distTypeLinked}" includes="TypeLinked.package.jar" />
+        </copy>
+        <copy todir="${Package_dir}">
+            <fileset dir="${distTypeLinked}" includes="TypeLinked.src.jar" />
+        </copy>
+        <copy todir="${Package_dir}">
+            <fileset dir="${TypeLinkedDir}" includes="version.xml" />
+        </copy>
+        <copy todir="${Package_dir}/fxtemplates">
+            <fileset file="fxtemplates/TypeLinked-beauti-template.xml" />
+        </copy>
+        <zip destfile="${distTypeLinked}/TypeLinked.zip" basedir="${Package_dir}" includes="**/*" />
+        <echo message="Package version release is finished." />
+    </target>
+</project>
