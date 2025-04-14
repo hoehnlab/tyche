@@ -16,6 +16,6 @@
         <provider classname="beast.base.evolution.branchratemodel.TraitLinkedClockModel"/>
         <provider classname="beast.base.evolution.likelihood.AncestralStateTreeLikelihoodNew"/>
         <provider classname="beast.base.evolution.substitutionmodel.SVSGeneralSubstitutionModelNew"/>
-
+        <provider classname="beast.base.evolution.operator.TraitTreeOperator"/>
     </service>
 </package>
