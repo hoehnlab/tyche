@@ -7,31 +7,38 @@
     </description>
     <!-- set global properties for this build -->
     <property name="TypeLinkedDir" location="../type-linked-time-trees/" />
-    <property name="beastClassicDir" location="../beast-classic"/>
     <property name="srcTypeLinked" location="src" />
     <property name="buildTypeLinked" location="build" />
-    <property name="libTypeLinked" location="lib" />
+<!--    <property name="libTypeLinked" location="lib" />-->
     <property name="release_dir" value="release" />
+    <property name="Package_dir" value="${release_dir}/package" />
     <property name="distTypeLinked" location="${buildTypeLinked}/dist" />
+    <property name="report" value="${buildTypeLinked}/junitreport"/>
+
+    <!--  folders for beast2  -->
     <property name="beast2path" location="../beast2" />
     <property name="libBeast2" location="${beast2path}/lib" />
     <property name="srcBeast2" location="${beast2path}/src" />
     <property name="beast2classpath" location="${beast2path}/build" />
+
+    <!-- beast classic -->
+    <property name="beastClassicDir" location="../beast-classic"/>
     <property name="libClassic" location="${beastClassicDir}/lib"/>
     <property name="srcClassic" location="${beastClassicDir}/src" />
     <property name="beastClassicClasspath" location="${beastClassicDir}/build" />
-    <property name="Package_dir" value="${release_dir}/package" />
-    <import file="${beast2path}/build.xml" />
-    <import file="${beastClassicDir}/build.xml"/>
-    <property name="main_class_BEAST" value="beast.app.BeastMCMC" />
-    <property name="report" value="${buildTypeLinked}/junitreport"/>
     <path id="classpath">
+        <pathelement path="${libBeast2}"/>
         <pathelement path="${buildTypeLinked}"/>
         <fileset dir="${libBeast2}" includes="junit-4.8.2.jar"/>
         <pathelement path="${beast2classpath}"/>
         <pathelement path="${beastClassicClasspath}"/>
         <fileset dir="${libBeast2}" includes="beagle.jar"/>
     </path>
+
+    <import file="${beast2path}/build.xml"/>
+    <import file="${beastClassicDir}/build.xml"/>
+    <property name="main_class_BEAST" value="beast.app.BeastMCMC" />
+
     <!-- start -->
     <target name="initTypeLinked">
         <echo message="${ant.project.name}: ${ant.file}" />
