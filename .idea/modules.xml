@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../BeastFX/BeastFX.iml" filepath="$PROJECT_DIR$/../BeastFX/BeastFX.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../beast2/beast2.iml" filepath="$PROJECT_DIR$/../beast2/beast2.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../beast-classic/beastclassic.iml" filepath="$PROJECT_DIR$/../beast-classic/beastclassic.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/BeastFX.iml" filepath="$PROJECT_DIR$/.idea/BeastFX.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/beast-classic.iml" filepath="$PROJECT_DIR$/.idea/beast-classic.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/beast2.iml" filepath="$PROJECT_DIR$/.idea/beast2.iml" />
       <module fileurl="file://$PROJECT_DIR$/type-linked-time-trees.iml" filepath="$PROJECT_DIR$/type-linked-time-trees.iml" />
     </modules>
   </component>

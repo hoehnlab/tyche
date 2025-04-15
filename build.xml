@@ -65,7 +65,7 @@
     </target>
 
     <!-- compile Java source code -->
-    <target name="compile-allTypeLinked" depends="initTypeLinked,compile-all">
+    <target name="compile-allTypeLinked" depends="initTypeLinked,compile-all,compile-allBEAST_CLASSIC">
         <!-- Capture the path as a delimited property using the refid attribute -->
         <property name="myclasspath" refid="classpath"/>
         <!-- Emit the property to the ant console -->
