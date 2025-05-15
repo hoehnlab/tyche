@@ -15,6 +15,6 @@
         <provider classname="beast.base.evolution.likelihood.AncestralSampledStateTreeLikelihood"/>
         <provider classname="beast.base.evolution.likelihood.AncestralStateMinimumSwitchTreeLikelihood"/>
         <provider classname="beast.base.evolution.substitutionmodel.SVSGeneralSubstitutionModelNew"/>
-        <provider classname="beast.base.evolution.operator.TraitTreeOperator"/>
+        <provider classname="beast.base.evolution.operator.TraitAndOccupancyTreeOperator"/>
     </service>
 </package>

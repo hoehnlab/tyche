@@ -1,7 +1,6 @@
 package beast.base.evolution.operator;
 
 import beast.base.core.Input;
-import beast.base.evolution.operator.TreeOperator;
 import beast.base.evolution.substitutionmodel.GeneralSubstitutionModel;
 import beast.base.evolution.substitutionmodel.SubstitutionModel;
 import beast.base.evolution.tree.Node;
@@ -14,7 +13,7 @@ import beast.base.util.Randomizer;
 
 import java.util.List;
 
-public class TraitTreeOperator extends TreeOperator {
+public class TraitAndOccupancyTreeOperator extends TreeOperator {
     final public Input<IntegerParameter> traitsInput = new Input<>("trait", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
     final public Input<RealParameter> occupancyInput = new Input<>("occupancy", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
 
@@ -32,10 +31,10 @@ public class TraitTreeOperator extends TreeOperator {
     GeneralSubstitutionModel substitutionModel;
 
     // empty constructor to facilitate construction by XML + initAndValidate
-    public TraitTreeOperator() {
+    public TraitAndOccupancyTreeOperator() {
     }
 
-    public TraitTreeOperator(Tree tree) {
+    public TraitAndOccupancyTreeOperator(Tree tree) {
         try {
             initByName(treeInput.getName(), tree);
         } catch (Exception e) {
