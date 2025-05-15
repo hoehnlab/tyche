@@ -10,11 +10,12 @@
     <service type="beast.base.core.BEASTInterface">
         <provider classname="beast.base.evolution.branchratemodel.TraitLinkedClockModel"/>
         <provider classname="beast.base.evolution.branchratemodel.TraitLinkedInstantSwitchStrictClockModel"/>
-        <provider classname="beast.base.evolution.branchratemodel.TraitLinkedExpectedOccupancyStrictClockModel"/>
+        <provider classname="beast.base.evolution.branchratemodel.TraitLinkedExpectedOccupancyClockModel"/>
         <provider classname="beast.base.evolution.branchratemodel.OccupancyLinkedClockModel"/>
         <provider classname="beast.base.evolution.likelihood.AncestralSampledStateTreeLikelihood"/>
         <provider classname="beast.base.evolution.likelihood.AncestralStateMinimumSwitchTreeLikelihood"/>
         <provider classname="beast.base.evolution.substitutionmodel.SVSGeneralSubstitutionModelNew"/>
+        <provider classname="beast.base.evolution.operator.LeafConsciousTraitTreeOperator"/>
         <provider classname="beast.base.evolution.operator.TraitAndOccupancyTreeOperator"/>
     </service>
 </package>

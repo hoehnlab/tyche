@@ -11,13 +11,13 @@ import beast.base.evolution.tree.Node;
  */
 
 @Description("Defines a mean rate for each branch in the beast.tree.")
-public class TraitLinkedExpectedOccupancyStrictClockModel extends AbstractTraitLinkedBranchRateModel {
+public class TraitLinkedExpectedOccupancyClockModel extends AbstractTraitLinkedBranchRateModel {
 
-    public Input<Function> geoClockRateInput = new Input<>("geoClockRate", "the clock rate for the Ancestral Reconstruction Tree Likelihood");
+    public Input<Function> geoClockRateInput = new Input<>("traitClockRate", "the clock rate for the Ancestral Reconstruction Tree Likelihood");
 
     public Input<SVSGeneralSubstitutionModelNew> svsInput = new Input<SVSGeneralSubstitutionModelNew>("substitutionModel", "testing the substitution model input");
 
-    Function geoClockRate;
+    Function traitClockRate;
     SVSGeneralSubstitutionModelNew svs;
 
     double[][] qMatrix;
@@ -25,7 +25,7 @@ public class TraitLinkedExpectedOccupancyStrictClockModel extends AbstractTraitL
     @Override
     public void initAndValidate() {
         super.initAndValidate();
-        geoClockRate = geoClockRateInput.get();
+        traitClockRate = geoClockRateInput.get();
         svs = svsInput.get();
 
 //        TODO(jf): confirm q matrix is actually being updated here? would prefer not to get it every single branch but
@@ -70,7 +70,7 @@ public class TraitLinkedExpectedOccupancyStrictClockModel extends AbstractTraitL
 
         int trait = (int) nodeTraits.getArrayValue(node.getNr());
         int parentTrait = (int) nodeTraits.getArrayValue(node.getParent().getNr());
-        double traitTime = node.getLength() * geoClockRate.getArrayValue();
+        double traitTime = node.getLength() * traitClockRate.getArrayValue();
         double[] occupancy = getOccupancy(parentTrait, trait, traitTime);
         return (getTraitRate(0)*occupancy[0] + getTraitRate(1)*occupancy[1]);
     }
