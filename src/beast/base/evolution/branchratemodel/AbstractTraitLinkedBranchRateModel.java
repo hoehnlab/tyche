@@ -6,6 +6,10 @@ import beast.base.evolution.tree.Node;
 import beast.base.inference.parameter.IntegerParameter;
 import beast.base.inference.parameter.RealParameter;
 
+/**
+ * @author Jessie Fielding
+ */
+
 public abstract class AbstractTraitLinkedBranchRateModel extends BranchRateModel.Base {
     public Input<RealParameter> traitRatesInput = new Input<RealParameter>("traitRates", "the mutation rate for each trait");
 

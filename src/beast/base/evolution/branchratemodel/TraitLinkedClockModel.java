@@ -8,7 +8,7 @@ import beast.base.inference.parameter.IntegerParameter;
 import beast.base.inference.parameter.RealParameter;
 
 /**
- * @author Alexei Drummond
+ * @author Jessie Fielding
  */
 
 @Description("Defines a mean rate for each branch in the beast.tree.")
