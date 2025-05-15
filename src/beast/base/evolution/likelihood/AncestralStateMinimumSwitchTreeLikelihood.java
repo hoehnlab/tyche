@@ -42,15 +42,11 @@ public class AncestralStateMinimumSwitchTreeLikelihood extends TreeLikelihood im
 
     public Input<Boolean> sampleTipsInput = new Input<Boolean>("sampleTips", "if tips have missing data/ambigous values sample them for logging (default true)", true);
 
-    public Input<IntegerParameter> nodeTraitsInput = new Input<IntegerParameter>("nodeTraits", "the trait for each node");
-    public Input<RealParameter> occupancyInput = new Input<RealParameter>("occupancy", "the occupancy time in second state (=1)");
+    public Input<IntegerParameter> nodeTraitsInput = new Input<IntegerParameter>("nodeTraits", "the trait for each node", Validate.REQUIRED);
+    public Input<RealParameter> occupancyInput = new Input<RealParameter>("occupancy", "the occupancy time in second state (=1)", Validate.REQUIRED);
 
     public Input<List<LeafTrait>> leafTriatsInput = new Input<List<LeafTrait>>("leaftrait", "list of leaf traits",
             new ArrayList<LeafTrait>());
-
-    public Input<RealParameter> stdDevInput = new Input<>("stdDev", "the standard deviation of the normal distribution for calculating the likelihood of occupancy times");
-
-    NormalDistribution occupancyDeviationNormalDistribution;
 
     int[][] storedTipStates;
 
@@ -89,7 +85,6 @@ public class AncestralStateMinimumSwitchTreeLikelihood extends TreeLikelihood im
 
     @Override
     public void initAndValidate() {
-        System.out.println("HERE1");
         if (dataInput.get().getSiteCount() == 0) {
             return;
         }
@@ -109,14 +104,12 @@ public class AncestralStateMinimumSwitchTreeLikelihood extends TreeLikelihood im
             }
         }
 
-        double stdDev = stdDevInput.get().getValue();
-        occupancyDeviationNormalDistribution = new NormalDistributionImpl(0, stdDev);
-
         this.tag = tagInput.get();
         TreeInterface treeModel = treeInput.get();
         patternCount = dataInput.get().getPatternCount();
         dataType = dataInput.get().getDataType();
         stateCount = dataType.getStateCount();
+
 
         reconstructedStates = new int[treeModel.getNodeCount()][patternCount];
         storedReconstructedStates = new int[treeModel.getNodeCount()][patternCount];
