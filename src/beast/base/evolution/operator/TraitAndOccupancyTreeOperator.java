@@ -119,7 +119,7 @@ public class TraitAndOccupancyTreeOperator extends TreeOperator {
                 }
             }
         }
-         if (!isConstrained) return 0.0; // shouldn't need to change any occupancy times
+        if (!isConstrained) return 0.0; // shouldn't need to change any occupancy times
 
         Node parent = node.getParent();
         List<Node> children = node.getChildren();
