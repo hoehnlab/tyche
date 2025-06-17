@@ -168,6 +168,10 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
             tipStates[node.getNr()] = new int[patternCount];
             if (!m_useAmbiguities.get()) {
                 likelihoodCore.getNodeStates(node.getNr(), tipStates[node.getNr()]);
+                int currentState = tipStates[node.getNr()][0];
+                if (!dataType.isAmbiguousCode(currentState)) {
+                    nodeTraits.setValue(node.getNr(), tipStates[node.getNr()][0]);
+                }
             } else {
                 int [] states = tipStates[node.getNr()];
                 for (int i = 0; i < patternCount; i++) {
