@@ -44,18 +44,6 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
 
     public Input<IntegerParameter> nodeTraitsInput = new Input<IntegerParameter>("nodeTraits", "the trait for each node");
 
-    public Input<List<LeafTrait>> leafTriatsInput = new Input<List<LeafTrait>>("leaftrait", "list of leaf traits",
-            new ArrayList<LeafTrait>());
-
-    int[][] storedTipStates;
-
-    /** parameters for each of the leafs **/
-    IntegerParameter[] parameters;
-
-    /** and node number associated with parameter **/
-    int[] leafNr;
-
-    int traitDimension;
     IntegerParameter nodeTraits;
 
     double[][] qMatrix;
@@ -78,8 +66,6 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
      */
     int patternCount;
     int stateCount;
-
-    int[][] tipStates; // used to store tip states when using beagle
 
     @Override
     public void initAndValidate() {
@@ -108,9 +94,6 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
         dataType = dataInput.get().getDataType();
         stateCount = dataType.getStateCount();
 
-        reconstructedStates = new int[treeModel.getNodeCount()][patternCount];
-        storedReconstructedStates = new int[treeModel.getNodeCount()][patternCount];
-
         this.useMAP = useMAPInput.get();
         this.returnMarginalLogLikelihood = returnMLInput.get();
         System.out.println("returnML: " + this.returnMarginalLogLikelihood);
@@ -135,11 +118,6 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
             }
         });
 
-//        if (m_useAmbiguities.get()) {
-//            Logger.getLogger("dr.evomodel.treelikelihood").info("Ancestral reconstruction using ambiguities is currently "+
-//            "not support without BEAGLE");
-//            System.exit(-1);
-//        }
         if (beagle != null) {
             if (!(siteModelInput.get() instanceof SiteModel.Base)) {
                 throw new IllegalArgumentException ("siteModel input should be of type SiteModel.Base");
@@ -151,7 +129,7 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
         }
 
         int tipCount = treeModel.getLeafNodeCount();
-        tipStates = new int[tipCount][];
+        int[][] tipStates = new int[tipCount][];
 
         Alignment data = dataInput.get();
         for (Node node : treeInput.get().getExternalNodes()) {
@@ -168,6 +146,10 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
             tipStates[node.getNr()] = new int[patternCount];
             if (!m_useAmbiguities.get()) {
                 likelihoodCore.getNodeStates(node.getNr(), tipStates[node.getNr()]);
+                int currentState = tipStates[node.getNr()][0];
+                if (!dataType.isAmbiguousCode(currentState)) {
+                    nodeTraits.setValue(node.getNr(), tipStates[node.getNr()][0]);
+                }
             } else {
                 int [] states = tipStates[node.getNr()];
                 for (int i = 0; i < patternCount; i++) {
@@ -196,49 +178,49 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
 
 
         // stuff for dealing with ambiguities in tips
-        if (!m_useAmbiguities.get() && leafTriatsInput.get().size() == 0) {
-            return;
-        }
-        traitDimension = tipStates[0].length;
+//        if (!m_useAmbiguities.get() && leafTriatsInput.get().size() == 0) {
+//            return;
+//        }
+//        traitDimension = tipStates[0].length;
 
-        leafNr = new int[leafTriatsInput.get().size()];
-        parameters = new IntegerParameter[leafTriatsInput.get().size()];
+//        leafNr = new int[leafTriatsInput.get().size()];
+//        parameters = new IntegerParameter[leafTriatsInput.get().size()];
+//
+//        List<String> taxaNames = dataInput.get().getTaxaNames();
+//        for (int i = 0; i < leafNr.length; i++) {
+//            LeafTrait leafTrait = leafTriatsInput.get().get(i);
+//            parameters[i] = leafTrait.parameter.get();
+//            // sanity check
+//            if (parameters[i].getDimension() != traitDimension) {
+//                throw new IllegalArgumentException("Expected parameter dimension to be " + traitDimension + ", not "
+//                        + parameters[i].getDimension());
+//            }
+//            // identify node
+//            String taxon = leafTrait.taxonName.get();
+//            int k = 0;
+//            while (k < taxaNames.size() && !taxaNames.get(k).equals(taxon)) {
+//                k++;
+//            }
+//            leafNr[i] = k;
+//            // sanity check
+//            if (k == taxaNames.size()) {
+//                throw new IllegalArgumentException("Could not find taxon '" + taxon + "' in tree");
+//            }
+//            // initialise parameter value from states
+//            Integer[] values = new Integer[tipStates[k].length];
+//            for (int j = 0; j < tipStates[k].length; j++) {
+//                values[j] = tipStates[k][j];
+//            }
+//            IntegerParameter p = new IntegerParameter(values);
+//            p.setLower(0);
+//            p.setUpper(dataType.getStateCount()-1);
+//            parameters[i].assignFromWithoutID(p);
+//        }
 
-        List<String> taxaNames = dataInput.get().getTaxaNames();
-        for (int i = 0; i < leafNr.length; i++) {
-            LeafTrait leafTrait = leafTriatsInput.get().get(i);
-            parameters[i] = leafTrait.parameter.get();
-            // sanity check
-            if (parameters[i].getDimension() != traitDimension) {
-                throw new IllegalArgumentException("Expected parameter dimension to be " + traitDimension + ", not "
-                        + parameters[i].getDimension());
-            }
-            // identify node
-            String taxon = leafTrait.taxonName.get();
-            int k = 0;
-            while (k < taxaNames.size() && !taxaNames.get(k).equals(taxon)) {
-                k++;
-            }
-            leafNr[i] = k;
-            // sanity check
-            if (k == taxaNames.size()) {
-                throw new IllegalArgumentException("Could not find taxon '" + taxon + "' in tree");
-            }
-            // initialise parameter value from states
-            Integer[] values = new Integer[tipStates[k].length];
-            for (int j = 0; j < tipStates[k].length; j++) {
-                values[j] = tipStates[k][j];
-            }
-            IntegerParameter p = new IntegerParameter(values);
-            p.setLower(0);
-            p.setUpper(dataType.getStateCount()-1);
-            parameters[i].assignFromWithoutID(p);
-        }
-
-        storedTipStates = new int[tipStates.length][traitDimension];
-        for (int i = 0; i < tipStates.length; i++) {
-            System.arraycopy(tipStates[i], 0, storedTipStates[i], 0, traitDimension);
-        }
+//        storedTipStates = new int[tipStates.length][traitDimension];
+//        for (int i = 0; i < tipStates.length; i++) {
+//            System.arraycopy(tipStates[i], 0, storedTipStates[i], 0, traitDimension);
+//        }
         // TODO: why are we not getting here?
         System.out.println("HERE2");
     }
@@ -247,21 +229,9 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
     public void store() {
         super.store();
 
-        for (int i = 0; i < reconstructedStates.length; i++) {
-            System.arraycopy(reconstructedStates[i], 0, storedReconstructedStates[i], 0, reconstructedStates[i].length);
-        }
-
         storedAreStatesRedrawn = areStatesRedrawn;
         storedJointLogLikelihood = jointLogLikelihood;
 
-
-        // deal with ambiguous tips
-        if (leafNr != null) {
-            for (int i = 0; i < leafNr.length; i++) {
-                int k = leafNr[i];
-                System.arraycopy(tipStates[k], 0, storedTipStates[k], 0, traitDimension);
-            }
-        }
     }
 
     @Override
@@ -269,24 +239,9 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
 
         super.restore();
 
-        int[][] temp = reconstructedStates;
-        reconstructedStates = storedReconstructedStates;
-        storedReconstructedStates = temp;
-
         areStatesRedrawn = storedAreStatesRedrawn;
         jointLogLikelihood = storedJointLogLikelihood;
 
-        // deal with ambiguous tips
-        if (leafNr != null) {
-            for (int i = 0; i < leafNr.length; i++) {
-                int k = leafNr[i];
-                int[] tmp = tipStates[k];
-                tipStates[k] = storedTipStates[k];
-                storedTipStates[k] = tmp;
-                // Does not handle ambiguities or missing taxa
-                likelihoodCore.setNodeStates(k, tipStates[k]);
-            }
-        }
     }
 
     @Override
@@ -359,7 +314,7 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
             }
         }
 
-        return reconstructedStates[node.getNr()];
+        return new int[] {nodeTraits.getValue(node.getNr())};
     }
 
 //    private boolean checkConditioning = true;
@@ -420,7 +375,8 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
 
     public void getStates(int tipNum, int[] states)  {
         // Saved locally to reduce BEAGLE library access
-        System.arraycopy(tipStates[tipNum], 0, states, 0, states.length);
+        states[0] = nodeTraits.getValue(tipNum);
+//        System.arraycopy(nodeTraits.getValue(tipNum), 0, states, 0, states.length);
     }
 
     public void getPartials(int number, double[] partials) {
@@ -470,7 +426,6 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
                         conditionalProbabilities[i] *= rootFrequencies[i];
                     }
                     state[j] = (int) nodeTraits.getArrayValue(node.getNr());
-                    reconstructedStates[nodeNum][j] = state[j];
 
                     jointLogLikelihood += Math.log(rootFrequencies[state[j]]);
                 }
@@ -498,9 +453,7 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
                         conditionalProbabilities[i] = partialLikelihood[childIndex + i] * probabilities[parentIndex + i];
                     }
 
-//                    state[j] = drawChoice(conditionalProbabilities);
                     state[j] = (int) nodeTraits.getArrayValue(nodeNum);
-                    reconstructedStates[nodeNum][j] = state[j];
                     double contrib = probabilities[parentIndex + state[j]];
                     //System.out.println("Pr(" + parentState[j] + ", " + state[j] +  ") = " + contrib);
                     jointLogLikelihood += Math.log(contrib);
@@ -514,43 +467,33 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
             Node child2 = node.getChild(1);
             traverseSample(tree, child2, state);
         } else {
-
             // This is an external leaf
-            getStates(nodeNum, reconstructedStates[nodeNum]);
+            double[] partialLikelihood = new double[stateCount * patternCount];
 
-//        	if (beagle != null) {
-//                /*((AbstractLikelihoodCore)*/ getStates(nodeNum, reconstructedStates[nodeNum]);
-//        	} else {
-//            /*((AbstractLikelihoodCore)*/ likelihoodCore.getNodeStates(nodeNum, reconstructedStates[nodeNum]);
-//        		}
-//        	}
-            if (sampleTipsInput.get()) {
-                // Check for ambiguity codes and sample them
-                for (int j = 0; j < patternCount; j++) {
+            if (beagle != null) {
+                getPartials(node.getNr(), partialLikelihood);
+                getTransitionMatrix(nodeNum, probabilities);
+            } else {
+                likelihoodCore.getNodePartials(node.getNr(), partialLikelihood);
+                /*((AbstractLikelihoodCore)*/ likelihoodCore.getNodeMatrix(nodeNum, 0, probabilities);
+            }
 
-                    final int thisState = reconstructedStates[nodeNum][j];
-                    final int parentIndex = parentState[j] * stateCount;
-                    if (beagle != null) {
-                        /*((AbstractLikelihoodCore) */ getTransitionMatrix(nodeNum, probabilities);
-                    } else {
-                        /*((AbstractLikelihoodCore) */likelihoodCore.getNodeMatrix(nodeNum, 0, probabilities);
-                    }
-                    if (dataType.isAmbiguousCode(thisState)) {
+            for (int j = 0; j < patternCount; j++) {
 
-                        boolean [] stateSet = dataType.getStateSet(thisState);
-                        for (int i = 0; i < stateCount; i++) {
-                            conditionalProbabilities[i] =  stateSet[i] ? probabilities[parentIndex + i] : 0;
-                        }
-                        // TODO (jf): check that this works
-                        reconstructedStates[nodeNum][j] = (int) nodeTraits.getArrayValue(nodeNum);
-                    }
+                int parentIndex = parentState[j] * stateCount;
+                int childIndex = j * stateCount;
 
-                    double contrib = probabilities[parentIndex + reconstructedStates[nodeNum][j]];
-                    jointLogLikelihood += Math.log(contrib);
+                for (int i = 0; i < stateCount; i++) {
+                    conditionalProbabilities[i] = partialLikelihood[childIndex + i] * probabilities[parentIndex + i];
                 }
+
+                state[j] = (int) nodeTraits.getArrayValue(nodeNum);
+                double contrib = probabilities[parentIndex + state[j]];
+                //System.out.println("Pr(" + parentState[j] + ", " + state[j] +  ") = " + contrib);
+                jointLogLikelihood += Math.log(contrib);
+            }
             }
         }
-    }
 
     @Override
     public void log(final long sample, final PrintStream out) {
@@ -565,8 +508,6 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
 
 
     protected DataType dataType;
-    private int[][] reconstructedStates;
-    private int[][] storedReconstructedStates;
 
     private String tag;
     private boolean areStatesRedrawn = false;
