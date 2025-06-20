@@ -10,7 +10,7 @@ import beast.base.evolution.tree.Node;
 @Description("Defines a mean rate for each branch in the beast.tree.")
 public class TraitLinkedInstantSwitchStrictClockModel extends AbstractTraitLinkedBranchRateModel {
 
-    public double getRateForBranch(final Node node) {
+    public double getBranchRate(final Node node) {
 
         if (node.isRoot()) {
             return 1.0;

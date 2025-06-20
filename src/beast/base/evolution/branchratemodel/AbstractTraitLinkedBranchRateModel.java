@@ -18,11 +18,16 @@ public abstract class AbstractTraitLinkedBranchRateModel extends BranchRateModel
 
     public Input<Function> traitClockRateInput = new Input<Function>("traitClockRate", "the clock rate for the Ancestral Reconstruction Tree Likelihood");
     public Input<SVSGeneralSubstitutionModelNew> svsInput = new Input<SVSGeneralSubstitutionModelNew>("substitutionModel", "testing the substitution model input");
+
+    public Input<RealParameter> branchRatesInput = new Input<>("branchRates", "a real parameter to log branch rates");
+    public Input<RealParameter> occupanciesInput = new Input<>("expectedOccupancy", "a real parameter to log expected occupancy");
     Function traitClockRate;
     SVSGeneralSubstitutionModelNew svs;
     double[][] qMatrix;
 
     RealParameter traitRates;
+    RealParameter branchRates;
+    RealParameter occupancies;
 
     IntegerParameter nodeTraits;
 
@@ -34,12 +39,15 @@ public abstract class AbstractTraitLinkedBranchRateModel extends BranchRateModel
         muParameter = meanRateInput.get();
 
         traitRates = traitRatesInput.get();
+        branchRates = branchRatesInput.get();
+
 //        TODO: validate that traitRates has the correct number of values - jf
         if (isExpectedOccupancy()) {
             svsInput.setRule(Input.Validate.REQUIRED);
             traitClockRateInput.setRule(Input.Validate.REQUIRED);
             traitClockRate = traitClockRateInput.get();
             svs = svsInput.get();
+            occupancies = occupanciesInput.get();
 
 //        TODO(jf): confirm q matrix is actually being updated here? would prefer not to get it every single branch but
             qMatrix = svs.getRateMatrix();
@@ -51,7 +59,7 @@ public abstract class AbstractTraitLinkedBranchRateModel extends BranchRateModel
         return traitRates.getArrayValue(trait);
     }
 
-    public double[] getOccupancy(final int parentTrait, final int currentTrait, final Double time) {
+    public double[] getOccupancy(final int parentTrait, final int currentTrait, final Double time, final int nodeNum) {
 
         // TODO(jf): check all this math, and that we're always setting occupancy[0] to the occupancy in trait 0
         double alpha = qMatrix[0][1];
@@ -77,11 +85,24 @@ public abstract class AbstractTraitLinkedBranchRateModel extends BranchRateModel
             ) / time;
         }
         occupancy[1] = 1 - occupancy[0];
+        if (occupancies != null) {
+            occupancies.setValue(nodeNum, occupancy[0]);
+        }
         return occupancy;
     }
 
+    public abstract double getBranchRate(Node node);
+
     @Override
-    public abstract double getRateForBranch(Node node);
+    public double getRateForBranch(Node node) {
+        double branchRate = getBranchRate(node);
+        if (branchRates != null) {
+            branchRates.setValue(node.getNr(), branchRate);
+        }
+        return branchRate;
+    }
+
+
 
     public boolean isExpectedOccupancy() { return false; }
 

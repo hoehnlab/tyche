@@ -11,7 +11,7 @@ public class RelaxedExpectedOccupancyTraitLinkedClockModel extends RelaxedInstan
 
     @Override
     //get the rate for node
-    public double getRateForBranch(Node node) {
+    public double getBranchRate(Node node) {
         if (node.isRoot()) {
             // root has no rate
             return 1;
@@ -22,7 +22,7 @@ public class RelaxedExpectedOccupancyTraitLinkedClockModel extends RelaxedInstan
         int trait = (int) nodeTraits.getArrayValue(nodeNum);
         int parentTrait = (int) nodeTraits.getArrayValue(node.getParent().getNr());
         double traitTime = node.getLength() * traitClockRate.getArrayValue();
-        double[] occupancy = getOccupancy(parentTrait, trait, traitTime);
+        double[] occupancy = getOccupancy(parentTrait, trait, traitTime, nodeNum);
         double rate = 0;
         for (int i = 0; i < nTraits; i++) {
             rate += getRate(i, categories[i])*occupancy[i];

@@ -24,7 +24,7 @@ public class OccupancyLinkedClockModel extends AbstractTraitLinkedBranchRateMode
     }
 
     @Override
-    public double getRateForBranch(final Node node) {
+    public double getBranchRate(final Node node) {
 
         if (node.isRoot()) {
             return 1.0;

@@ -86,7 +86,7 @@ public class RelaxedInstantSwitchTraitLinkedClockModel extends AbstractTraitLink
 
     @Override
     //get the rate for node
-    public double getRateForBranch(Node node) {
+    public double getBranchRate(Node node) {
         if (node.isRoot()) {
             // root has no rate
             return 1;
