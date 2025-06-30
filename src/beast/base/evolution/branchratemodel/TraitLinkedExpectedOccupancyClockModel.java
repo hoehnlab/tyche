@@ -17,7 +17,7 @@ public class TraitLinkedExpectedOccupancyClockModel extends AbstractTraitLinkedB
     }
 
     @Override
-    public double getRateForBranch(final Node node) {
+    public double getBranchRate(final Node node) {
 
         if (node.isRoot()) {
             return 1.0;
@@ -26,7 +26,7 @@ public class TraitLinkedExpectedOccupancyClockModel extends AbstractTraitLinkedB
         int trait = (int) nodeTraits.getArrayValue(node.getNr());
         int parentTrait = (int) nodeTraits.getArrayValue(node.getParent().getNr());
         double traitTime = node.getLength() * traitClockRate.getArrayValue();
-        double[] occupancy = getOccupancy(parentTrait, trait, traitTime);
+        double[] occupancy = getOccupancy(parentTrait, trait, traitTime, node.getNr());
         return (getTraitRate(0)*occupancy[0] + getTraitRate(1)*occupancy[1]);
     }
 
