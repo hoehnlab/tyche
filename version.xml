@@ -8,7 +8,6 @@
     </service>
 
     <service type="beast.base.core.BEASTInterface">
-        <provider classname="beast.base.evolution.branchratemodel.TraitLinkedClockModel"/>
         <provider classname="beast.base.evolution.branchratemodel.TraitLinkedInstantSwitchStrictClockModel"/>
         <provider classname="beast.base.evolution.branchratemodel.TraitLinkedExpectedOccupancyClockModel"/>
         <provider classname="beast.base.evolution.branchratemodel.RelaxedInstantSwitchTraitLinkedClockModel"/>
