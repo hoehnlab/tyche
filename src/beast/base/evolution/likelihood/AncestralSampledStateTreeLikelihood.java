@@ -52,7 +52,6 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
      * @param dataType        - need to provide the data-type, so that corrent data characters can be returned
      * @param tag             - string label for reconstruction characters in tree log
      * @param forceRescaling  -
-     * @param useMAP          - perform maximum aposteriori reconstruction
      * @param returnML        - report integrate likelihood of tip data
      */
     int patternCount;
@@ -264,12 +263,9 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
 
     @Override
     public double calculateLogP() {
-////
-        double marginalLogLikelihood = super.calculateLogP();
+
+        super.calculateLogP();
         likelihoodKnown = true;
-//        if (returnMarginalLogLikelihood) {
-//            return logP;
-//        }
         jointLogLikelihood = 0;
         TreeInterface tree = treeInput.get();
         traverseSample(tree, tree.getRoot(), null);
@@ -344,7 +340,7 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
             if (parent == null) {
 
                 double[] rootPartials = new double[stateCount * patternCount];
-                likelihoodCore.getNodePartials(node.getNr(), rootPartials);
+                likelihoodCore.getNodePartials(nodeNum, rootPartials);
 
 
                 double[] rootFrequencies = substitutionModel.getFrequencies();
@@ -363,9 +359,9 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
                     for (int i = 0; i < stateCount; i++) {
                         conditionalProbabilities[i] *= rootFrequencies[i];
                     }
-                    state[j] = (int) nodeTraits.getArrayValue(node.getNr());
+                    state[j] = (int) nodeTraits.getArrayValue(nodeNum);
 
-                    jointLogLikelihood += Math.log(rootFrequencies[state[j]]);
+                    jointLogLikelihood += Math.log(conditionalProbabilities[state[j]]);
                 }
 
             } else {
@@ -392,7 +388,7 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
                     }
 
                     state[j] = (int) nodeTraits.getArrayValue(nodeNum);
-                    double contrib = probabilities[parentIndex + state[j]];
+                    double contrib = conditionalProbabilities[state[j]];
                     //System.out.println("Pr(" + parentState[j] + ", " + state[j] +  ") = " + contrib);
                     jointLogLikelihood += Math.log(contrib);
                 }
@@ -416,15 +412,20 @@ public class AncestralSampledStateTreeLikelihood extends TreeLikelihood implemen
             } else {
                 /*((AbstractLikelihoodCore) */likelihoodCore.getNodeMatrix(nodeNum, 0, probabilities);
             }
-            likelihoodCore.getNodeStates(node.getNr(), tipStates[node.getNr()]);
-            if (dataType.isAmbiguousCode(tipStates[node.getNr()][0])) {
+//           TODO(jf): test that this still works without this line
+            likelihoodCore.getNodeStates(nodeNum, tipStates[nodeNum]);
+            if (dataType.isAmbiguousCode(tipStates[nodeNum][0])) {
                 boolean [] stateSet = dataType.getStateSet(thisState);
                 for (int i = 0; i < stateCount; i++) {
                     conditionalProbabilities[i] =  stateSet[i] ? probabilities[parentIndex + i] : 0;
                 }
+            } else {
+                for (int i = 0; i < stateCount; i++) {
+                    conditionalProbabilities[i] = probabilities[parentIndex + i];
+                }
             }
 
-            double contrib = probabilities[parentIndex + thisState];
+            double contrib = conditionalProbabilities[thisState];
             jointLogLikelihood += Math.log(contrib);
         }
     }

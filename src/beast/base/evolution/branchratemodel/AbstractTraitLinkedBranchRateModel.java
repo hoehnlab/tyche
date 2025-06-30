@@ -34,7 +34,6 @@ public abstract class AbstractTraitLinkedBranchRateModel extends BranchRateModel
     Function muParameter;
 
     public void initAndValidate() {
-        System.out.println("Init trait clock");
         nodeTraits = nodeTraitsInput.get();
         muParameter = meanRateInput.get();
 
