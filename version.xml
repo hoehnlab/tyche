@@ -1,4 +1,4 @@
-<package name="TypeLinked" version="0.0.1">
+<package name="TypeLinked" version="0.0.0-alpha.3">
     <depends on='BEAST.base' atleast='2.7.6'/>
     <depends on='BEAST.app' atleast='2.7.6'/>
     <depends on='BEAST_CLASSIC' atleast='1.6.2'/>
@@ -7,15 +7,12 @@
         <provider classname="beast.base.evolution.datatype.Nucleotide"/>
     </service>
 
-<!--    <service type="beast.base.evolution.likelihood">-->
-<!--        <provider classname="beast.base.evolution.likelihood.StochasticTreeLikelihood"/>-->
-<!--    </service>-->
-
     <service type="beast.base.core.BEASTInterface">
-<!--        <provider classname="beast.base.evolution.likelihood.StochasticTreeLikelihood"/>-->
-        <provider classname="beast.base.evolution.branchratemodel.TraitLinkedClockModel"/>
-        <provider classname="beast.base.evolution.likelihood.AncestralStateTreeLikelihoodNew"/>
+        <provider classname="beast.base.evolution.branchratemodel.TraitLinkedInstantSwitchStrictClockModel"/>
+        <provider classname="beast.base.evolution.branchratemodel.TraitLinkedExpectedOccupancyClockModel"/>
+        <provider classname="beast.base.evolution.likelihood.AncestralSampledStateTreeLikelihood"/>
         <provider classname="beast.base.evolution.substitutionmodel.SVSGeneralSubstitutionModelNew"/>
-
+        <provider classname="beast.base.evolution.operator.LeafConsciousTraitTreeOperator"/>
+        <provider classname="beast.base.inference.distribution.ElementwisePrior"/>
     </service>
 </package>
