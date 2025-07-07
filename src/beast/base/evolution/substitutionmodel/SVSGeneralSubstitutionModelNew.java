@@ -1,7 +1,13 @@
 package beast.base.evolution.substitutionmodel;
 
+import beast.base.core.Description;
 import beastclassic.evolution.substitutionmodel.SVSGeneralSubstitutionModel;
 
+
+/**
+ * @author Jessie Fielding
+ */
+@Description("Extends SVSGeneralSubstitutionModel so that the rate matrix is stored and restored after rejected proposals.")
 public class SVSGeneralSubstitutionModelNew extends SVSGeneralSubstitutionModel {
     private double[][] storedRateMatrix;
 
