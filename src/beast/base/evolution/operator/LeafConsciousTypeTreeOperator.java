@@ -3,16 +3,12 @@ package beast.base.evolution.operator;
 import beast.base.core.Description;
 import beast.base.core.Input;
 import beast.base.evolution.alignment.Alignment;
-import beast.base.evolution.substitutionmodel.GeneralSubstitutionModel;
-import beast.base.evolution.substitutionmodel.SubstitutionModel;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 import beast.base.inference.parameter.IntegerParameter;
 import beast.base.inference.parameter.Parameter;
-import beast.base.inference.parameter.RealParameter;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
-import beastclassic.evolution.likelihood.LeafTrait;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +18,7 @@ import java.util.List;
  * @author Jessie Fielding
  */
 @Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips but does not operate on known leaf types.")
-public class LeafConsciousTraitTreeOperator extends TreeOperator {
+public class LeafConsciousTypeTreeOperator extends TreeOperator {
     final public Input<IntegerParameter> typesInput = new Input<>("type", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
     final public Input<Alignment> dataInput = new Input<>("data", "type data for the tips", Input.Validate.OPTIONAL);
 
@@ -33,15 +29,15 @@ public class LeafConsciousTraitTreeOperator extends TreeOperator {
 
 
     // empty constructor to facilitate construction by XML + initAndValidate
-    public LeafConsciousTraitTreeOperator() {
+    public LeafConsciousTypeTreeOperator() {
     }
 
-    public LeafConsciousTraitTreeOperator(Tree tree) {
+    public LeafConsciousTypeTreeOperator(Tree tree) {
         try {
             initByName(treeInput.getName(), tree);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Failed to construct LeafConsciousTraitTreeOperator.");
+            throw new RuntimeException("Failed to construct LeafConsciousTypeTreeOperator.");
         }
     }
 
