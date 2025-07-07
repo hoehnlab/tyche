@@ -1,5 +1,6 @@
 package beast.base.evolution.operator;
 
+import beast.base.core.Description;
 import beast.base.core.Input;
 import beast.base.evolution.alignment.Alignment;
 import beast.base.evolution.substitutionmodel.GeneralSubstitutionModel;
@@ -17,14 +18,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @author Jessie Fielding
+ */
+@Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips but does not operate on known leaf types.")
 public class LeafConsciousTraitTreeOperator extends TreeOperator {
-    final public Input<IntegerParameter> traitsInput = new Input<>("trait", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
-    final public Input<Boolean> includeLeavesInput = new Input<>("includeleaves", "whether to sample the leaves (true) or only internal nodes (false) (default false)", false);
-    final public Input<Alignment> dataInput = new Input<>("data", "trait data for the tips", Input.Validate.OPTIONAL);
+    final public Input<IntegerParameter> typesInput = new Input<>("type", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
+    final public Input<Alignment> dataInput = new Input<>("data", "type data for the tips", Input.Validate.OPTIONAL);
 
-    IntegerParameter traits;
+    IntegerParameter types;
     int lowerInt, upperInt;
-    boolean includeLeaves;
 
     boolean[] isAmbiguous;
 
@@ -37,18 +40,17 @@ public class LeafConsciousTraitTreeOperator extends TreeOperator {
         try {
             initByName(treeInput.getName(), tree);
         } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            throw new RuntimeException("Failed to construct Trait Operator.");
+            e.printStackTrace();
+            throw new RuntimeException("Failed to construct LeafConsciousTraitTreeOperator.");
         }
     }
 
     @Override
     public void initAndValidate() {
-        traits = traitsInput.get();
-        includeLeaves = includeLeavesInput.get();
+        types = typesInput.get();
 
-        lowerInt = traits.getLower();
-        upperInt = traits.getUpper();
+        lowerInt = types.getLower();
+        upperInt = types.getUpper();
 
         isAmbiguous = new boolean[treeInput.get().getNodeCount()];
         Arrays.fill(isAmbiguous, true);
@@ -70,7 +72,7 @@ public class LeafConsciousTraitTreeOperator extends TreeOperator {
                         throw new RuntimeException("Could not find sequence " + taxon + " in the alignment");
                     }
                 }
-                // TODO(jf): this only handles one trait, as does everything else lol
+                // this only handles one pattern
                 isAmbiguous[nodeNum] = data.getDataType().isAmbiguousCode(data.getPattern(taxonIndex, 0));
             }
         }
@@ -97,9 +99,9 @@ public class LeafConsciousTraitTreeOperator extends TreeOperator {
         do {
             final int nodeNr = nodeCount / 2 + 1 + Randomizer.nextInt(nodeCount / 2);
             node = tree.getNode(nodeNr);
-        } while ((node.isLeaf() && !includeLeaves && !isAmbiguous[node.getNr()]));
+        } while ((node.isLeaf() && !isAmbiguous[node.getNr()]));
         int newValue = Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0,
-        traits.setValue(node.getNr(), newValue);
+        types.setValue(node.getNr(), newValue);
 
         if (markCladesInput.get()) {
             node.makeAllDirty(Tree.IS_DIRTY);
