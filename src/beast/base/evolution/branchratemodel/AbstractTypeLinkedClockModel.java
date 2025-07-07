@@ -3,7 +3,7 @@ package beast.base.evolution.branchratemodel;
 import beast.base.core.Description;
 import beast.base.core.Function;
 import beast.base.core.Input;
-import beast.base.evolution.substitutionmodel.SVSGeneralSubstitutionModelNew;
+import beast.base.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel;
 import beast.base.evolution.tree.Node;
 import beast.base.inference.parameter.IntegerParameter;
 import beast.base.inference.parameter.RealParameter;
@@ -19,12 +19,12 @@ public abstract class AbstractTypeLinkedClockModel extends BranchRateModel.Base 
     public Input<IntegerParameter> nodeTypesInput = new Input<IntegerParameter>("nodeTypes", "the type for each node", Input.Validate.REQUIRED);
 
     public Input<Function> typeSwitchClockRateInput = new Input<Function>("typeSwitchClockRate", "the clock rate for the Ancestral Reconstruction Tree Likelihood");
-    public Input<SVSGeneralSubstitutionModelNew> svsInput = new Input<SVSGeneralSubstitutionModelNew>("substitutionModel", "testing the substitution model input");
+    public Input<TycheSVSGeneralSubstitutionModel> svsInput = new Input<TycheSVSGeneralSubstitutionModel>("substitutionModel", "testing the substitution model input");
 
     public Input<RealParameter> branchRatesInput = new Input<>("branchRates", "a real parameter to log branch rates");
     public Input<RealParameter> occupanciesInput = new Input<>("expectedOccupancy", "a real parameter to log expected occupancy");
     Function typeSwitchClockRate;
-    SVSGeneralSubstitutionModelNew svs;
+    TycheSVSGeneralSubstitutionModel svs;
     double[][] qMatrix;
 
     RealParameter typeLinkedRates;
