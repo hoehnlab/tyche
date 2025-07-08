@@ -1,4 +1,4 @@
-<package name="TyCHE" version="0.0.1-alpha-cleanup">
+<package name="TyCHE" version="0.0.0-alpha.5">
     <depends on='BEAST.base' atleast='2.7.6'/>
     <depends on='BEAST.app' atleast='2.7.6'/>
     <depends on='BEAST_CLASSIC' atleast='1.6.2'/>
@@ -13,6 +13,7 @@
         <provider classname="beast.base.evolution.likelihood.AncestralTypeLikelihood"/>
         <provider classname="beast.base.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel"/>
         <provider classname="beast.base.evolution.operator.LeafConsciousTypeTreeOperator"/>
+        <provider classname="beast.base.evolution.operator.SubtreeTypeSwitchOperator"/>
         <provider classname="beast.base.inference.distribution.ElementwisePrior"/>
     </service>
 </package>
