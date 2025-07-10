@@ -8,7 +8,7 @@ import beast.base.evolution.tree.Node;
  */
 
 @Description("Defines a type-linked rate for each branch in the beast.tree, where the branch is assumed to be entirely in the child state.")
-public class TypeLinkedInstantSwitchStrictClockModel extends AbstractTypeLinkedClockModel {
+public class TypeLinkedInstantSwitchStrictClockModel extends AbstractTycheTypeLinkedClockModel {
 
     public double getBranchRate(final Node node) {
 

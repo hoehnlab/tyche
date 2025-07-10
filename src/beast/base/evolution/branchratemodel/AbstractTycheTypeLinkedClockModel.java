@@ -13,7 +13,7 @@ import beast.base.inference.parameter.RealParameter;
  */
 
 @Description("Branch rate model for type-linked mutation rates")
-public abstract class AbstractTypeLinkedClockModel extends BranchRateModel.Base {
+public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.Base {
     public Input<RealParameter> typeLinkedRatesInput = new Input<RealParameter>("typeLinkedRates", "the mutation rate for each type", Input.Validate.REQUIRED);
 
     public Input<IntegerParameter> nodeTypesInput = new Input<IntegerParameter>("nodeTypes", "the type for each node", Input.Validate.REQUIRED);
