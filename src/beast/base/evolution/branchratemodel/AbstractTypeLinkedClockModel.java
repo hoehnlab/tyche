@@ -41,11 +41,10 @@ public abstract class AbstractTypeLinkedClockModel extends BranchRateModel.Base 
         typeLinkedRates = typeLinkedRatesInput.get();
         branchRates = branchRatesInput.get();
 
-//        TODO: test this validation - jf
         // ensure we have enough type-linked rates for the types in nodeTypes
         if (nodeTypes.getUpper() != null) {
             if (typeLinkedRates.getDimension() != nodeTypes.getUpper() + 1) {
-                throw new IllegalArgumentException("Type rates should be given for each possible type. nodeTypes has upper value of " + nodeTypes.getUpper() + " but typeLinkedRates has " + typeLinkedRates.getDimension() + " values.");
+                throw new IllegalArgumentException("Number of type rates should match possible types. nodeTypes has " + (nodeTypes.getUpper()+1) + " possible values but typeLinkedRates has " + typeLinkedRates.getDimension() + " values. Try setting nodeTypes \"upper\" value or adjusting dimension of typeLinkedRates.");
             }
         }
 
@@ -56,9 +55,9 @@ public abstract class AbstractTypeLinkedClockModel extends BranchRateModel.Base 
             typeSwitchClockRate = typeSwitchClockRateInput.get();
             svs = svsInput.get();
             occupancies = occupanciesInput.get();
-            // TODO(jf): should we enforce two states for now if it's an expected occupancy model?
-
-//        TODO(jf): confirm q matrix is actually being updated here? would prefer not to get it every single branch but
+            if (nodeTypes.getUpper() != 1 && nodeTypes.getLower() != 0) {
+                throw new IllegalArgumentException("Node types should have upper of 1 and lower of 0 for expected occupancy models.");
+            }
             qMatrix = svs.getRateMatrix();
         }
     }
@@ -70,30 +69,34 @@ public abstract class AbstractTypeLinkedClockModel extends BranchRateModel.Base 
 
     public double[] getOccupancy(final int parentType, final int currentType, final Double time, final int nodeNum) {
 
-                // TODO(jf): check all this math, and that we're always setting occupancy[0] to the occupancy in type 0
         double alpha = qMatrix[0][1];
         double beta = qMatrix[1][0];
         double k = alpha + beta;
-        double expkt = Math.exp(-k * time);
+        double expmkt = Math.exp(-k * time); // exp minus k * time
         double[] occupancy = new double[2];
+        double occupancyTimeA; // occupancy time in state 0, calculated as in [reference when we have this paper]
 
+        // see calculations in [reference]
         if (parentType == 0 && currentType == 0) {
-            occupancy[0] = (1 / k) * (
-                    (Math.pow(beta, 2) * time + 2 * alpha * beta / k * (1 - expkt) + Math.pow(alpha, 2) * time * expkt) /
-                            (beta + alpha * expkt)
-            ) / time;
-        } else if ((parentType == 0 && currentType == 1) || (parentType == 1 && currentType == 0)) {
-            occupancy[0] = (1 / k) * (
-                    (beta * time - alpha * time * expkt + (alpha - beta) / k * (1 - expkt)) /
-                            (1 - expkt)
-            ) / time;
+            occupancyTimeA = (1 / k) * (
+                    ( beta*beta*time + 2*alpha*beta/k*(1 - expmkt) + alpha*alpha*time*expmkt ) /
+                            ( beta + alpha*expmkt )
+            );
         } else if (parentType == 1 && currentType == 1) {
-            occupancy[0] = (1 / k) * (
-            (alpha * beta * time - 2 * alpha * beta / k * (1 - expkt) + alpha * beta * time * expkt) /
-                    (alpha + beta * expkt)
-            ) / time;
+            occupancyTimeA = (1 / k) * (
+                    ( alpha*beta*time - 2*alpha*beta/k*(1 - expmkt) + alpha*beta*time*expmkt ) /
+                            ( alpha + beta*expmkt )
+            );
+        } else if ((parentType == 0 && currentType == 1) || (parentType == 1 && currentType == 0)) {
+            occupancyTimeA = (1 / k) * (
+                    ( (beta*time - alpha*time*expmkt)/(1 - expmkt) ) + ( (alpha - beta)/k )
+            );
+        } else {
+            int wrongType = (parentType < 0 || parentType > 1) ? parentType : currentType;
+            throw new RuntimeException("Types should be either 0 or 1, not " + wrongType);
         }
 
+        occupancy[0] = occupancyTimeA/time; // get occupancy proportion in state 0
 
         // set occupancy of second type so that occupancies sum to 1
         occupancy[1] = 1 - occupancy[0];
