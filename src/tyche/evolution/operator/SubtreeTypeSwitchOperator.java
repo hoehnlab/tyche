@@ -13,10 +13,10 @@ import beast.base.util.Randomizer;
 import java.util.Arrays;
 
 public class SubtreeTypeSwitchOperator extends TreeOperator {
-    final public Input<IntegerParameter> traitsInput = new Input<>("trait", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
-    final public Input<Alignment> dataInput = new Input<>("data", "trait data for the tips", Input.Validate.OPTIONAL);
+    final public Input<IntegerParameter> nodeTypesInput = new Input<>("nodeTypes", "an integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
+    final public Input<Alignment> dataInput = new Input<>("data", "AlignmentFromTrait data for the tips", Input.Validate.OPTIONAL);
 
-    IntegerParameter traits;
+    IntegerParameter nodeTypes;
     int lowerInt, upperInt;
 
     boolean[] isAmbiguous;
@@ -37,10 +37,10 @@ public class SubtreeTypeSwitchOperator extends TreeOperator {
 
     @Override
     public void initAndValidate() {
-        traits = traitsInput.get();
+        nodeTypes = nodeTypesInput.get();
 
-        lowerInt = traits.getLower();
-        upperInt = traits.getUpper();
+        lowerInt = nodeTypes.getLower();
+        upperInt = nodeTypes.getUpper();
 
         isAmbiguous = new boolean[treeInput.get().getNodeCount()];
         Arrays.fill(isAmbiguous, true);
@@ -104,11 +104,11 @@ public class SubtreeTypeSwitchOperator extends TreeOperator {
         int nodeNum = node.getNr();
         if (node.isLeaf()) {
             if (isAmbiguous[nodeNum]) {
-                traits.setValue(nodeNum, newValue);
+                nodeTypes.setValue(nodeNum, newValue);
             }
             return;
         }
-        traits.setValue(nodeNum, newValue);
+        nodeTypes.setValue(nodeNum, newValue);
         for (Node childNode : node.getChildren()) {
             setSubtree(childNode, newValue);
         }
