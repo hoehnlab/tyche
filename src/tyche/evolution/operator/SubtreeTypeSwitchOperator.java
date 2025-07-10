@@ -1,5 +1,26 @@
+/*
+ *  Copyright (C) 2025 Hoehn Lab, Dartmouth College
+ *
+ * This file is part of TyCHE.
+ *
+ * TyCHE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * TyCHE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TyCHE.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
 package tyche.evolution.operator;
 
+import beast.base.core.Description;
 import beast.base.core.Input;
 import beast.base.evolution.alignment.Alignment;
 import beast.base.evolution.operator.TreeOperator;
@@ -12,6 +33,11 @@ import beast.base.util.Randomizer;
 
 import java.util.Arrays;
 
+/**
+ * @author Jessie Fielding
+ * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
+ */
+@Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips by switching a node and its subtree to the new type.")
 public class SubtreeTypeSwitchOperator extends TreeOperator {
     final public Input<IntegerParameter> nodeTypesInput = new Input<>("nodeTypes", "an integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
     final public Input<Alignment> dataInput = new Input<>("data", "AlignmentFromTrait data for the tips", Input.Validate.OPTIONAL);
