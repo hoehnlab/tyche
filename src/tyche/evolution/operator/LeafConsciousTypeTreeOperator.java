@@ -31,9 +31,7 @@ import beast.base.inference.parameter.Parameter;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Jessie Fielding
@@ -41,10 +39,10 @@ import java.util.List;
  */
 @Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips but does not operate on known leaf types.")
 public class LeafConsciousTypeTreeOperator extends TreeOperator {
-    final public Input<IntegerParameter> typesInput = new Input<>("type", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
+    final public Input<IntegerParameter> nodeTypesInput = new Input<>("nodeTypes", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
     final public Input<Alignment> dataInput = new Input<>("data", "type data for the tips", Input.Validate.OPTIONAL);
 
-    IntegerParameter types;
+    IntegerParameter nodeTypes;
     int lowerInt, upperInt;
 
     boolean[] isAmbiguous;
@@ -65,10 +63,10 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
 
     @Override
     public void initAndValidate() {
-        types = typesInput.get();
+        nodeTypes = nodeTypesInput.get();
 
-        lowerInt = types.getLower();
-        upperInt = types.getUpper();
+        lowerInt = nodeTypes.getLower();
+        upperInt = nodeTypes.getUpper();
 
         isAmbiguous = new boolean[treeInput.get().getNodeCount()];
         Arrays.fill(isAmbiguous, true);
@@ -119,7 +117,7 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
             node = tree.getNode(nodeNr);
         } while ((node.isLeaf() && !isAmbiguous[node.getNr()]));
         int newValue = Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0,
-        types.setValue(node.getNr(), newValue);
+        nodeTypes.setValue(node.getNr(), newValue);
 
         if (markCladesInput.get()) {
             node.makeAllDirty(Tree.IS_DIRTY);
