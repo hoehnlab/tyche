@@ -416,7 +416,7 @@ other=1,
                             <frequencies id="estimatedFreqs.s:example" spec="Frequencies" frequencies="@freqParameter.s:example"/>
                         </substModel>
                     </siteModel>
-                    <branchRateModel spec='beast.base.evolution.branchratemodel.TypeLinkedInstantSwitchStrictClockModel' id="branchRates">
+                    <branchRateModel spec='beast.base.evolution.branchratemodel.TycheInstantSwitchClockModel' id="branchRates">
                         <parameter id="typeLinkedRates" spec="parameter.RealParameter" estimate="false" name="typeLinkedRates" dimension="2">0.0003842593 0.000004</parameter>
                         <parameter id="traitlinkedclock.rate" name="clock.rate" value="1.0"/>
                         <input name="nodeTypes" idref="nodeTypes"/>

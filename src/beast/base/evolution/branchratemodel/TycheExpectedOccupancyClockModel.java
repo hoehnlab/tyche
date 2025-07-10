@@ -8,7 +8,7 @@ import beast.base.evolution.tree.Node;
  */
 
 @Description("Defines a type-linked rate for each branch in the beast.tree, where the branch rate is calculated from the expected occupancy in each type.")
-public class TypeLinkedExpectedOccupancyClockModel extends AbstractTycheTypeLinkedClockModel {
+public class TycheExpectedOccupancyClockModel extends AbstractTycheTypeLinkedClockModel {
 
     @Override
     public boolean isExpectedOccupancy() {
