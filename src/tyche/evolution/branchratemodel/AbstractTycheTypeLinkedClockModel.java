@@ -34,7 +34,7 @@ import beast.base.inference.parameter.RealParameter;
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
 
-@Description("Branch rate model for type-linked mutation rates")
+@Description("Abstract branch rate model for type-linked mutation rates")
 public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.Base {
     public Input<RealParameter> typeLinkedRatesInput = new Input<RealParameter>("typeLinkedRates", "the mutation rate for each type", Input.Validate.REQUIRED);
 

@@ -245,7 +245,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
             // This is an external leaf, so just use the probability from transition matrix
             getTransitionMatrix(nodeNum, probabilities);
 
-//           TODO(jf): theoretically should work without this line unless we operate on leaf states?
+            // theoretically should work without this line unless we operate on leaf states via the AlignmentFromTrait traitset
             likelihoodCore.getNodeStates(nodeNum, tipStates[nodeNum]);
 
             // Check for ambiguity codes
