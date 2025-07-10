@@ -1,9 +1,10 @@
-package beast.base.evolution.branchratemodel;
+package tyche.evolution.branchratemodel;
 
 import beast.base.core.Description;
 import beast.base.core.Function;
 import beast.base.core.Input;
-import beast.base.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel;
+import beast.base.evolution.branchratemodel.BranchRateModel;
+import tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel;
 import beast.base.evolution.tree.Node;
 import beast.base.inference.parameter.IntegerParameter;
 import beast.base.inference.parameter.RealParameter;

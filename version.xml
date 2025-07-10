@@ -8,12 +8,12 @@
     </service>
 
     <service type="beast.base.core.BEASTInterface">
-        <provider classname="beast.base.evolution.branchratemodel.TycheInstantSwitchClockModel"/>
-        <provider classname="beast.base.evolution.branchratemodel.TycheExpectedOccupancyClockModel"/>
-        <provider classname="beast.base.evolution.likelihood.AncestralTypeLikelihood"/>
-        <provider classname="beast.base.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel"/>
-        <provider classname="beast.base.evolution.operator.LeafConsciousTypeTreeOperator"/>
-        <provider classname="beast.base.evolution.operator.SubtreeTypeSwitchOperator"/>
-        <provider classname="beast.base.inference.distribution.ElementwisePrior"/>
+        <provider classname="tyche.evolution.branchratemodel.TycheInstantSwitchClockModel"/>
+        <provider classname="tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel"/>
+        <provider classname="tyche.evolution.likelihood.AncestralTypeLikelihood"/>
+        <provider classname="tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel"/>
+        <provider classname="tyche.evolution.operator.LeafConsciousTypeTreeOperator"/>
+        <provider classname="tyche.evolution.operator.SubtreeTypeSwitchOperator"/>
+        <provider classname="tyche.inference.distribution.ElementwisePrior"/>
     </service>
 </package>

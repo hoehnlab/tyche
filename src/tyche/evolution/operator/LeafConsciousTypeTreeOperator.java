@@ -1,7 +1,9 @@
-package beast.base.evolution.operator;
+package tyche.evolution.operator;
 
+import beast.base.core.Description;
 import beast.base.core.Input;
 import beast.base.evolution.alignment.Alignment;
+import beast.base.evolution.operator.TreeOperator;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 import beast.base.inference.parameter.IntegerParameter;
@@ -9,37 +11,43 @@ import beast.base.inference.parameter.Parameter;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class SubtreeTypeSwitchOperator extends TreeOperator {
-    final public Input<IntegerParameter> traitsInput = new Input<>("trait", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
-    final public Input<Alignment> dataInput = new Input<>("data", "trait data for the tips", Input.Validate.OPTIONAL);
+/**
+ * @author Jessie Fielding
+ */
+@Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips but does not operate on known leaf types.")
+public class LeafConsciousTypeTreeOperator extends TreeOperator {
+    final public Input<IntegerParameter> typesInput = new Input<>("type", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
+    final public Input<Alignment> dataInput = new Input<>("data", "type data for the tips", Input.Validate.OPTIONAL);
 
-    IntegerParameter traits;
+    IntegerParameter types;
     int lowerInt, upperInt;
 
     boolean[] isAmbiguous;
 
 
     // empty constructor to facilitate construction by XML + initAndValidate
-    public SubtreeTypeSwitchOperator() {
+    public LeafConsciousTypeTreeOperator() {
     }
 
-    public SubtreeTypeSwitchOperator(Tree tree) {
+    public LeafConsciousTypeTreeOperator(Tree tree) {
         try {
             initByName(treeInput.getName(), tree);
         } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            throw new RuntimeException("Failed to construct Trait Operator.");
+            e.printStackTrace();
+            throw new RuntimeException("Failed to construct LeafConsciousTypeTreeOperator.");
         }
     }
 
     @Override
     public void initAndValidate() {
-        traits = traitsInput.get();
+        types = typesInput.get();
 
-        lowerInt = traits.getLower();
-        upperInt = traits.getUpper();
+        lowerInt = types.getLower();
+        upperInt = types.getUpper();
 
         isAmbiguous = new boolean[treeInput.get().getNodeCount()];
         Arrays.fill(isAmbiguous, true);
@@ -61,7 +69,7 @@ public class SubtreeTypeSwitchOperator extends TreeOperator {
                         throw new RuntimeException("Could not find sequence " + taxon + " in the alignment");
                     }
                 }
-                // this only handles data with one pattern
+                // this only handles one pattern
                 isAmbiguous[nodeNum] = data.getDataType().isAmbiguousCode(data.getPattern(taxonIndex, 0));
             }
         }
@@ -88,28 +96,14 @@ public class SubtreeTypeSwitchOperator extends TreeOperator {
         do {
             final int nodeNr = nodeCount / 2 + 1 + Randomizer.nextInt(nodeCount / 2);
             node = tree.getNode(nodeNr);
-        } while (node.isLeaf()); // subtree operator shouldn't pick a subtree that starts at the leaves
+        } while ((node.isLeaf() && !isAmbiguous[node.getNr()]));
         int newValue = Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0,
-        setSubtree(node, newValue);
+        types.setValue(node.getNr(), newValue);
 
         if (markCladesInput.get()) {
             node.makeAllDirty(Tree.IS_DIRTY);
         }
 
         return 0.0;
-    }
-
-    private void setSubtree(Node node, int newValue) {
-        int nodeNum = node.getNr();
-        if (node.isLeaf()) {
-            if (isAmbiguous[nodeNum]) {
-                traits.setValue(nodeNum, newValue);
-            }
-            return;
-        }
-        traits.setValue(nodeNum, newValue);
-        for (Node childNode : node.getChildren()) {
-            setSubtree(childNode, newValue);
-        }
     }
 }

@@ -1,4 +1,4 @@
-package beast.base.evolution.branchratemodel;
+package tyche.evolution.branchratemodel;
 
 import beast.base.core.Description;
 import beast.base.evolution.tree.Node;

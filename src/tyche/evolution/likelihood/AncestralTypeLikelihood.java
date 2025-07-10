@@ -1,4 +1,4 @@
-package beast.base.evolution.likelihood;
+package tyche.evolution.likelihood;
 
 
 import beagle.Beagle;
@@ -8,6 +8,7 @@ import beast.base.core.Input.Validate;
 import beast.base.evolution.alignment.Alignment;
 import beast.base.evolution.datatype.DataType;
 import beast.base.evolution.datatype.UserDataType;
+import beast.base.evolution.likelihood.TreeLikelihood;
 import beast.base.evolution.sitemodel.SiteModel;
 import beast.base.evolution.substitutionmodel.GeneralSubstitutionModel;
 import beast.base.evolution.substitutionmodel.SubstitutionModel;

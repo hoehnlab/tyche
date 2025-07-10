@@ -1,4 +1,4 @@
-package beast.base.inference.distribution;
+package tyche.inference.distribution;
 
 import beast.base.core.BEASTInterface;
 import beast.base.core.BEASTObject;
@@ -6,6 +6,7 @@ import beast.base.core.Description;
 import beast.base.core.Input;
 import beast.base.inference.Distribution;
 import beast.base.inference.State;
+import beast.base.inference.distribution.ParametricDistribution;
 import beast.base.inference.parameter.RealParameter;
 import org.apache.commons.math.MathException;
 

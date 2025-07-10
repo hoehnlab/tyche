@@ -1,4 +1,4 @@
-package beast.base.evolution.substitutionmodel;
+package tyche.evolution.substitutionmodel;
 
 import beast.base.core.Description;
 import beastclassic.evolution.substitutionmodel.SVSGeneralSubstitutionModel;
