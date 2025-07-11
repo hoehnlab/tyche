@@ -46,12 +46,11 @@
             <format property="DATETIME" pattern="MMddHHmm"  locale="en,US" />
         </tstamp>
         <exec executable="git" outputproperty="setDevVersion" failifexecutionfails="false" errorproperty="">
-            <arg value="describe"/>
-            <arg value="--tags"/>
-            <arg value="--abbrev=0"/>
-            <!--            <arg value="&#45;&#45;always"/>-->
-            <!--            <arg value="HEAD"/>-->
+            <arg value="rev-parse"/>
+            <arg value="--short"/>
+            <arg value="@"/>
         </exec>
+        <echo message="git commit is: ${setDevVersion}"/>
         <condition property="dev_version" value="${setDevVersion}-dev-${DATETIME}" else="">
             <and>
                 <isset property="setDevVersion"/>
@@ -73,7 +72,7 @@
         <property name="packageName" value="${fromVersionFile.package(name)}" />
         <property name="file_version" value="${fromVersionFile.package(version)}" />
         <echo message="dev package version to: ${dev_version}"/>
-        <condition property="TYCHE_version" value="${dev_version}" else="v${file_version}">
+        <condition property="TYCHE_version" value="${dev_version}" else="${file_version}">
                 <isset property="dev_version"/>
         </condition>
     </target>
@@ -107,15 +106,15 @@
         <mkdir dir="${distTyche}" />
         <!-- Compile the java code from ${srcTyche} into ${buildTyche} /bin -->
         <javac srcdir="${srcTyche}" destdir="${buildTyche}" classpathref="classpath" fork="true" memoryinitialsize="256m" memorymaximumsize="256m">
-            <include name="beast/**/**" />
+            <include name="tyche/**/**" />
             <!-- compile JUnit test classes -->
-            <include name="test/beast/**" />
+            <include name="test/tyche/**" />
         </javac>
         <!-- make the jar files after compiling? i guess -->
         <!--        TODO (jf): figure out if this is the right/best place for this -->
         <jar jarfile="${distTyche}/${packageName}.src.jar">
             <fileset dir="${srcTyche}">
-                <include name="beast/base/evolution/branchratemodel/*.java"/>
+                <include name="tyche/**/*.java"/>
                 <include name="**/*.java" />
                 <include name="**/*.png" />
                 <include name="**/*.xsl" />
@@ -126,6 +125,7 @@
                 <attribute name="Built-By" value="${user.name}" />
             </manifest>
             <fileset dir="${buildTyche}">
+                <include name="tyche/**/*.class" />
                 <include name="**/*.class" />
                 <include name="**/*.png" />
                 <include name="**/*.properties" />
@@ -190,7 +190,10 @@
         <copy todir="${Package_dir}/fxtemplates">
             <fileset file="fxtemplates/${packageName}-beauti-template.xml" />
         </copy>
-        <zip destfile="${distTyche}/${packageName}.${TYCHE_version}.zip" basedir="${Package_dir}" includes="**/*" />
+        <copy todir="${Package_dir}">
+            <fileset file="LICENSE" />
+        </copy>
+        <zip destfile="${distTyche}/${packageName}.v${TYCHE_version}.zip" basedir="${Package_dir}" includes="**/*" />
         <echo message="Package version release is finished." />
     </target>
 </project>
