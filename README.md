@@ -1,4 +1,4 @@
-# type-linked-time-trees
+# TyCHE
 
 ## To Build This Package locally (recommended for developers)
 
@@ -11,7 +11,7 @@ parent-dir
 |___beast2
 |___BeastFX
 |___beast-classic
-|___type-linked-time-trees
+|___tyche
 ```
 
 For convenience, here are the commands to clone these repos:
@@ -35,7 +35,7 @@ cd ../BeastFX
 ant build_jar_all_BeastFX_NoJUnitTest
 cd ../beast-classic
 ant build_jar_all_BEAST_CLASSIC_NoJUnitTest
-cd ../type-linked-time-trees
+cd ../tyche
 ant package
 ```
 
