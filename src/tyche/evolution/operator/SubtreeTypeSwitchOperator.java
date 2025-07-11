@@ -1,39 +1,58 @@
-package beast.base.evolution.operator;
+/*
+ *  Copyright (C) 2025 Hoehn Lab, Dartmouth College
+ *
+ * This file is part of TyCHE.
+ *
+ * TyCHE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * TyCHE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TyCHE.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
 
+package tyche.evolution.operator;
+
+import beast.base.core.Description;
 import beast.base.core.Input;
 import beast.base.evolution.alignment.Alignment;
-import beast.base.evolution.substitutionmodel.GeneralSubstitutionModel;
-import beast.base.evolution.substitutionmodel.SubstitutionModel;
+import beast.base.evolution.operator.TreeOperator;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 import beast.base.inference.parameter.IntegerParameter;
 import beast.base.inference.parameter.Parameter;
-import beast.base.inference.parameter.RealParameter;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
-import beastclassic.evolution.likelihood.LeafTrait;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-public class LeafConsciousTraitTreeOperator extends TreeOperator {
-    final public Input<IntegerParameter> traitsInput = new Input<>("trait", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
-    final public Input<Boolean> includeLeavesInput = new Input<>("includeleaves", "whether to sample the leaves (true) or only internal nodes (false) (default false)", false);
-    final public Input<Alignment> dataInput = new Input<>("data", "trait data for the tips", Input.Validate.OPTIONAL);
+/**
+ * @author Jessie Fielding
+ * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
+ */
+@Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips by switching a node and its subtree to the new type.")
+public class SubtreeTypeSwitchOperator extends TreeOperator {
+    final public Input<IntegerParameter> nodeTypesInput = new Input<>("nodeTypes", "an integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
+    final public Input<Alignment> dataInput = new Input<>("data", "AlignmentFromTrait data for the tips", Input.Validate.OPTIONAL);
 
-    IntegerParameter traits;
+    IntegerParameter nodeTypes;
     int lowerInt, upperInt;
-    boolean includeLeaves;
 
     boolean[] isAmbiguous;
 
 
     // empty constructor to facilitate construction by XML + initAndValidate
-    public LeafConsciousTraitTreeOperator() {
+    public SubtreeTypeSwitchOperator() {
     }
 
-    public LeafConsciousTraitTreeOperator(Tree tree) {
+    public SubtreeTypeSwitchOperator(Tree tree) {
         try {
             initByName(treeInput.getName(), tree);
         } catch (Exception e) {
@@ -44,11 +63,10 @@ public class LeafConsciousTraitTreeOperator extends TreeOperator {
 
     @Override
     public void initAndValidate() {
-        traits = traitsInput.get();
-        includeLeaves = includeLeavesInput.get();
+        nodeTypes = nodeTypesInput.get();
 
-        lowerInt = traits.getLower();
-        upperInt = traits.getUpper();
+        lowerInt = nodeTypes.getLower();
+        upperInt = nodeTypes.getUpper();
 
         isAmbiguous = new boolean[treeInput.get().getNodeCount()];
         Arrays.fill(isAmbiguous, true);
@@ -70,7 +88,7 @@ public class LeafConsciousTraitTreeOperator extends TreeOperator {
                         throw new RuntimeException("Could not find sequence " + taxon + " in the alignment");
                     }
                 }
-                // TODO(jf): this only handles one trait, as does everything else lol
+                // this only handles data with one pattern
                 isAmbiguous[nodeNum] = data.getDataType().isAmbiguousCode(data.getPattern(taxonIndex, 0));
             }
         }
@@ -97,14 +115,28 @@ public class LeafConsciousTraitTreeOperator extends TreeOperator {
         do {
             final int nodeNr = nodeCount / 2 + 1 + Randomizer.nextInt(nodeCount / 2);
             node = tree.getNode(nodeNr);
-        } while ((node.isLeaf() && !includeLeaves && !isAmbiguous[node.getNr()]));
+        } while (node.isLeaf()); // subtree operator shouldn't pick a subtree that starts at the leaves
         int newValue = Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0,
-        traits.setValue(node.getNr(), newValue);
+        setSubtree(node, newValue);
 
         if (markCladesInput.get()) {
             node.makeAllDirty(Tree.IS_DIRTY);
         }
 
         return 0.0;
+    }
+
+    private void setSubtree(Node node, int newValue) {
+        int nodeNum = node.getNr();
+        if (node.isLeaf()) {
+            if (isAmbiguous[nodeNum]) {
+                nodeTypes.setValue(nodeNum, newValue);
+            }
+            return;
+        }
+        nodeTypes.setValue(nodeNum, newValue);
+        for (Node childNode : node.getChildren()) {
+            setSubtree(childNode, newValue);
+        }
     }
 }

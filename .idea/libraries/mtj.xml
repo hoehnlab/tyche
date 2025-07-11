@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="mtj">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../beast-classic/lib/mtj.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

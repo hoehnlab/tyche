@@ -1,4 +1,4 @@
-<package name="TypeLinked" version="0.0.0-alpha.4">
+<package name="TyCHE" version="0.0.1-beta">
     <depends on='BEAST.base' atleast='2.7.6'/>
     <depends on='BEAST.app' atleast='2.7.6'/>
     <depends on='BEAST_CLASSIC' atleast='1.6.2'/>
@@ -8,12 +8,12 @@
     </service>
 
     <service type="beast.base.core.BEASTInterface">
-        <provider classname="beast.base.evolution.branchratemodel.TraitLinkedInstantSwitchStrictClockModel"/>
-        <provider classname="beast.base.evolution.branchratemodel.TraitLinkedExpectedOccupancyClockModel"/>
-        <provider classname="beast.base.evolution.likelihood.AncestralSampledStateTreeLikelihood"/>
-        <provider classname="beast.base.evolution.substitutionmodel.SVSGeneralSubstitutionModelNew"/>
-        <provider classname="beast.base.evolution.operator.LeafConsciousTraitTreeOperator"/>
-        <provider classname="beast.base.evolution.operator.SubtreeTypeSwitchOperator"/>
-        <provider classname="beast.base.inference.distribution.ElementwisePrior"/>
+        <provider classname="tyche.evolution.branchratemodel.TycheInstantSwitchClockModel"/>
+        <provider classname="tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel"/>
+        <provider classname="tyche.evolution.likelihood.AncestralTypeLikelihood"/>
+        <provider classname="tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel"/>
+        <provider classname="tyche.evolution.operator.LeafConsciousTypeTreeOperator"/>
+        <provider classname="tyche.evolution.operator.SubtreeTypeSwitchOperator"/>
+        <provider classname="tyche.inference.distribution.ElementwisePrior"/>
     </service>
 </package>

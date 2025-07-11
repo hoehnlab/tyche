@@ -27,3 +27,8 @@ replay_pid*
 out/
 build/
 release/
+
+# intellij
+.DS_Store
+.idea/
+*.iml

@@ -1,19 +1,19 @@
 <!-- Build type linked model -->
-<project basedir="." default="build_jar_all_TypeLinked" name="BUILD_TYPE_LINKED">
+<project basedir="." default="build_jar_all_Tyche" name="BUILD_TYCHE">
     <description>
-        Build TypeLinked.
+        Build TyCHE.
         JUnit test is available for this build.
-        $Id: build_TypeLinked.xml $
+        $Id: build_TyCHE.xml $
     </description>
     <!-- set global properties for this build -->
-    <property name="TypeLinkedDir" location="../type-linked-time-trees/" />
-    <property name="srcTypeLinked" location="src" />
-    <property name="buildTypeLinked" location="build" />
-<!--    <property name="libTypeLinked" location="lib" />-->
+    <property name="TycheDir" location="../type-linked-time-trees/" />
+    <property name="srcTyche" location="src" />
+    <property name="buildTyche" location="build" />
+<!--    <property name="libTyche" location="lib" />-->
     <property name="release_dir" value="release" />
     <property name="Package_dir" value="${release_dir}/package" />
-    <property name="distTypeLinked" location="${buildTypeLinked}/dist" />
-    <property name="report" value="${buildTypeLinked}/junitreport"/>
+    <property name="distTyche" location="${buildTyche}/dist" />
+    <property name="report" value="${buildTyche}/junitreport"/>
 
     <!--  folders for beast2  -->
     <property name="beast2path" location="../beast2" />
@@ -28,7 +28,7 @@
     <property name="beastClassicClasspath" location="${beastClassicDir}/build" />
     <path id="classpath">
         <pathelement path="${libBeast2}"/>
-        <pathelement path="${buildTypeLinked}"/>
+        <pathelement path="${buildTyche}"/>
         <fileset dir="${libBeast2}" includes="junit-4.8.2.jar"/>
         <pathelement path="${beast2classpath}"/>
         <pathelement path="${beastClassicClasspath}"/>
@@ -40,12 +40,44 @@
     <property name="main_class_BEAST" value="beast.app.BeastMCMC" />
 
     <!-- start -->
-    <target name="initTypeLinked">
+    <available file="${TycheDir}/.git" type="dir" property="git.present"/>
+    <target name="setDevVersion" description="get git version" if="dev">
+        <tstamp>
+            <format property="DATETIME" pattern="MMddHHmm"  locale="en,US" />
+        </tstamp>
+        <exec executable="git" outputproperty="setDevVersion" failifexecutionfails="false" errorproperty="">
+            <arg value="rev-parse"/>
+            <arg value="--short"/>
+            <arg value="@"/>
+        </exec>
+        <echo message="git commit is: ${setDevVersion}"/>
+        <condition property="dev_version" value="${setDevVersion}-dev-${DATETIME}" else="">
+            <and>
+                <isset property="setDevVersion"/>
+                <length string="${setDevVersion}" trim="yes" length="0" when="greater"/>
+            </and>
+        </condition>
+        <echo message="set package version to: ${dev_version}"/>
+    </target>
+    <target name="initTyche" depends="setDevVersion">
         <echo message="${ant.project.name}: ${ant.file}" />
         <mkdir dir="${release_dir}" />
+        <available file="${TycheDir}/version.xml" property="versionAvailable"/>
+        <fail unless="versionAvailable">
+            ** Required file version.xml does not exist. **
+        </fail>
+
+        <!-- Read package name and version from xml file -->
+        <xmlproperty file="${TycheDir}/version.xml" prefix="fromVersionFile" />
+        <property name="packageName" value="${fromVersionFile.package(name)}" />
+        <property name="file_version" value="${fromVersionFile.package(version)}" />
+        <echo message="dev package version to: ${dev_version}"/>
+        <condition property="TYCHE_version" value="${dev_version}" else="${file_version}">
+                <isset property="dev_version"/>
+        </condition>
     </target>
-    <target name="cleanTypeLinked">
-        <delete dir="${buildTypeLinked}" />
+    <target name="cleanTyche">
+        <delete dir="${buildTyche}" />
     </target>
 
 <!--    <target name="find-classic" depends="init">-->
@@ -53,46 +85,47 @@
 <!--    </target>-->
 
     <!-- clean previous build, and then compile Java source code, and Juint test -->
-    <target name="build_all_TypeLinked" depends="cleanTypeLinked,compile-allTypeLinked,junitTypeLinked" description="Clean and Build all run-time stuff">
+    <target name="build_all_Tyche" depends="cleanTyche,compile-allTyche,junitTyche" description="Clean and Build all run-time stuff">
     </target>
 
     <!-- clean previous build, compile Java source code, and Junit test, and make the beast.jar and beauti.jar -->
-    <target name="build_jar_all_TypeLinked" depends="cleanTypeLinked,compile-allTypeLinked,junitTypeLinked" description="Clean and Build all run-time stuff">
+    <target name="build_jar_all_Tyche" depends="cleanTyche,compile-allTyche,junitTyche" description="Clean and Build all run-time stuff">
     </target>
 
-    <!-- No JUnit Test, clean previous build, compile Java source code, and make the TypeLinked.jar and beauti.jar -->
-    <target name="build_jar_all_TypeLinked_NoJUnitTest" depends="cleanTypeLinked,compile-allTypeLinked" description="Clean and Build all run-time stuff">
+    <!-- No JUnit Test, clean previous build, compile Java source code, and make the Tyche.jar and beauti.jar -->
+    <target name="build_jar_all_Tyche_NoJUnitTest" depends="cleanTyche,compile-allTyche" description="Clean and Build all run-time stuff">
     </target>
 
     <!-- compile Java source code -->
-    <target name="compile-allTypeLinked" depends="initTypeLinked,compile-all,compile-allBEAST_CLASSIC">
+    <target name="compile-allTyche" depends="initTyche,compile-all,compile-allBEAST_CLASSIC">
         <!-- Capture the path as a delimited property using the refid attribute -->
         <property name="myclasspath" refid="classpath"/>
         <!-- Emit the property to the ant console -->
         <echo message="Classpath = ${myclasspath}"/>
-        <mkdir dir="${buildTypeLinked}" />
-        <mkdir dir="${distTypeLinked}" />
-        <!-- Compile the java code from ${srcTypeLinked} into ${buildTypeLinked} /bin -->
-        <javac srcdir="${srcTypeLinked}" destdir="${buildTypeLinked}" classpathref="classpath" fork="true" memoryinitialsize="256m" memorymaximumsize="256m">
-            <include name="beast/**/**" />
+        <mkdir dir="${buildTyche}" />
+        <mkdir dir="${distTyche}" />
+        <!-- Compile the java code from ${srcTyche} into ${buildTyche} /bin -->
+        <javac srcdir="${srcTyche}" destdir="${buildTyche}" classpathref="classpath" fork="true" memoryinitialsize="256m" memorymaximumsize="256m">
+            <include name="tyche/**/**" />
             <!-- compile JUnit test classes -->
-            <include name="test/beast/**" />
+            <include name="test/tyche/**" />
         </javac>
         <!-- make the jar files after compiling? i guess -->
         <!--        TODO (jf): figure out if this is the right/best place for this -->
-        <jar jarfile="${distTypeLinked}/TypeLinked.src.jar">
-            <fileset dir="${srcTypeLinked}">
-                <include name="beast/base/evolution/branchratemodel/*.java"/>
+        <jar jarfile="${distTyche}/${packageName}.src.jar">
+            <fileset dir="${srcTyche}">
+                <include name="tyche/**/*.java"/>
                 <include name="**/*.java" />
                 <include name="**/*.png" />
                 <include name="**/*.xsl" />
             </fileset>
         </jar>
-        <jar jarfile="${distTypeLinked}/TypeLinked.package.jar">
+        <jar jarfile="${distTyche}/${packageName}.package.jar">
             <manifest>
                 <attribute name="Built-By" value="${user.name}" />
             </manifest>
-            <fileset dir="${buildTypeLinked}">
+            <fileset dir="${buildTyche}">
+                <include name="tyche/**/*.class" />
                 <include name="**/*.class" />
                 <include name="**/*.png" />
                 <include name="**/*.properties" />
@@ -103,21 +136,21 @@
 
 
     <!-- run beast.jar -->
-    <target name="run_TypeLinked">
-        <java jar="${distTypeLinked}/TypeLinked.jar" fork="true" />
+    <target name="run_Tyche">
+        <java jar="${distTyche}/${packageName}.jar" fork="true" />
     </target>
 
     <!-- JUnit test -->
-    <target name="junitTypeLinked">
+    <target name="junitTyche">
         <mkdir dir="${report}" />
         <junit printsummary="yes"> <!--showoutput='yes'-->
             <classpath>
                 <path refid="classpath" />
-                <path location="${buildTypeLinked}" />
+                <path location="${buildTyche}" />
             </classpath>
             <formatter type="xml" />
             <batchtest fork="yes" todir="${report}">
-                <fileset dir="${srcTypeLinked}">
+                <fileset dir="${srcTyche}">
                     <include name="test/**/*Test.java"/>
                 </fileset>
                 <fileset dir="${srcBeast2}">
@@ -136,26 +169,31 @@
         <echo message="JUnit test report finished." />
     </target>
     <target name="package"
-            depends="build_jar_all_TypeLinked_NoJUnitTest"
-            description="release BEAST 2 package version of TypeLinked">
+            depends="build_jar_all_Tyche_NoJUnitTest"
+            description="release BEAST 2 package version of ${packageName}">
         <delete dir="${Package_dir}" />
         <!-- Create the release directory -->
         <mkdir dir="${Package_dir}" />
         <mkdir dir="${Package_dir}/lib" />
         <mkdir dir="${Package_dir}/fxtemplates" />
         <copy todir="${Package_dir}/lib">
-            <fileset dir="${distTypeLinked}" includes="TypeLinked.package.jar" />
+            <fileset dir="${distTyche}" includes="${packageName}.package.jar" />
         </copy>
         <copy todir="${Package_dir}">
-            <fileset dir="${distTypeLinked}" includes="TypeLinked.src.jar" />
+            <fileset dir="${distTyche}" includes="${packageName}.src.jar" />
         </copy>
+        <replaceregexp file="${TycheDir}/version.xml" match="${file_version}" replace="${TYCHE_version}" />
         <copy todir="${Package_dir}">
-            <fileset dir="${TypeLinkedDir}" includes="version.xml" />
+            <fileset dir="${TycheDir}" includes="version.xml" />
         </copy>
+        <replaceregexp file="${TycheDir}/version.xml" match="${TYCHE_version}" replace="${file_version}" />
         <copy todir="${Package_dir}/fxtemplates">
-            <fileset file="fxtemplates/TypeLinked-beauti-template.xml" />
+            <fileset file="fxtemplates/${packageName}-beauti-template.xml" />
         </copy>
-        <zip destfile="${distTypeLinked}/TypeLinked.zip" basedir="${Package_dir}" includes="**/*" />
+        <copy todir="${Package_dir}">
+            <fileset file="LICENSE" />
+        </copy>
+        <zip destfile="${distTyche}/${packageName}.v${TYCHE_version}.zip" basedir="${Package_dir}" includes="**/*" />
         <echo message="Package version release is finished." />
     </target>
 </project>
