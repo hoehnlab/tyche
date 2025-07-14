@@ -195,7 +195,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
 
     @Override
     public double calculateLogP() {
-
+        super.calculateLogP();
         jointLogLikelihood = 0;
         TreeInterface tree = treeInput.get();
         traverseTypeTree(tree.getRoot(), -1);
