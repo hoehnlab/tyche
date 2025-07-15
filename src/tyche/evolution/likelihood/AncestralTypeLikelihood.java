@@ -68,7 +68,6 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     int patternCount;
     int stateCount;
     int[][] tipStates; // used to store tip states
-    double[] partialLikelihood;
 
     @Override
     public void initAndValidate() {
@@ -102,8 +101,6 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
 
         dataType = dataInput.get().getDataType();
         stateCount = dataType.getStateCount();
-
-        partialLikelihood = new double[stateCount]; // reserve this space once up front and overwrite it
 
         nodeTypes = nodeTypesInput.get();
 
@@ -198,7 +195,6 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
 
     @Override
     public double calculateLogP() {
-
         super.calculateLogP();
         jointLogLikelihood = 0;
         TreeInterface tree = treeInput.get();
@@ -210,29 +206,24 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     public void traverseTypeTree(Node node, int parentState) {
         int nodeNum = node.getNr();
 
-        // This function assumes that all partial likelihoods have already been calculated
-
         double conditionalProbability;
         final int thisState = nodeTypes.getValue(nodeNum);
         int parentIndex = parentState * stateCount; // not used if root
 
         if (!node.isLeaf()) {
-            // for all internal nodes including the root, get the node partials
-            getPartials(nodeNum, partialLikelihood);
-
             if (node.getParent() == null) {
-                // This is the root node, so multiply the partial likelihood by the root frequencies
+                // This is the root node, so use the root frequencies
                 double[] rootFrequencies = substitutionModel.getFrequencies();
                 if (rootFrequenciesInput.get() != null) {
                     rootFrequencies = rootFrequenciesInput.get().getFreqs();
                 }
 
-                conditionalProbability = partialLikelihood[thisState] * rootFrequencies[thisState];
+                conditionalProbability = rootFrequencies[thisState];
             } else {
                 // This is an internal node, but not the root
-                // multiply the partial likelihood by the probability from transition matrix, different from root
+                // use the probability from transition matrix, different from root
                 getTransitionMatrix(nodeNum, probabilities);
-                conditionalProbability = partialLikelihood[thisState] * probabilities[parentIndex + thisState];
+                conditionalProbability = probabilities[parentIndex + thisState];
             }
 
             // Traverse down the two child nodes
@@ -275,16 +266,6 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      *  Helper methods, wrappers for beagle/likelihoodCore calls
      */
-
-    public void getPartials(int nodeNum, double[] partials) {
-        if (beagle != null) {
-            int cumulativeBufferIndex = Beagle.NONE;
-            /* No need to rescale partials */
-            beagle.getBeagle().getPartials(beagle.getPartialBufferHelper().getOffsetIndex(nodeNum), cumulativeBufferIndex, partials);
-        } else {
-            likelihoodCore.getNodePartials(nodeNum, partials);
-        }
-    }
 
     public void getTransitionMatrix(int nodeNum, double[] probabilities) {
         if (beagle != null) {
