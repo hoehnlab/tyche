@@ -113,7 +113,7 @@ public class SubtreeTypeSwitchOperator extends TreeOperator {
 
         Node node;
         do {
-            final int nodeNr = nodeCount / 2 + 1 + Randomizer.nextInt(nodeCount / 2);
+            final int nodeNr = Randomizer.nextInt(nodeCount);
             node = tree.getNode(nodeNr);
         } while (node.isLeaf()); // subtree operator shouldn't pick a subtree that starts at the leaves
         int newValue = Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0,
