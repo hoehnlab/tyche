@@ -33,6 +33,7 @@ import beast.base.evolution.sitemodel.SiteModel;
 import beast.base.evolution.substitutionmodel.GeneralSubstitutionModel;
 import beast.base.evolution.substitutionmodel.SubstitutionModel;
 import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
 import beast.base.evolution.tree.TreeInterface;
 import beastclassic.evolution.tree.TreeTrait;
 import beastclassic.evolution.tree.TreeTraitProvider;
@@ -195,7 +196,6 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
 
     @Override
     public double calculateLogP() {
-        super.calculateLogP();
         jointLogLikelihood = 0;
         TreeInterface tree = treeInput.get();
         traverseTypeTree(tree.getRoot(), -1);
@@ -205,10 +205,26 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
 
     public void traverseTypeTree(Node node, int parentState) {
         int nodeNum = node.getNr();
+        int update = (node.isDirty() | hasDirt);
 
         double conditionalProbability;
         final int thisState = nodeTypes.getValue(nodeNum);
         int parentIndex = parentState * stateCount; // not used if root
+
+        final double branchRate = branchRateModel.getRateForBranch(node);
+        final double branchTime = node.getLength() * branchRate;
+
+        // First update the transition probability matrix(ices) for this branch if needed.
+        if (!node.isRoot() && (update != Tree.IS_CLEAN || branchTime != m_branchLengths[nodeNum])) {
+            m_branchLengths[nodeNum] = branchTime;
+            final Node parent = node.getParent();
+            likelihoodCore.setNodeMatrixForUpdate(nodeNum);
+            for (int i = 0; i < m_siteModel.getCategoryCount(); i++) {
+                final double jointBranchRate = m_siteModel.getRateForCategory(i, node) * branchRate;
+                substitutionModel.getTransitionProbabilities(node, parent.getHeight(), node.getHeight(), jointBranchRate, probabilities);
+                likelihoodCore.setNodeMatrix(nodeNum, i, probabilities);
+            }
+        }
 
         if (!node.isLeaf()) {
             if (node.getParent() == null) {
