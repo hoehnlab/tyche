@@ -21,7 +21,13 @@
 package tyche.evolution.substitutionmodel;
 
 import beast.base.core.Description;
+import beast.base.core.Log;
+import beast.base.evolution.tree.Node;
+import beast.base.inference.parameter.BooleanParameter;
 import beastclassic.evolution.substitutionmodel.SVSGeneralSubstitutionModel;
+
+import java.util.Arrays;
+import beast.base.util.MachineAccuracy;
 
 
 /**
@@ -31,12 +37,47 @@ import beastclassic.evolution.substitutionmodel.SVSGeneralSubstitutionModel;
 @Description("Extends SVSGeneralSubstitutionModel so that the rate matrix is stored and restored after rejected proposals.")
 public class TycheSVSGeneralSubstitutionModel extends SVSGeneralSubstitutionModel {
     private double[][] storedRateMatrix;
+    private BooleanParameter rateIndicator;
 
     @Override
     public void initAndValidate() {
         super.initAndValidate();
+        setupRelativeRates();
+        setupRateMatrix();
+        System.out.println("Starting rateMatrix:\n" + Arrays.deepToString(rateMatrix));
         storedRateMatrix = new double[nrOfStates][nrOfStates];
+        rateIndicator = indicator.get();
     }
+
+    @Override
+    public void getTransitionProbabilities(Node node, double startTime, double endTime, double rate, double[] matrix) {
+
+        super.getTransitionProbabilities(node, startTime, endTime, rate, matrix);
+        int stateCount = getStateCount();
+
+//      Due to floating point/machine accuracy errors, values are sometimes close to but not quite zero when they should be.
+//      Since we have rateIndicators, we can correct for these inaccuracies easily to improve overall accuracy of our model.
+//      Preliminary investigation on our end suggests that these non-zero values are occurring during matrix inversion.
+
+
+        int count = 0;
+        for (int i = 0; i < stateCount; i++) {
+            for (int j = 0; j < stateCount; j++) {
+                int index = i*stateCount+j;
+                if (i == j) {
+                    continue;
+                }
+                if (!rateIndicator.getValue(count)) {
+                    if (matrix[index] < -MachineAccuracy.EPSILON || matrix[index] > MachineAccuracy.EPSILON) {
+                        Log.warning.println("Non-zero probability calculated for transition where rate indicator is 0: " + matrix[index]);
+                    }
+                    matrix[index] = 0;
+                }
+                count++;
+            }
+        }
+    }
+
 
     @Override
     public void store() {
