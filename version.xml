@@ -15,5 +15,6 @@
         <provider classname="tyche.evolution.operator.LeafConsciousTypeTreeOperator"/>
         <provider classname="tyche.evolution.operator.SubtreeTypeSwitchOperator"/>
         <provider classname="tyche.inference.distribution.ElementwisePrior"/>
+        <provider classname="tyche.evolution.branchratemodel.TycheMixedSwitchClockModel"/>
     </service>
 </package>
