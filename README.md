@@ -1,34 +1,63 @@
 # TyCHE
 
+## Getting started
 
-## Install TyCHE
+A full tutorial, including installation and recommended usage with Dowser, is available at Dowser's [Build Time Trees with TyCHE vignette](https://dowser.readthedocs.io/en/latest/vignettes/Building-Time-Trees-Vignette/).
 
-Install BEAST2, current recommended version is [2.7.7](https://github.com/CompEvol/beast2/releases/tag/v2.7.7)
+A BEAUti template is currently in development. 🏗️
 
-On Linux, download [BEAST 2.7.7 here](https://github.com/CompEvol/beast2/releases/download/v2.7.7/BEAST.v2.7.7.Linux.x86.tgz).
-Unzip the .tgz using 
-```sh
-tar -xzvpf BEAST.v2.7.7.Linux.x86.tgz
+For full API reference, visit [tyche.readthedocs.io](https://tyche.readthedocs.io).
+
+
+## Install TyCHE and dependecies
+
+#### For Mac and Windows machines, we recommend:
+
+1.
+     <br/>
+     <b>Mac</b>:     Click to <a href="https://github.com/CompEvol/beast2/releases/download/v2.7.7/BEAST.v2.7.7.Mac.dmg">download the BEAST 2.7.7 dmg</a>. Open the dmg file and drag the BEAST application to your Applications folder. <br/>
+     <b>Windows</b>: Click to <a href="https://github.com/CompEvol/beast2/releases/download/v2.7.7/BEAST.v2.7.7.Windows.zip">download the BEAST 2.7.7 zip</a>. Right click on the zip file to extract the BEAST folder.<br/>
+   <b>OR</b> download the appropriate version from <a href="https://github.com/CompEvol/beast2/releases/tag/v2.7.7">https://github.com/CompEvol/beast2/releases/tag/v2.7.7</a> or <a href="https://www.beast2.org">www.beast2.org</a>.
+
+2. Open BEAUti, click on the "File" menu, and select "Manage Packages...".
+
+3. In the package manager, find and install the "BEAST Classic" package.
+
+4. Follow this tutorial to install the TyCHE package from this repository "by hand" (see [releases](/releases):
+[www.beast2.org/managing-packages](https://www.beast2.org/managing-packages/index.html)
+
+5. Follow this tutorial to install the [rootfreqs package](https://github.com/rbouckaert/rootfreqs) "by hand":
+[www.beast2.org/managing-packages](https://www.beast2.org/managing-packages/index.html)
+
+#### For Linux machines, we recommend running:
 ```
+# Choose appropriate version for your architecture (x86 or aarch64)
+BEAST=BEAST.v2.7.7.Linux.x86.tgz # or BEAST=BEAST.v2.7.7.Linux.aarch64.tgz
 
-Install beast-classic:
-```sh
+# download file and uncompress
+curl -O https://github.com/CompEvol/beast2/releases/download/v2.7.7/$BEAST
+tar -xvzf $BEAST
+
+# optionally remove the compressed file
+rm $BEAST
+
+# run BEAST, at least with help, to allow it to set up its directories
+~/beast/bin/beast -help
+
+# install BEAST Classic package
 ~/beast/bin/packagemanager -add BEAST_CLASSIC
-```
 
-[Download](https://github.com/hoehnlab/tyche/releases/download/v0.0.1/TyCHE.v0.0.1.zip) and install TyCHE:
-```sh
-unzip -d ~/.beast/2.7/TyCHE <path>/TyCHE.v0.0.1.zip
-```
+# install TyCHE package (currently not released on BEAST package manager)
+curl -O https://github.com/hoehnlab/tyche/releases/download/v0.0.3/TyCHE.v0.0.3.zip 
+unzip -o -d ~/.beast/2.7/TyCHE TyCHE.v0.0.3.zip
+rm -f TyCHE.v0.0.3.zip
 
-### To make use of Dowser's full set of features (in development)
-Checkout and locally install [immcantation:dowser/bug_fixes](https://github.com/immcantation/dowser/tree/bug_fixes)
+# install rootfreqs package
+ROOTFREQS=rootfreqs.package.v0.0.2.zip
+curl -O https://github.com/rbouckaert/rootfreqs/releases/download/v0.0.2/$ROOTFREQS
+unzip -o -d ~/.beast/2.7/rootfreqs $ROOTFREQS
+rm -f $ROOTFREQS
 
-Checkout our [xml templates](https://github.com/hoehnlab/xml-writer)
-
-[Download](https://github.com/rbouckaert/rootfreqs/releases/download/v0.0.2/rootfreqs.package.v0.0.2.zip) and install rootFreqs:
-```sh
-unzip -d ~/.beast/2.7/rootfreqs <path>/rootfreqs.package.v0.0.2.zip
 ```
 
 ----
