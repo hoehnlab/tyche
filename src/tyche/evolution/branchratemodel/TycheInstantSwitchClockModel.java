@@ -28,9 +28,17 @@ import beast.base.evolution.tree.Node;
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
 
+/**
+ * Defines a type-linked rate for each branch in the beast.tree, where the branch is assumed to be entirely in the child state.
+ */
 @Description("Defines a type-linked rate for each branch in the beast.tree, where the branch is assumed to be entirely in the child state.")
 public class TycheInstantSwitchClockModel extends AbstractTycheTypeLinkedClockModel {
 
+    /**
+     * Calculates a type-linked rate for this branch, where the branch is assumed to be entirely in the child state.
+     * @param node the current node (child node of the branch)
+     * @return the type-linked rate for this branch
+     */
     public double getBranchRate(final Node node) {
 
         if (node.isRoot()) {

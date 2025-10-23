@@ -39,6 +39,10 @@ import java.util.Random;
  * @author Jessie Fielding
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
+
+/**
+ * ElementwisePrior applies a different prior distribution to each value of a RealParameter with dimension > 1.
+ */
 @Description("ElementwisePrior applies a different prior distribution to each value of a RealParameter with dimension > 1.")
 public class ElementwisePrior extends Distribution {
     public Input<RealParameter> parameterInput = new Input<>("parameter", "parameter", Input.Validate.REQUIRED);

@@ -34,29 +34,81 @@ import beast.base.inference.parameter.RealParameter;
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
 
+/**
+ * Abstract branch rate model for type-linked mutation rates
+ */
 @Description("Abstract branch rate model for type-linked mutation rates")
 public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.Base {
+
+    /**
+     * input object for the mutation rate for each type
+     */
     public Input<RealParameter> typeLinkedRatesInput = new Input<RealParameter>("typeLinkedRates", "the mutation rate for each type", Input.Validate.REQUIRED);
 
+    /**
+     * input object for the type for each node
+     */
     public Input<IntegerParameter> nodeTypesInput = new Input<IntegerParameter>("nodeTypes", "the type for each node", Input.Validate.REQUIRED);
 
+    /**
+     * input object for the clock rate for the Ancestral Reconstruction Tree Likelihood
+     */
     public Input<Function> typeSwitchClockRateInput = new Input<Function>("typeSwitchClockRate", "the clock rate for the Ancestral Reconstruction Tree Likelihood");
-    public Input<TycheSVSGeneralSubstitutionModel> svsInput = new Input<TycheSVSGeneralSubstitutionModel>("substitutionModel", "testing the substitution model input");
 
+    /**
+     * input object for the substitution model describing type substitutions
+     */
+    public Input<TycheSVSGeneralSubstitutionModel> svsInput = new Input<TycheSVSGeneralSubstitutionModel>("substitutionModel", "the substitution model input");
+
+    /**
+     * input object for a real parameter to log branch rates
+     */
     public Input<RealParameter> branchRatesInput = new Input<>("branchRates", "a real parameter to log branch rates");
+
+    /**
+     * input object for a real parameter to log expected occupancy
+     */
     public Input<RealParameter> occupanciesInput = new Input<>("expectedOccupancy", "a real parameter to log expected occupancy");
+
+    /**
+     * the clock rate for the Ancestral Reconstruction Tree Likelihood
+     */
     Function typeSwitchClockRate;
+    /**
+     * the substitution model describing type substitutions
+     */
     TycheSVSGeneralSubstitutionModel svs;
+
+    /**
+     * the Q matrix describing type transitions
+     */
     double[][] qMatrix;
 
+    /**
+     * the mutation rate for each type
+     */
     RealParameter typeLinkedRates;
+
+    /**
+     * a real parameter to log branch rates
+     */
     RealParameter branchRates;
+    /**
+     * a real parameter to log expected occupancy
+     */
     RealParameter occupancies;
+
+    /**
+     * the type for each node
+     */
 
     IntegerParameter nodeTypes;
 
     Function muParameter;
 
+    /**
+     * Initialize and validate inputs that are required for all TyCHE branch models
+     */
     public void initAndValidate() {
         // get inputs
         nodeTypes = nodeTypesInput.get();
@@ -84,11 +136,24 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
         }
     }
 
+    /**
+     * Get the rate that corresponds to the type's integer position in the rate list
+     * @param type  an integer representing the type whose clock rate should be returned
+     * @return      the clock rate at the position in the rate list corresponding to the integer representing the type
+     */
     public double getTypeLinkedRate(int type) {
         // get the rate that corresponds to that integer position in the rate array/list
         return typeLinkedRates.getArrayValue(type);
     }
 
+    /**
+     * Get the occupancies in each of two states for a branch
+     * @param parentType  an integer representing the type of the parent of this branch
+     * @param currentType an integer representing the type of the child of this branch (current node)
+     * @param time        a Double representing the timespan of the branch
+     * @param nodeNum     an integer representing the node number of the child of this branch (current node)
+     * @return      a double array listing the expected occupancy for each type
+     */
     public double[] getOccupancy(final int parentType, final int currentType, final Double time, final int nodeNum) {
 
         double alpha = qMatrix[0][1];
@@ -130,8 +195,18 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
         return occupancy;
     }
 
+    /**
+     * Get the rate for this branch
+     * @param node  the current node (child of this branch)
+     * @return      the rate to be used for this branch
+     */
     public abstract double getBranchRate(Node node);
 
+    /**
+     * Get the rate for this branch by calling helper getBranchRate method, handling extra logging
+     * @param node  the current node (child of this branch)
+     * @return      the rate to be used for this branch
+     */
     @Override
     public double getRateForBranch(Node node) {
         double branchRate = getBranchRate(node);
@@ -142,9 +217,16 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
     }
 
 
-
+    /**
+     * Return whether this model is an expected occupancy model or not
+     * @return      true if this model is an expected occupancy model, otherwise false
+     */
     public boolean isExpectedOccupancy() { return false; }
 
+    /**
+     * Return whether this model requires recalculation
+     * @return      true, so that this model is always recalculated
+     */
     public boolean requiresRecalculation() {
         return true;
     }

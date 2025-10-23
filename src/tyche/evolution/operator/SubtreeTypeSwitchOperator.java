@@ -37,18 +37,35 @@ import java.util.Arrays;
  * @author Jessie Fielding
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
+
+/**
+ * Tree Operator that operates on types associated with internal nodes and ambiguous tips by switching a node and its subtree to the new type.
+ */
 @Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips by switching a node and its subtree to the new type.")
 public class SubtreeTypeSwitchOperator extends TreeOperator {
+    /**
+     * input object for the node types parameter to operate on
+     */
     final public Input<IntegerParameter> nodeTypesInput = new Input<>("nodeTypes", "an integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
+    /**
+     * input object for type alignment data for the tips
+     */
     final public Input<Alignment> dataInput = new Input<>("data", "AlignmentFromTrait data for the tips", Input.Validate.OPTIONAL);
 
+    /**
+     * the node types parameter to operate on
+     */
     IntegerParameter nodeTypes;
     int lowerInt, upperInt;
 
+    /**
+     * an array to keep track of which nodes are ambiguous, especially important for ambiguous tips
+     */
     boolean[] isAmbiguous;
 
-
-    // empty constructor to facilitate construction by XML + initAndValidate
+    /**
+     * empty constructor to facilitate construction by XML + initAndValidate
+     */
     public SubtreeTypeSwitchOperator() {
     }
 
@@ -61,6 +78,9 @@ public class SubtreeTypeSwitchOperator extends TreeOperator {
         }
     }
 
+    /**
+     * Initialize and validate the operator.
+     */
     @Override
     public void initAndValidate() {
         nodeTypes = nodeTypesInput.get();
@@ -96,9 +116,9 @@ public class SubtreeTypeSwitchOperator extends TreeOperator {
     }
 
     /**
-     * change the parameter and return the hastings ratio.
+     * Change the parameter and return the hastings ratio.
      *
-     * @return log of Hastings Ratio, or Double.NEGATIVE_INFINITY if proposal should not be accepted *
+     * @return log of Hastings Ratio, or Double.NEGATIVE_INFINITY if proposal should not be accepted
      */
     @Override
     public double proposal() {
@@ -126,6 +146,11 @@ public class SubtreeTypeSwitchOperator extends TreeOperator {
         return 0.0;
     }
 
+    /**
+     * Set all nodeType values in the subtree to a new value.
+     * @param node the node that is the root of the subtree we are setting to a new value
+     * @param newValue the new value we are setting every member of the subtree equal to
+     */
     private void setSubtree(Node node, int newValue) {
         int nodeNum = node.getNr();
         if (node.isLeaf()) {

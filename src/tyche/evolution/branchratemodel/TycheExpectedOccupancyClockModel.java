@@ -28,14 +28,26 @@ import beast.base.evolution.tree.Node;
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
 
+/**
+ * Defines a type-linked rate for each branch in the beast.tree, where the branch rate is calculated from the expected occupancy in each type.
+ */
 @Description("Defines a type-linked rate for each branch in the beast.tree, where the branch rate is calculated from the expected occupancy in each type.")
 public class TycheExpectedOccupancyClockModel extends AbstractTycheTypeLinkedClockModel {
 
+    /**
+     * Returns true as this is an expected occupancy model.
+     * @return true
+     */
     @Override
     public boolean isExpectedOccupancy() {
         return true;
     }
 
+    /**
+     * Calculates a type-linked rate for this branch, where the branch rate is calculated from the expected occupancy in each type.
+     * @param node the current node (child node of the branch)
+     * @return the type-linked rate for this branch
+     */
     @Override
     public double getBranchRate(final Node node) {
 

@@ -37,20 +37,39 @@ import java.util.Arrays;
  * @author Jessie Fielding
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
+
+/**
+ * Tree Operator that operates on types associated with internal nodes and ambiguous tips but does not operate on known leaf types.
+ */
 @Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips but does not operate on known leaf types.")
 public class LeafConsciousTypeTreeOperator extends TreeOperator {
+    /**
+     * input object for the node types parameter to operate on
+     */
     final public Input<IntegerParameter> nodeTypesInput = new Input<>("nodeTypes", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
+    /**
+     * input object for type alignment data for the tips
+     */
     final public Input<Alignment> dataInput = new Input<>("data", "type data for the tips", Input.Validate.OPTIONAL);
 
+    /**
+     * the node types parameter to operate on
+     */
     IntegerParameter nodeTypes;
     int lowerInt, upperInt;
 
+    /**
+     * an array to keep track of which nodes are ambiguous, especially important for ambiguous tips
+     */
     boolean[] isAmbiguous;
 
 
-    // empty constructor to facilitate construction by XML + initAndValidate
+    /**
+     * empty constructor to facilitate construction by XML + initAndValidate
+     */
     public LeafConsciousTypeTreeOperator() {
     }
+
 
     public LeafConsciousTypeTreeOperator(Tree tree) {
         try {
@@ -61,6 +80,9 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
         }
     }
 
+    /**
+     * Initialize and validate the operator.
+     */
     @Override
     public void initAndValidate() {
         nodeTypes = nodeTypesInput.get();
@@ -96,9 +118,9 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
     }
 
     /**
-     * change the parameter and return the hastings ratio.
+     * Change the parameter and return the hastings ratio.
      *
-     * @return log of Hastings Ratio, or Double.NEGATIVE_INFINITY if proposal should not be accepted *
+     * @return log of Hastings Ratio, or Double.NEGATIVE_INFINITY if proposal should not be accepted
      */
     @Override
     public double proposal() {
