@@ -22,6 +22,7 @@ package tyche.evolution.likelihood;
 
 
 import beagle.Beagle;
+import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.core.Input;
 import beast.base.core.Input.Validate;
@@ -47,6 +48,10 @@ import java.util.stream.Collectors;
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
 @Description("AncestralTypeLikelihood to assess likelihood of internal and ambiguous node types.")
+@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
+        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
+        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
+        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
 public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTraitProvider {
     public static final String STATES_KEY = "states";
 

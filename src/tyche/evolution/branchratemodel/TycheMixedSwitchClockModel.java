@@ -1,9 +1,14 @@
 package tyche.evolution.branchratemodel;
 
+import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.evolution.tree.Node;
 
 @Description("Defines a type-linked rate for each branch in the beast.tree, where the branch rate is calculated from the expected occupancy in each type on branches with differently typed nodes, and on branches with same-typed nodes is assumed to be entirely in that state.")
+@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
+        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
+        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
+        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
 public class TycheMixedSwitchClockModel extends AbstractTycheTypeLinkedClockModel {
     @Override
     public boolean isExpectedOccupancy() {
