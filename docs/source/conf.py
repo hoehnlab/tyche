@@ -35,6 +35,8 @@ java_documenter_source = os.path.abspath('../../../src/')
 toc_object_entries = True
 
 html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'] }
+html_favicon = '_static/tyche_logo_transparent.png'
+
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
