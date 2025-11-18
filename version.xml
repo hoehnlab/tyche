@@ -13,6 +13,7 @@
         <provider classname="tyche.evolution.likelihood.AncestralTypeLikelihood"/>
         <provider classname="tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel"/>
         <provider classname="tyche.evolution.operator.LeafConsciousTypeTreeOperator"/>
+        <provider classname="tyche.evolution.operator.CombinedRootOperator"/>
         <provider classname="tyche.evolution.operator.SubtreeTypeSwitchOperator"/>
         <provider classname="tyche.inference.distribution.ElementwisePrior"/>
         <provider classname="tyche.evolution.branchratemodel.TycheMixedSwitchClockModel"/>

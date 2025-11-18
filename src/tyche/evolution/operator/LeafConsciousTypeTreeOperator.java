@@ -23,6 +23,7 @@ package tyche.evolution.operator;
 import beast.base.core.Description;
 import beast.base.core.Input;
 import beast.base.evolution.alignment.Alignment;
+import beast.base.evolution.alignment.Taxon;
 import beast.base.evolution.operator.TreeOperator;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
@@ -32,6 +33,7 @@ import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author Jessie Fielding
@@ -57,6 +59,8 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
      */
     IntegerParameter nodeTypes;
     int lowerInt, upperInt;
+
+    int germlineNum = -1;
 
     /**
      * an array to keep track of which nodes are ambiguous, especially important for ambiguous tips
@@ -99,6 +103,13 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
             int nodeNum = node.getNr();
             if (data == null) {
                 isAmbiguous[nodeNum] = false;
+                if (Objects.equals(taxon, "Germline")) {
+                    isAmbiguous[nodeNum] = true;
+                    germlineNum = nodeNum;
+                    System.out.println("Germline number is: " + nodeNum);
+                    System.out.println("Root number is: " + treeInput.get().getRoot().getNr());
+                }
+                System.out.println(taxon);
             }
             else {
                 int taxonIndex = data.getTaxonIndex(taxon);
@@ -140,6 +151,16 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
         } while ((node.isLeaf() && !isAmbiguous[node.getNr()]));
         int newValue = Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0,
         nodeTypes.setValue(node.getNr(), newValue);
+        if (Objects.equals(node.getID(),"Germline") || node.isRoot()) {
+            // update both
+            if (germlineNum != -1) {
+                nodeTypes.setValue(germlineNum, newValue);
+                nodeTypes.setValue(tree.getRoot().getNr(), newValue);
+                Node germ = tree.getNode(germlineNum);
+                double rootHeight = tree.getRoot().getHeight();
+                germ.setHeight(rootHeight - 0.0005);
+            }
+        }
 
         if (markCladesInput.get()) {
             node.makeAllDirty(Tree.IS_DIRTY);
