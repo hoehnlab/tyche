@@ -17,5 +17,9 @@
         <provider classname="tyche.evolution.operator.SubtreeTypeSwitchOperator"/>
         <provider classname="tyche.inference.distribution.ElementwisePrior"/>
         <provider classname="tyche.evolution.branchratemodel.TycheMixedSwitchClockModel"/>
+        <provider classname="tyche.evolution.tree.GRTNode"/>
+        <provider classname="tyche.evolution.tree.GermlineRootTree"/>
+        <provider classname="tyche.evolution.tree.StringTraitSet"/>
+        <provider classname="tyche.evolution.tree.MetadataTree"/>
     </service>
 </package>

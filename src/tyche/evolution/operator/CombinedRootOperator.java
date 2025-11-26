@@ -22,6 +22,7 @@ package tyche.evolution.operator;
 
 import beast.base.core.Description;
 import beast.base.core.Input;
+import beast.base.core.Log;
 import beast.base.evolution.alignment.Alignment;
 import beast.base.evolution.alignment.Taxon;
 import beast.base.evolution.operator.TreeOperator;
@@ -31,6 +32,8 @@ import beast.base.inference.parameter.IntegerParameter;
 import beast.base.inference.parameter.Parameter;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
+import tyche.evolution.tree.GRTNode;
+import tyche.evolution.tree.GermlineRootTree;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +47,7 @@ import java.util.Objects;
 /**
  * Tree Operator
  */
-@Description("Tree Operator that operates ...")
+@Description("Tree Operator that operates on the root's height and type together.")
 public class CombinedRootOperator extends TreeOperator {
     /**
      * input object for the node types parameter to operate on
@@ -87,15 +90,13 @@ public class CombinedRootOperator extends TreeOperator {
         lowerInt = nodeTypes.getLower();
         upperInt = nodeTypes.getUpper();
 
-        for (Node node : treeInput.get().getExternalNodes()) {
-            String taxon = node.getID();
-            int nodeNum = node.getNr();
 
-            if (Objects.equals(taxon, "Germline")) {
-                germlineNum = nodeNum;
-                System.out.println("Germline number is: " + nodeNum);
-                System.out.println("Root number is: " + treeInput.get().getRoot().getNr());
-            }
+        Tree tree = treeInput.get();
+        if (!(tree instanceof GermlineRootTree)) {
+            Log.warning("Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " will operate on the root height and type together, but will ignore the germline. If you wish to operate on the root and germline together, please use tyche.evolution.tree.GermlineRootTree.");
+
+        } else {
+            germlineNum = ((GermlineRootTree) tree).getRoot().getGermlineNumber();
         }
 
     }
@@ -107,6 +108,15 @@ public class CombinedRootOperator extends TreeOperator {
         return scaleDirection ? scaleAmount : 1/scaleAmount;
     }
 
+    private double getNewHeight(double heightRoot, double heightMRCA) {
+        double scaleFactor = getRandomScale(heightRoot, heightMRCA);
+        return scaleFactor * heightRoot;
+    }
+
+    private int getRandomType() {
+        return Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0
+    }
+
     private double adjustRoot(Node root, double newHeight) {
         if (newHeight <= Math.max(root.getLeft().getHeight(), root.getRight().getHeight())) {
             return Double.NEGATIVE_INFINITY;
@@ -115,31 +125,10 @@ public class CombinedRootOperator extends TreeOperator {
         return 0.0;
     }
 
-    private double adjustRootAndGermline(Node root, Node germline, double newHeight) {
-        double offset = 0.0005;
-        if (newHeight > root.getHeight()) {
-            // move root first then germline
-            double value = adjustRoot(root, newHeight);
-            if (value == Double.NEGATIVE_INFINITY) {
-                return value;
-            }
-            germline.setHeight(newHeight - offset);
-            return value;
-        }
-        else if (newHeight < root.getHeight()) {
-            // move germline first
-            germline.setHeight(newHeight - offset);
-            return adjustRoot(root, newHeight);
-        }
-        else {
-            return 0.0;
-        }
-    }
-
     /**
      * Change the parameter and return the hastings ratio.
      *
-     * @return log of Hastings Ratio, or Double.NEGATIVE_INFINITY if proposal should not be accepted
+     * @return Double.NEGATIVE_INFINITY if proposal should not be accepted
      */
     @Override
     public double proposal() {
@@ -151,51 +140,24 @@ public class CombinedRootOperator extends TreeOperator {
 
         Node root = tree.getRoot();
         double heightMRCA;
-        heightMRCA = Math.max(root.getLeft().getHeight(), root.getRight().getHeight());
-        if (germlineNum > 0) {
-            if (root.getLeft().getNr() == germlineNum) {
-                heightMRCA = root.getRight().getHeight();
-            } else if (root.getRight().getNr() == germlineNum) {
-                heightMRCA = root.getLeft().getHeight();
-            }
+        if (root instanceof GRTNode) {
+            heightMRCA = ((GRTNode) root).getMinimumHeight();
+        } else {
+            heightMRCA = Math.max(root.getLeft().getHeight(), root.getRight().getHeight());
         }
 
-        double rootHeight = root.getHeight();
-        double scaleFactor = getRandomScale(rootHeight, heightMRCA);
+        double newHeight = getNewHeight(root.getHeight(), heightMRCA);
+        int newType = getRandomType();
 
-        int newType = Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0,
-
-        double newHeight = rootHeight * scaleFactor;
-
+        nodeTypes.setValue(root.getNr(), newType);
         if (germlineNum > 0) {
-            Node germline;
-            if (root.getLeft().getNr() == germlineNum) {
-                germline = root.getLeft();
-            } else if (root.getRight().getNr() == germlineNum) {
-                germline = root.getRight();
-            } else {
-//                System.out.println("No germline child of root?");
-                throw new RuntimeException("No germline child of root?");
-            }
-            double value = adjustRootAndGermline(root, germline, newHeight);
-            if (value == Double.NEGATIVE_INFINITY) {
-                return value;
-            }
             nodeTypes.setValue(germlineNum, newType);
-            nodeTypes.setValue(root.getNr(), newType);
-        }
-        else {
-            nodeTypes.setValue(root.getNr(), newType);
-            double value = adjustRoot(root, newHeight);
-            if (value == Double.NEGATIVE_INFINITY) {
-                return value;
-            }
         }
 
         if (markCladesInput.get()) {
             root.makeAllDirty(Tree.IS_DIRTY);
         }
 
-        return 0.0;
+        return adjustRoot(root, newHeight);
     }
 }

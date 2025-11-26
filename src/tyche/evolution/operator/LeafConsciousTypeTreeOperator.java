@@ -22,8 +22,7 @@ package tyche.evolution.operator;
 
 import beast.base.core.Description;
 import beast.base.core.Input;
-import beast.base.evolution.alignment.Alignment;
-import beast.base.evolution.alignment.Taxon;
+import beast.base.core.Log;
 import beast.base.evolution.operator.TreeOperator;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
@@ -31,6 +30,8 @@ import beast.base.inference.parameter.IntegerParameter;
 import beast.base.inference.parameter.Parameter;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
+import tyche.evolution.tree.GermlineRootTree;
+import tyche.evolution.tree.MetadataTree;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -49,11 +50,11 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
      * input object for the node types parameter to operate on
      */
     final public Input<IntegerParameter> nodeTypesInput = new Input<>("nodeTypes", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
-    /**
-     * input object for type alignment data for the tips
-     */
-    final public Input<Alignment> dataInput = new Input<>("data", "type data for the tips", Input.Validate.OPTIONAL);
 
+    /**
+     * input object for the traitName if the original tip traits are stored on the tree -- for checking ambiguity
+     */
+    final public Input<String> traitNameInput = new Input<>("traitName", "a string of the traitname", Input.Validate.OPTIONAL);
     /**
      * the node types parameter to operate on
      */
@@ -62,10 +63,14 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
 
     int germlineNum = -1;
 
+    String traitName;
+
     /**
      * an array to keep track of which nodes are ambiguous, especially important for ambiguous tips
      */
     boolean[] isAmbiguous;
+
+    boolean isGermlineRoot = false;
 
 
     /**
@@ -84,6 +89,22 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
         }
     }
 
+    protected void getAmbiguousTips(String traitName, MetadataTree metadataTree) {
+
+        for (Node node : metadataTree.getExternalNodes()) {
+            String taxon = node.getID();
+            int nodeNum = node.getNr();
+            if (taxon != null && taxon.toUpperCase().contains("germline".toUpperCase())) {
+                germlineNum = nodeNum;
+                }
+            Object currentTrait = metadataTree.getTipMetaData(traitName, taxon);
+            if (currentTrait != null && Objects.equals(currentTrait, "?")) {
+                isAmbiguous[nodeNum] = true;
+            }
+        }
+
+    }
+
     /**
      * Initialize and validate the operator.
      */
@@ -94,36 +115,29 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
         lowerInt = nodeTypes.getLower();
         upperInt = nodeTypes.getUpper();
 
-        isAmbiguous = new boolean[treeInput.get().getNodeCount()];
-        Arrays.fill(isAmbiguous, true);
+        traitName = traitNameInput.get();
 
-        Alignment data = dataInput.get();
-        for (Node node : treeInput.get().getExternalNodes()) {
-            String taxon = node.getID();
-            int nodeNum = node.getNr();
-            if (data == null) {
-                isAmbiguous[nodeNum] = false;
-                if (Objects.equals(taxon, "Germline")) {
-                    isAmbiguous[nodeNum] = true;
-                    germlineNum = nodeNum;
-                    System.out.println("Germline number is: " + nodeNum);
-                    System.out.println("Root number is: " + treeInput.get().getRoot().getNr());
-                }
-                System.out.println(taxon);
+        isAmbiguous = new boolean[treeInput.get().getNodeCount()];
+        Arrays.fill(isAmbiguous, false);
+
+        Tree tree = treeInput.get();
+        if (tree instanceof MetadataTree) {
+            MetadataTree metadataTree = (MetadataTree) tree;
+            if (metadataTree.getTipMetaDataNames().contains(traitName)) {
+                getAmbiguousTips(traitName, metadataTree);
+            } else {
+                Log.warning("Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " cannot determine ambiguous tips without a traitName that matches a traitset provided to the tree. Make sure traitname in the trait set matches traitName in the operator exactly.");
             }
-            else {
-                int taxonIndex = data.getTaxonIndex(taxon);
-                if (taxonIndex == -1) {
-                    if (taxon.startsWith("'") || taxon.startsWith("\"")) {
-                        taxonIndex = data.getTaxonIndex(taxon.substring(1, taxon.length() - 1));
-                    }
-                    if (taxonIndex == -1) {
-                        throw new RuntimeException("Could not find sequence " + taxon + " in the alignment");
-                    }
-                }
-                // this only handles one pattern
-                isAmbiguous[nodeNum] = data.getDataType().isAmbiguousCode(data.getPattern(taxonIndex, 0));
+        } else {
+            Log.warning("Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " cannot determine ambiguous tips and will not operate on them. Consider using a tyche.evolution.tree.MetadataTree or tyche.evolution.tree.GermlineRootTree.");
+        }
+        if (!(tree instanceof GermlineRootTree)) {
+            if (germlineNum > 0) {
+                Log.warning("Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " will operate on germline and root independently. Use GermlineRootTree if you'd like them to be treated as one.");
             }
+        } else {
+            germlineNum = ((GermlineRootTree) tree).getRoot().getGermlineNumber();
+            isGermlineRoot = true;
         }
 
     }
@@ -151,15 +165,9 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
         } while ((node.isLeaf() && !isAmbiguous[node.getNr()]));
         int newValue = Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0,
         nodeTypes.setValue(node.getNr(), newValue);
-        if (Objects.equals(node.getID(),"Germline") || node.isRoot()) {
-            // update both
-            if (germlineNum != -1) {
-                nodeTypes.setValue(germlineNum, newValue);
-                nodeTypes.setValue(tree.getRoot().getNr(), newValue);
-                Node germ = tree.getNode(germlineNum);
-                double rootHeight = tree.getRoot().getHeight();
-                germ.setHeight(rootHeight - 0.0005);
-            }
+        if (isGermlineRoot && germlineNum > 0) {
+            nodeTypes.setValue(germlineNum, newValue);
+            nodeTypes.setValue(tree.getRoot().getNr(), newValue);
         }
 
         if (markCladesInput.get()) {
