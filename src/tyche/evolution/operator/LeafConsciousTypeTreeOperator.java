@@ -30,6 +30,7 @@ import beast.base.inference.parameter.IntegerParameter;
 import beast.base.inference.parameter.Parameter;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
+import tyche.evolution.tree.GRTNode;
 import tyche.evolution.tree.GermlineRootTree;
 import tyche.evolution.tree.MetadataTree;
 
@@ -94,9 +95,7 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
         for (Node node : metadataTree.getExternalNodes()) {
             String taxon = node.getID();
             int nodeNum = node.getNr();
-            if (taxon != null && taxon.toUpperCase().contains("germline".toUpperCase())) {
-                germlineNum = nodeNum;
-                }
+
             Object currentTrait = metadataTree.getTipMetaData(traitName, taxon);
             if (currentTrait != null && Objects.equals(currentTrait, "?")) {
                 isAmbiguous[nodeNum] = true;
@@ -123,23 +122,22 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
         Tree tree = treeInput.get();
         if (tree instanceof MetadataTree) {
             MetadataTree metadataTree = (MetadataTree) tree;
-            if (metadataTree.getTipMetaDataNames().contains(traitName)) {
+            if (traitName != null && metadataTree.getTipMetaDataNames().contains(traitName)) {
                 getAmbiguousTips(traitName, metadataTree);
             } else {
-                Log.warning("Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " cannot determine ambiguous tips without a traitName that matches a traitset provided to the tree. Make sure traitname in the trait set matches traitName in the operator exactly.");
+                Log.warning("\nWARNING: Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " cannot determine ambiguous tips without a traitName that matches a traitset provided to the tree. Make sure traitname in the trait set matches traitName in the operator exactly.\n");
             }
         } else {
-            Log.warning("Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " cannot determine ambiguous tips and will not operate on them. Consider using a tyche.evolution.tree.MetadataTree or tyche.evolution.tree.GermlineRootTree.");
+            Log.warning("\nWARNING: Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " cannot determine ambiguous tips and will not operate on them. Consider using a tyche.evolution.tree.MetadataTree or tyche.evolution.tree.GermlineRootTree.\n");
         }
         if (!(tree instanceof GermlineRootTree)) {
             if (germlineNum > 0) {
                 Log.warning("Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " will operate on germline and root independently. Use GermlineRootTree if you'd like them to be treated as one.");
             }
         } else {
-            germlineNum = ((GermlineRootTree) tree).getRoot().getGermlineNumber();
+            germlineNum = ((GermlineRootTree) tree).getGermlineNum();
             isGermlineRoot = true;
         }
-
     }
 
     /**
