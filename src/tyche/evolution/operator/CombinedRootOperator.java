@@ -57,10 +57,10 @@ public class CombinedRootOperator extends TreeOperator {
     /**
      * the node types parameter to operate on
      */
-    IntegerParameter nodeTypes;
-    int lowerInt, upperInt;
+    protected IntegerParameter nodeTypes;
+    protected int lowerInt, upperInt;
 
-    int germlineNum = -1;
+    protected int germlineNum = -1;
 
 
 
@@ -96,7 +96,7 @@ public class CombinedRootOperator extends TreeOperator {
             Log.warning("Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " will operate on the root height and type together, but will ignore the germline. If you wish to operate on the root and germline together, please use tyche.evolution.tree.GermlineRootTree.");
 
         } else {
-            germlineNum = ((GermlineRootTree) tree).getRoot().getGermlineNumber();
+            germlineNum = ((GermlineRootTree) tree).getGermlineNum();
         }
 
     }
@@ -118,9 +118,17 @@ public class CombinedRootOperator extends TreeOperator {
     }
 
     private double adjustRoot(Node root, double newHeight) {
-        if (newHeight <= Math.max(root.getLeft().getHeight(), root.getRight().getHeight())) {
+        if (root instanceof GRTNode) {
+            // if it's a GRTNode, we want to not set + return negative infinity if height is below the non-germline child
+            if (newHeight <= ((GRTNode) root).getMinimumHeight()) {
+                return Double.NEGATIVE_INFINITY;
+            }
+        }
+        else if (newHeight <= Math.max(root.getLeft().getHeight(), root.getRight().getHeight())) {
+            // if it's not a GRTNode, we want to not set + return negative infinity if height is below either child
             return Double.NEGATIVE_INFINITY;
         }
+        // if we haven't returned neg infinity at this point, height is safe to set whether it's a GRTNode or reg Node
         root.setHeight(newHeight);
         return 0.0;
     }
