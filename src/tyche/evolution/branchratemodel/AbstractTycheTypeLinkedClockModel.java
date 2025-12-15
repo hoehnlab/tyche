@@ -73,36 +73,36 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
     /**
      * the clock rate for the Ancestral Reconstruction Tree Likelihood
      */
-    Function typeSwitchClockRate;
+    protected Function typeSwitchClockRate;
     /**
      * the substitution model describing type substitutions
      */
-    TycheSVSGeneralSubstitutionModel svs;
+    protected TycheSVSGeneralSubstitutionModel svs;
 
     /**
      * the Q matrix describing type transitions
      */
-    double[][] qMatrix;
+    protected double[][] qMatrix;
 
     /**
      * the mutation rate for each type
      */
-    RealParameter typeLinkedRates;
+    protected RealParameter typeLinkedRates;
 
     /**
      * a real parameter to log branch rates
      */
-    RealParameter branchRates;
+    protected RealParameter branchRates;
     /**
      * a real parameter to log expected occupancy
      */
-    RealParameter occupancies;
+    protected RealParameter occupancies;
 
     /**
      * the type for each node
      */
 
-    IntegerParameter nodeTypes;
+    protected IntegerParameter nodeTypes;
 
     Function muParameter;
 
