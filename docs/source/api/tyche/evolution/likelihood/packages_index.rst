@@ -2,6 +2,6 @@ likelihood
 ==========
 
 .. toctree::
-  :maxdepth: 5
+  :maxdepth: 6
 
   AncestralTypeLikelihood.rst

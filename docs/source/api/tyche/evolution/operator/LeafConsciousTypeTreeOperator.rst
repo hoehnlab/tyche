@@ -16,9 +16,9 @@ LeafConsciousTypeTreeOperator
 
       
 
-   .. java:field:: Input dataInput
+   .. java:field:: Input traitNameInput
 
-      input object for type alignment data for the tips
+      input object for the traitName if the original tip traits are stored on the tree -- for checking ambiguity
 
       
 
@@ -32,11 +32,17 @@ LeafConsciousTypeTreeOperator
 
    .. java:field:: int upperInt
 
+   .. java:field:: int germlineNum
+
+   .. java:field:: String traitName
+
    .. java:field:: boolean isAmbiguous
 
       an array to keep track of which nodes are ambiguous, especially important for ambiguous tips
 
       
+
+   .. java:field:: boolean isGermlineRoot
 
 
    .. java:constructor:: LeafConsciousTypeTreeOperator()
@@ -48,6 +54,9 @@ LeafConsciousTypeTreeOperator
 
    .. java:constructor:: LeafConsciousTypeTreeOperator(Tree)
       :no-index:
+
+
+   .. java:method:: protected void getAmbiguousTips(String traitName, MetadataTree metadataTree)
 
 
    .. java:method:: public void initAndValidate()

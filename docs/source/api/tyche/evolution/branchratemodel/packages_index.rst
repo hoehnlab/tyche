@@ -2,7 +2,7 @@ branchratemodel
 ===============
 
 .. toctree::
-  :maxdepth: 5
+  :maxdepth: 6
 
   TycheExpectedOccupancyClockModel.rst
   AbstractTycheTypeLinkedClockModel.rst

@@ -2,6 +2,6 @@ API Reference
 =============
 
 .. toctree::
-  :maxdepth: 5
+  :maxdepth: 6
 
   tyche/packages_index.rst

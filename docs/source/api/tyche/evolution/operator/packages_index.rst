@@ -2,7 +2,11 @@ operator
 ========
 
 .. toctree::
-  :maxdepth: 5
+  :maxdepth: 6
 
   SubtreeTypeSwitchOperator.rst
   LeafConsciousTypeTreeOperator.rst
+  GRTBactrianScaleOperator.rst
+  GRTCompatibleOperator.rst
+  GRTScaleOperator.rst
+  CombinedRootOperator.rst

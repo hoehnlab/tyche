@@ -2,6 +2,6 @@ inference
 =========
 
 .. toctree::
-  :maxdepth: 5
+  :maxdepth: 6
 
   distribution/packages_index.rst

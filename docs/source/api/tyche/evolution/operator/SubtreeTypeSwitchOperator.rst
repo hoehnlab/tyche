@@ -2,41 +2,13 @@ SubtreeTypeSwitchOperator
 =========================
 
 .. java:class:: public tyche.evolution.operator.SubtreeTypeSwitchOperator
-   :inheritance: beast.base.evolution.operator.TreeOperator
+   :inheritance: ReferenceType(arguments=None, dimensions=[], name=LeafConsciousTypeTreeOperator, sub_type=None)
 
 
    Tree Operator that operates on types associated with internal nodes and ambiguous tips by switching a node and its subtree to the new type.
 
    
 
-
-   .. java:field:: Input nodeTypesInput
-
-      input object for the node types parameter to operate on
-
-      
-
-   .. java:field:: Input dataInput
-
-      input object for type alignment data for the tips
-
-      
-
-   .. java:field:: IntegerParameter nodeTypes
-
-      the node types parameter to operate on
-
-      
-
-   .. java:field:: int lowerInt
-
-   .. java:field:: int upperInt
-
-   .. java:field:: boolean isAmbiguous
-
-      an array to keep track of which nodes are ambiguous, especially important for ambiguous tips
-
-      
 
 
    .. java:constructor:: SubtreeTypeSwitchOperator()

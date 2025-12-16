@@ -152,7 +152,7 @@ AncestralTypeLikelihood
       
 
 
-   .. java:method:: static private String getFormattedState(int state, DataType dataType)
+   .. java:method:: private static String getFormattedState(int state, DataType dataType)
 
       Method required for implementing TreeTraitProvider
 

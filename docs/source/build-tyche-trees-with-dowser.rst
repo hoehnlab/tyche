@@ -1,4 +1,5 @@
 .. _dowser-vignette:
+
 Build TyCHE Trees Using Dowser
 ==============================
 
@@ -6,6 +7,7 @@ Building Time Trees
 *******************
 
 .. raw:: html
+
     <div class="admonition-announcement attention">
     <p class="admonition-title">Expected tutorial time</p>
         This tutorial takes approximately an hour to complete, including 45 minutes of BEAST2 run time. You can reduce the run time by following the suggestions in the tip boxes above each code chunk that runs BEAST2.
@@ -98,6 +100,7 @@ For Linux machines, we recommend running:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
+
     # Choose appropriate version for your architecture (x86 or aarch64)
     BEAST=BEAST.v2.7.7.Linux.x86.tgz # or BEAST=BEAST.v2.7.7.Linux.aarch64.tgz
 
