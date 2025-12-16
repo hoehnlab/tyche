@@ -38,22 +38,20 @@ import java.util.Arrays;
  * @author Jessie Fielding
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
+
+/**
+ * Tree Operator that operates on types associated with internal nodes and ambiguous tips by switching a node and its subtree to the new type.
+ */
 @Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips by switching a node and its subtree to the new type.")
 @Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
         "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
         "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
         year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
-public class SubtreeTypeSwitchOperator extends TreeOperator {
-    final public Input<IntegerParameter> nodeTypesInput = new Input<>("nodeTypes", "an integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
-    final public Input<Alignment> dataInput = new Input<>("data", "AlignmentFromTrait data for the tips", Input.Validate.OPTIONAL);
+public class SubtreeTypeSwitchOperator extends LeafConsciousTypeTreeOperator {
 
-    IntegerParameter nodeTypes;
-    int lowerInt, upperInt;
-
-    boolean[] isAmbiguous;
-
-
-    // empty constructor to facilitate construction by XML + initAndValidate
+    /**
+     * empty constructor to facilitate construction by XML + initAndValidate
+     */
     public SubtreeTypeSwitchOperator() {
     }
 
@@ -66,44 +64,18 @@ public class SubtreeTypeSwitchOperator extends TreeOperator {
         }
     }
 
+    /**
+     * Initialize and validate the operator.
+     */
     @Override
     public void initAndValidate() {
-        nodeTypes = nodeTypesInput.get();
-
-        lowerInt = nodeTypes.getLower();
-        upperInt = nodeTypes.getUpper();
-
-        isAmbiguous = new boolean[treeInput.get().getNodeCount()];
-        Arrays.fill(isAmbiguous, true);
-
-        Alignment data = dataInput.get();
-        for (Node node : treeInput.get().getExternalNodes()) {
-            String taxon = node.getID();
-            int nodeNum = node.getNr();
-            if (data == null) {
-                isAmbiguous[nodeNum] = false;
-            }
-            else {
-                int taxonIndex = data.getTaxonIndex(taxon);
-                if (taxonIndex == -1) {
-                    if (taxon.startsWith("'") || taxon.startsWith("\"")) {
-                        taxonIndex = data.getTaxonIndex(taxon.substring(1, taxon.length() - 1));
-                    }
-                    if (taxonIndex == -1) {
-                        throw new RuntimeException("Could not find sequence " + taxon + " in the alignment");
-                    }
-                }
-                // this only handles data with one pattern
-                isAmbiguous[nodeNum] = data.getDataType().isAmbiguousCode(data.getPattern(taxonIndex, 0));
-            }
-        }
-
+        super.initAndValidate();
     }
 
     /**
-     * change the parameter and return the hastings ratio.
+     * Change the parameter.
      *
-     * @return log of Hastings Ratio, or Double.NEGATIVE_INFINITY if proposal should not be accepted *
+     * @return log of Hastings Ratio, or Double.NEGATIVE_INFINITY if proposal should not be accepted
      */
     @Override
     public double proposal() {
@@ -131,6 +103,11 @@ public class SubtreeTypeSwitchOperator extends TreeOperator {
         return 0.0;
     }
 
+    /**
+     * Set all nodeType values in the subtree to a new value.
+     * @param node the node that is the root of the subtree we are setting to a new value
+     * @param newValue the new value we are setting every member of the subtree equal to
+     */
     private void setSubtree(Node node, int newValue) {
         int nodeNum = node.getNr();
         if (node.isLeaf()) {

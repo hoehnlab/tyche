@@ -18,40 +18,28 @@
  *
  */
 
-package tyche.evolution.branchratemodel;
+package tyche.evolution.operator;
 
-import beast.base.core.Citation;
-import beast.base.core.Description;
-import beast.base.evolution.tree.Node;
 
 /**
  * @author Jessie Fielding
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
 
+import beast.base.core.Citation;
+
 /**
- * Defines a type-linked rate for each branch in the beast.tree, where the branch is assumed to be entirely in the child state.
+ * Interface to implement when a class agrees to handle rootOnly scale proposals in such a way that the minimum possible
+ * height of the root ignores the height of the germline. Compatible with GermlineRootTree tree classes.
  */
-@Description("Defines a type-linked rate for each branch in the beast.tree, where the branch is assumed to be entirely in the child state.")
 @Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
         "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
         "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
         year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
-public class TycheInstantSwitchClockModel extends AbstractTycheTypeLinkedClockModel {
+public interface GRTCompatibleOperator {
 
     /**
-     * Calculates a type-linked rate for this branch, where the branch is assumed to be entirely in the child state.
-     * @param node the current node (child node of the branch)
-     * @return the type-linked rate for this branch
+     * handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
      */
-    public double getBranchRate(final Node node) {
-
-        if (node.isRoot()) {
-            return 1.0;
-        }
-//        get this node's type
-        int type = (int) nodeTypes.getArrayValue(node.getNr());
-        return getTypeLinkedRate(type);
-
-    }
+    abstract double doRootOnlyProposal();
 }
