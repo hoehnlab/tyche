@@ -1,10 +1,25 @@
 package tyche.evolution.tree;
 
+import beast.base.core.Citation;
+import beast.base.core.Description;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 
 import java.util.TreeMap;
+/**
+ * @author Jessie Fielding
+ * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
+ */
 
+
+/**
+ * A GermlineRootTree compatible node type, that keeps the height of the germline and the root together.
+ */
+@Description("A GermlineRootTree compatible node type, that keeps the height of the germline and the root together.")
+@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
+        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
+        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
+        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
 public class GRTNode extends Node {
 
     private GRTNode germline = null;

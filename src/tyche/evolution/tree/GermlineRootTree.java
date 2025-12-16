@@ -2,6 +2,7 @@ package tyche.evolution.tree;
 
 
 import beast.base.core.BEASTInterface;
+import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.core.Log;
 import beast.base.evolution.operator.ScaleOperator;
@@ -26,6 +27,10 @@ import java.util.List;
  * A MetadataTree that treats the Germline and root as one unit, using GRTNodes to set their heights together.
  */
 @Description("A MetadataTree that treats the Germline and root as one unit, using GRTNodes to set their heights together.")
+@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
+        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
+        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
+        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
 public class GermlineRootTree extends MetadataTree {
 
     protected int germlineNum = -1;
