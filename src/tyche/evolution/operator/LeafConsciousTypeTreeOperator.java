@@ -78,7 +78,6 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
 
     boolean isGermlineRoot = false;
 
-
     /**
      * empty constructor to facilitate construction by XML + initAndValidate
      */
