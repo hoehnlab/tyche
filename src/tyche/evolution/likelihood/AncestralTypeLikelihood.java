@@ -47,6 +47,10 @@ import java.util.stream.Collectors;
  * @author Jessie Fielding
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
+
+/**
+ * AncestralTypeLikelihood to assess likelihood of internal and ambiguous node types.
+ */
 @Description("AncestralTypeLikelihood to assess likelihood of internal and ambiguous node types.")
 @Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
         "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
@@ -55,19 +59,22 @@ import java.util.stream.Collectors;
 public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTraitProvider {
     public static final String STATES_KEY = "states";
 
+    /**
+     * input object, a string label for reconstruction characters in tree log
+     */
     public Input<String> tagInput = new Input<String>("tag","label used to report trait", Validate.REQUIRED);
 
+    /**
+     * input object, prefer java, even if beagle is available, default: true
+     */
     public Input<Boolean> useJava = new Input<Boolean>("useJava", "prefer java, even if beagle is available", true);
 
-    public Input<IntegerParameter> nodeTypesInput = new Input<IntegerParameter>("nodeTypes", "the type associated with each node", Validate.REQUIRED);
 
     /**
-     * AncestralTypeLikelihood
-     *
-     * @param tag             - string label for reconstruction characters in tree log
-     * @param useJava         - prefer java, even if beagle is available, default: true
-     * @param nodeTypes       - the type associated with each node
+     * input object, the type associated with each node
      */
+    public Input<IntegerParameter> nodeTypesInput = new Input<IntegerParameter>("nodeTypes", "the type associated with each node", Validate.REQUIRED);
+
 
     IntegerParameter nodeTypes;
     double[][] qMatrix;
@@ -75,6 +82,9 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     int stateCount;
     int[][] tipStates; // used to store tip states
 
+    /**
+     * Initialize the model and validate inputs
+     */
     @Override
     public void initAndValidate() {
         if (dataInput.get().getSiteCount() == 0) {
@@ -187,6 +197,12 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
 
     }
 
+    /**
+     * Whether the likelihood needs to be recalculated.
+     * true if any node types have been operated on or if anything has been operated on that would make any normal treelikelihood
+     * model need to be recalculated
+     * @return true if anything this model depends on has changed since the last time it was calculated
+     */
     @Override
     protected boolean requiresRecalculation() {
 
@@ -198,7 +214,10 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
 
     }
 
-
+    /**
+     * Calculate the likelihood of the ancestral type reconstruction.
+     * @return the likelihood in log space
+     */
     @Override
     public double calculateLogP() {
         jointLogLikelihood = 0;
@@ -208,6 +227,12 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
         return logP;
     }
 
+    /**
+     * Helper to calculate the likelihood of the ancestral type reconstruction by recursively traversing the tree.
+     * Updates this.jointLogLikelihood
+     * @param node the current node
+     * @param parentState the state (type) of the parent of the current node
+     */
     public void traverseTypeTree(Node node, int parentState) {
         int nodeNum = node.getNr();
         int update = (node.isDirty() | hasDirt);
@@ -272,12 +297,18 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
         jointLogLikelihood += Math.log(conditionalProbability); // update the jointLogLikelihood
     }
 
+    /**
+     * Store the current values of fields that should be restored after a rejected proposal.
+     */
     @Override
     public void store() {
         super.store();
         storedJointLogLikelihood = jointLogLikelihood;
     }
 
+    /**
+     * Restore the stored values of fields that were saved before a proposal.
+     */
     @Override
     public void restore() {
         super.restore();
@@ -285,7 +316,9 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     }
 
     /**
-     *  Helper methods, wrappers for beagle/likelihoodCore calls
+     * Helper method to get the transition matrix, wrapper for beagle/likelihoodCore calls
+     * @param nodeNum the number of the current node
+     * @param probabilities the array to write transition matrix probabilities to
      */
 
     public void getTransitionMatrix(int nodeNum, double[] probabilities) {
@@ -297,13 +330,17 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     }
 
     /**
-     *  Methods required for implementing TreeTraitProvider
-     *  for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     * Method required for implementing TreeTraitProvider
+     * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
      */
     public DataType getDataType() {
         return dataType;
     }
 
+    /**
+     * Method required for implementing TreeTraitProvider
+     * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     */
     public int[] getStatesForNode(TreeInterface tree, Node node) {
         if (tree != treeInput.get()) {
             throw new RuntimeException("Can only reconstruct states on treeModel given to constructor");
@@ -312,17 +349,33 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
         return new int[] {nodeTypes.getValue(node.getNr())};
     }
 
+    /**
+     * Method required for implementing TreeTraitProvider
+     * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     */
     protected Helper treeTraits = new Helper();
 
+    /**
+     * Method required for implementing TreeTraitProvider
+     * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     */
     public TreeTrait[] getTreeTraits() {
         return treeTraits.getTreeTraits();
     }
 
+    /**
+     * Method required for implementing TreeTraitProvider
+     * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     */
     public TreeTrait getTreeTrait(String key) {
         return treeTraits.getTreeTrait(key);
     }
 
 
+    /**
+     * Method required for implementing TreeTraitProvider
+     * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     */
     private static String getFormattedState(int[] state, DataType dataType) {
         String delimiter = (dataType instanceof UserDataType) ? " " : "";
         return "\"" + Arrays.stream(state).mapToObj(dataType::getCharacter).collect( Collectors.joining(delimiter)) + "\"";

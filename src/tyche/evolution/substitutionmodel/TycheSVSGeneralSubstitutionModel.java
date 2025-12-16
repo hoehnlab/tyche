@@ -35,6 +35,10 @@ import beast.base.util.MachineAccuracy;
  * @author Jessie Fielding
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
+
+/**
+ * Extends SVSGeneralSubstitutionModel so that the rate matrix is stored and restored after rejected proposals.
+ */
 @Description("Extends SVSGeneralSubstitutionModel so that the rate matrix is stored and restored after rejected proposals.")
 @Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
         "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
@@ -44,6 +48,9 @@ public class TycheSVSGeneralSubstitutionModel extends SVSGeneralSubstitutionMode
     private double[][] storedRateMatrix;
     private BooleanParameter rateIndicator;
 
+    /**
+     * Initialize and validate using SVSGeneralSubstitutionModel initAndValidate, and then set up storedRateMatrix.
+     */
     @Override
     public void initAndValidate() {
         super.initAndValidate();
@@ -51,6 +58,16 @@ public class TycheSVSGeneralSubstitutionModel extends SVSGeneralSubstitutionMode
         rateIndicator = indicator.get();
     }
 
+
+    /**
+     * Get the transition probabilities, using SVSGeneralSubstitutionModel getTransitionProbabilities, and use rate indicator to address machine accuracy errors.
+     * @param node the current node
+     * @param startTime the start time of the branch
+     * @param endTime the end time of the branch
+     * @param rate the rate of the branch
+     * @param matrix the double array to copy the transition probability matrix into
+     *
+     */
     @Override
     public void getTransitionProbabilities(Node node, double startTime, double endTime, double rate, double[] matrix) {
 
@@ -81,6 +98,9 @@ public class TycheSVSGeneralSubstitutionModel extends SVSGeneralSubstitutionMode
     }
 
 
+    /**
+     * Store the rate matrix so that it can be restored after rejected proposals.
+     */
     @Override
     public void store() {
         for (int i = 0; i < nrOfStates; i++) {
@@ -88,6 +108,10 @@ public class TycheSVSGeneralSubstitutionModel extends SVSGeneralSubstitutionMode
         }
         super.store();
     }
+
+    /**
+     * Restore the rate matrix that was stored before the proposal.
+     */
     @Override
     public void restore() {
         for (int i = 0; i < nrOfStates; i++) {
