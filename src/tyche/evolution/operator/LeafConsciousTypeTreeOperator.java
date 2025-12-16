@@ -64,19 +64,19 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
     /**
      * the node types parameter to operate on
      */
-    IntegerParameter nodeTypes;
-    int lowerInt, upperInt;
+    protected IntegerParameter nodeTypes;
+    protected int lowerInt, upperInt;
 
-    int germlineNum = -1;
+    protected int germlineNum = -1;
 
-    String traitName;
+    protected String traitName;
 
     /**
      * an array to keep track of which nodes are ambiguous, especially important for ambiguous tips
      */
-    boolean[] isAmbiguous;
+    protected boolean[] isAmbiguous;
 
-    boolean isGermlineRoot = false;
+    protected boolean isGermlineRoot = false;
 
     /**
      * empty constructor to facilitate construction by XML + initAndValidate
@@ -94,6 +94,11 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
         }
     }
 
+    /**
+     * update isAmbiguous array with which tips are ambiguous for traitName in metadataTree
+     * @param traitName the name of the trait
+     * @param metadataTree the metadata tree which has the trait associated
+     */
     protected void getAmbiguousTips(String traitName, MetadataTree metadataTree) {
 
         for (Node node : metadataTree.getExternalNodes()) {
@@ -145,7 +150,7 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
     }
 
     /**
-     * Change the parameter and return the hastings ratio.
+     * Change the parameter.
      *
      * @return log of Hastings Ratio, or Double.NEGATIVE_INFINITY if proposal should not be accepted
      */

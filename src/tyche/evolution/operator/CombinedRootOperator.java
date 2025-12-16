@@ -46,7 +46,7 @@ import java.util.Objects;
  */
 
 /**
- * Tree Operator
+ * Tree Operator that operates on the root's height and type together.
  */
 @Description("Tree Operator that operates on the root's height and type together.")
 @Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
@@ -139,7 +139,7 @@ public class CombinedRootOperator extends TreeOperator {
     }
 
     /**
-     * Change the parameter and return the hastings ratio.
+     * Change the parameter.
      *
      * @return Double.NEGATIVE_INFINITY if proposal should not be accepted
      */

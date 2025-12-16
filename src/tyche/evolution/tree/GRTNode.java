@@ -1,3 +1,23 @@
+/*
+ *  Copyright (C) 2025 Hoehn Lab, Dartmouth College
+ *
+ * This file is part of TyCHE.
+ *
+ * TyCHE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * TyCHE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TyCHE.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
 package tyche.evolution.tree;
 
 import beast.base.core.Citation;
@@ -26,6 +46,7 @@ public class GRTNode extends Node {
 
     /**
      * associate a germline node with this node
+     * @param germ GRTNode representing the germline to associate with this node
      */
     protected void addGermline(GRTNode germ) {
         this.germline = germ;
@@ -41,6 +62,9 @@ public class GRTNode extends Node {
         return false;
     }
 
+    /**
+     * branch length between root and germline since branches shouldn't be zero
+     */
     final static double EPSILON = 0.0000001;
 
 

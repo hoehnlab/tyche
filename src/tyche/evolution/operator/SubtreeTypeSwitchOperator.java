@@ -73,7 +73,7 @@ public class SubtreeTypeSwitchOperator extends LeafConsciousTypeTreeOperator {
     }
 
     /**
-     * Change the parameter and return the hastings ratio.
+     * Change the parameter.
      *
      * @return log of Hastings Ratio, or Double.NEGATIVE_INFINITY if proposal should not be accepted
      */
