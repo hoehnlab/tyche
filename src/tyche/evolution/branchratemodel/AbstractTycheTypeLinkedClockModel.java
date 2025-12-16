@@ -20,6 +20,7 @@
 
 package tyche.evolution.branchratemodel;
 
+import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.core.Function;
 import beast.base.core.Input;
@@ -38,6 +39,10 @@ import beast.base.inference.parameter.RealParameter;
  * Abstract branch rate model for type-linked mutation rates
  */
 @Description("Abstract branch rate model for type-linked mutation rates")
+@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
+        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
+        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
+        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
 public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.Base {
 
     /**
