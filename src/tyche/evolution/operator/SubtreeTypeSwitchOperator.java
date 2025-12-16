@@ -20,6 +20,7 @@
 
 package tyche.evolution.operator;
 
+import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.core.Input;
 import beast.base.evolution.alignment.Alignment;
@@ -42,6 +43,10 @@ import java.util.Arrays;
  * Tree Operator that operates on types associated with internal nodes and ambiguous tips by switching a node and its subtree to the new type.
  */
 @Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips by switching a node and its subtree to the new type.")
+@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
+        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
+        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
+        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
 public class SubtreeTypeSwitchOperator extends LeafConsciousTypeTreeOperator {
 
     /**
