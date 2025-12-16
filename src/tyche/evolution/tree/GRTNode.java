@@ -1,73 +1,155 @@
 package tyche.evolution.tree;
 
 import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
 
-import java.util.Objects;
 import java.util.TreeMap;
 
 public class GRTNode extends Node {
-    protected Node germline;
-    protected boolean hasGermline = false;
-    private boolean isGermline = false;
 
-    final static double EPSILON = 0.0000001;
+    private GRTNode germline = null;
 
-    protected void setGermline(GRTNode germline) {
-        this.hasGermline = true;
-        this.germline = germline;
-    }
-
-    protected void unsetAsGermline() {
-        this.isGermline = false;
-        if (this.getParent() != null && this.getParent() instanceof GRTNode) {
-            ((GRTNode) this.getParent()).unsetGermline();
-        }
-    }
-    protected void unsetGermline() {
-        this.hasGermline = false;
-        this.germline = null;
+    /**
+     * associate a germline node with this node
+     */
+    protected void addGermline(GRTNode germ) {
+        this.germline = germ;
     }
 
     /**
-     * Sets the height of this node, but if this node is the germline or the root, sets their heights together
-     *
+     * is this node the germline?
+     * @return true if germline, otherwise false
+     */
+    protected boolean isGermline() {
+        if (this.ID == null) return false;
+        if (this.ID.toUpperCase().contains("germline".toUpperCase())) return true;
+        return false;
+    }
+
+    final static double EPSILON = 0.0000001;
+
+
+    /**
+     * does this node have the germline as a child?
+     * @return true if germline is associated with this node, otherwise false
+     */
+    public boolean hasGermline() {
+        return (germline != null);
+    }
+
+
+    /**
+     * Private helper function that sets the height of this node, either as normal or as data augmentation, but keeps
+     * the germline and root height together.
+     * @param height new node height
+     * @param isDA is this data augmentation?
+     */
+    private void setHeight(final double height, boolean isDA) {
+        startEditing();
+        if (this.m_tree == null) {
+            // we haven't finish initializing the tree, so we don't care about setting the root and germline together yet
+            setSuperHeight(height, isDA);
+        }
+        else if (this.isRoot() && hasGermline()) {
+            adjustRootAndGermline(height);
+            if (isDA) {
+                isDirty |= Tree.IS_DIRTY;
+            } else {
+                setNormalDirt();
+            }
+        } else {
+            if (!this.isGermline()) {
+                setSuperHeight(height, isDA);
+            }
+        }
+    }
+
+    /**
+     * Helper function that calls the parent class/super set height function, appropriate for normal nodes (i.e. not
+     * part of a germline-root pair).
+     * @param height new node height
+     * @param isDA is this data augmentation?
+     */
+    protected void setSuperHeight(final double height, boolean isDA) {
+        if (isDA) {super.setHeightDA(height);}
+        else {super.setHeight(height);}
+    }
+
+    /**
+     * Helper function to set dirt normally (non-data-augmentation), i.e. this node and all its internal nodes in its
+     * subtree.
+     */
+    private void setNormalDirt() {
+        isDirty |= Tree.IS_DIRTY;
+        if (!isLeaf()) {
+            ((GRTNode) getLeft()).isDirty |= Tree.IS_DIRTY;
+            if (getRight() != null) {
+                ((GRTNode) getRight()).isDirty |= Tree.IS_DIRTY;
+            }
+        }
+    }
+
+    /**
+     * assign values to a tree in array representation *
+     */
+    @Override
+    public void assignTo(final Node[] nodes) {
+        super.assignTo(nodes);
+        final GRTNode node = (GRTNode) nodes[getNr()];
+        if (germline != null) {
+            node.addGermline((GRTNode) nodes[germline.getNr()]);
+        }
+    }
+
+    /**
+     * assign values from a tree in array representation *
+     */
+    @Override
+    public void assignFrom(final Node[] nodes, final Node node) {
+        super.assignFrom(nodes, node);
+        if (node instanceof GRTNode) {
+            if (((GRTNode) node).germline != null) {
+                addGermline((GRTNode) nodes[((GRTNode) node).germline.getNr()]);
+            }
+        }
+    }
+
+
+    /**
+     * Sets the height of this node, but if this node is the germline or the root, sets their heights together.
      * @param height the new height of this node
      */
     @Override
     public void setHeight(final double height) {
-        startEditing();
-        if (this.isRoot() && hasGermline) {
-            adjustRootAndGermline(height);
-        } else if (this.isGermline() && this.getParent().isRoot()) {
-            Node parent = this.getParent();
-            if (parent instanceof GRTNode) {
-                ((GRTNode) parent).setGermline(this);
-            } else {
-                throw new RuntimeException("Parent is not correct node type");
-            }
-            ((GRTNode) parent).adjustRootAndGermline(height+(2*EPSILON));
-        } else {
-            super.setHeight(height);
-        }
+        setHeight(height, false);
     }
 
-    public void setSuperHeight(final double height) {
-        super.setHeight(height);
+    /**
+     * Sets the height of this node in operators for data augmentation likelihood, but if this node is the germline or
+     * the root, sets their heights together.
+     * It only changes this node to be dirty, not any of child nodes.
+     * @param height the new height of this node
+     */
+    @Override
+    public void setHeightDA(final double height) {
+        setHeight(height, true);
     }
 
-    public int getGermlineNumber() {
-        if (hasGermline) {
-            return germline.getNr();
-        }
-        return -1;
-    }
 
+    /**
+     * Get the minimum height this node can be set to.
+     * If this node is the root and has the germline associated with it, the minimum height is just the height of
+     * its non-germline child.
+     * In all other cases, this is the maximum of its children's heights.
+     * @return a double representing the minimum height this node can be set to
+     */
     public double getMinimumHeight() {
         double minHeight;
-        if (this.isRoot() && hasGermline) {
-            if (this.getLeft().getNr() == germline.getNr()) {
+        if (m_tree != null && isRoot() && hasGermline()) {
+            int germlineNum = germline.getNr();
+            if (this.getLeft().getNr() == germlineNum) {
                 minHeight = this.getRight().getHeight();
-            } else if (this.getRight().getNr() == germline.getNr()) {
+            } else if (this.getRight().getNr() == germlineNum) {
                 minHeight = this.getLeft().getHeight();
             } else {
                 throw new RuntimeException("GRTNode has germline associated but neither left nor right child matches germline.");
@@ -79,22 +161,16 @@ public class GRTNode extends Node {
         return minHeight;
     }
 
+
+    /**
+     * Helper function to set the root and the germline height together.
+     * @param newHeight new root height
+     */
     private void adjustRootAndGermline(double newHeight) {
-        if (newHeight > this.getHeight()) {
-            // move root first then germline
-            super.setHeight(newHeight);
-            ((GRTNode) germline).setSuperHeight(newHeight - EPSILON);
-        }
-        else if (newHeight < this.getHeight()) {
-            // move germline first
-            ((GRTNode) germline).setSuperHeight(newHeight - EPSILON);
-            super.setHeight(newHeight);
-        }
+        germline.height = newHeight - EPSILON;
+        height = newHeight;
     }
 
-    public boolean isGermline() {
-        return isGermline;
-    }
 
     /**
      * Makes a new GRTNode from a regular node
@@ -111,11 +187,6 @@ public class GRTNode extends Node {
         }
         node.parent = null;
         node.setID(original.getID());
-        if (original.getID() != null) {
-            if (original.getID().toUpperCase().contains("germline".toUpperCase())) {
-                node.isGermline = true;
-            }
-        }
 
         for (Node child : original.getChildren()) {
             if (!(child instanceof GRTNode)) {
@@ -123,53 +194,34 @@ public class GRTNode extends Node {
             }
             node.addChild(child);
         }
-
+        // remove children and parent from original so that nothing points to it and garbage collection can clean it up
         original.removeAllChildren(false);
+        original.setParent(null,false);
         return node;
     }
 
-    /**
-     * Removes a child from this node.
-     * @param child the child to remove
-     */
-    @Override
-    public void removeChild(final Node child) {
-        startEditing();
-        if (hasGermline) {
-            if (Objects.equals(child, germline)) {
-                ((GRTNode) child).unsetAsGermline();
-            }
-        }
-        super.removeChild(child);
-    }
-
 
     /**
-     * Removes all children from this node.
-     * @param inOperator if true then startEditing() is called. For operator uses, called removeAllChildren(true), otherwise
-     *                   use set to false.
+     * get the height of this node
+     * @return double representing the height of this node
      */
     @Override
-    public void removeAllChildren(final boolean inOperator) {
-        if (inOperator) startEditing();
-        if (hasGermline) {
-            unsetGermline();
+    public double getHeight() {
+        // TODO: theoretically, this should always be correct anyway, so check if we can remove this
+        if (isGermline() && parent != null && parent.isRoot()) {
+            height = parent.getHeight() - EPSILON;
         }
-        super.removeAllChildren(inOperator);
+        return height;
     }
 
+    /**
+     * get the date of this node
+     * @return double representing the date of this node
+     */
     @Override
-    public void setID(String ID) {
-        if (ID != null && ID.toUpperCase().contains("germline".toUpperCase())) {
-            isGermline = true;
-            if (this.getParent() instanceof GRTNode) {
-                GRTNode parent = (GRTNode) this.getParent();
-                parent.setGermline(this);
-            }
-        } else {
-            unsetAsGermline();
-        }
-        super.setID(ID);
+    public double getDate() {
+        // TODO: theoretically, this should always be correct anyway, so check if we can remove this
+        return m_tree.getDate(getHeight());
     }
 
 
@@ -182,13 +234,13 @@ public class GRTNode extends Node {
         if (!(child instanceof GRTNode)) {
             child = makeNewFromNode(child);
         }
-        if (child.getID() != null) {
-            if (child.getID().toUpperCase().contains("germline".toUpperCase())) {
-                this.setGermline((GRTNode) child);
-            }
+        if (((GRTNode) child).isGermline()) {
+            addGermline((GRTNode) child);
         }
         super.addChild(child);
     }
+
+
 
     /**
      * @return (deep) copy of node
@@ -209,14 +261,48 @@ public class GRTNode extends Node {
             Node childCopy;
 
             if (!(child instanceof GRTNode)) {
-                childCopy = makeNewFromNode(child);
+                childCopy = makeNewFromNode(child).copy(); // necessary for it to be deep copy
             } else {
                 childCopy = child.copy();
             }
-            node.addChild(childCopy);
+            node.addChild(childCopy); // this should handle setting the germline correctly
         }
         return node;
     } // copy
 
+    /**
+     * scale height of this node and all its internal descendants, but if this node is the root and has a germline
+     * child, set the germline height with the root height.
+     * @param scale scale factor
+     * @return degrees of freedom scaled (used for HR calculations)
+     */
+    @Override
+    public int scale(final double scale) {
+        startEditing();
 
+        int dof = 0;
+
+        isDirty |= Tree.IS_DIRTY;
+        if (!isLeaf() && !isFake()) {
+            if (isRoot() && hasGermline()) {
+                adjustRootAndGermline(height*scale);
+            } else {
+                height *= scale;
+            }
+
+            if (isRoot() || parent.getHeight() != getHeight())
+                dof += 1;
+        }
+        if (!isLeaf()) {
+            dof += getLeft().scale(scale);
+            if (getRight() != null) {
+                dof += getRight().scale(scale);
+            }
+            if (height < getLeft().getHeight() || height < getRight().getHeight()) {
+                throw new IllegalArgumentException("Scale gives negative branch length");
+            }
+        }
+
+        return dof;
+    }
 }
