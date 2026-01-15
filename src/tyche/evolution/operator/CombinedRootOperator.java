@@ -53,21 +53,11 @@ import java.util.Objects;
         "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
         "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
         year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
-public class CombinedRootOperator extends TreeOperator {
-    /**
-     * input object for the node types parameter to operate on
-     */
-    final public Input<IntegerParameter> nodeTypesInput = new Input<>("nodeTypes", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
+public class CombinedRootOperator extends LeafConsciousTypeTreeOperator {
 
-    /**
-     * the node types parameter to operate on
-     */
-    protected IntegerParameter nodeTypes;
-    protected int lowerInt, upperInt;
+    public final Input<Double> scaleFactorInput = new Input<>("scaleFactor", "scaling factor: range from 0 to 1. Close to zero is very large jumps, close to 1.0 is very small jumps.", 0.75);
 
-    protected int germlineNum = -1;
-
-
+    private double scaleFactor;
 
     /**
      * empty constructor to facilitate construction by XML + initAndValidate
@@ -85,57 +75,54 @@ public class CombinedRootOperator extends TreeOperator {
         }
     }
 
-    /**
-     * Initialize and validate the operator.
-     */
     @Override
     public void initAndValidate() {
-        nodeTypes = nodeTypesInput.get();
-
-        lowerInt = nodeTypes.getLower();
-        upperInt = nodeTypes.getUpper();
-
-
-        Tree tree = treeInput.get();
-        if (!(tree instanceof GermlineRootTree)) {
-            Log.warning("Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " will operate on the root height and type together, but will ignore the germline. If you wish to operate on the root and germline together, please use tyche.evolution.tree.GermlineRootTree.");
-
-        } else {
-            germlineNum = ((GermlineRootTree) tree).getGermlineNum();
-        }
-
+        super.initAndValidate();
+        scaleFactor = scaleFactorInput.get();
     }
 
+    protected double getScaler(double scaleFactor) {
+        return (scaleFactor + (Randomizer.nextDouble() * ((1.0 / scaleFactor) - scaleFactor)));
+    }
+
+
     private double getRandomScale(double heightRoot, double heightMRCA) {
-        double maxScale = heightRoot/heightMRCA;
-        double scaleAmount = Randomizer.nextDouble() * maxScale;
-        boolean scaleDirection = Randomizer.nextDouble() > 0.5;
-        return scaleDirection ? scaleAmount : 1/scaleAmount;
+//        double maxScale = heightRoot/heightMRCA;
+//        System.out.println("Max scale is: " + maxScale + " and scale factor could be: " + heightMRCA/heightRoot);
+//        double scaleAmount = Randomizer.nextDouble() * maxScale;
+//        boolean scaleDirection = Randomizer.nextDouble() > 0.5;
+        return getScaler(heightMRCA/heightRoot);
     }
 
     private double getNewHeight(double heightRoot, double heightMRCA) {
-        double scaleFactor = getRandomScale(heightRoot, heightMRCA);
-        return scaleFactor * heightRoot;
+        double heightDiff = Math.abs(heightRoot - heightMRCA);
+        double newHeight = heightMRCA + (Randomizer.nextDouble() * 2 * heightDiff);
+        return newHeight;
+//        double scaleFactor = getRandomScale(heightRoot, heightMRCA);
+//        return scaleFactor * heightRoot;
     }
 
     private int getRandomType() {
         return Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0
     }
 
-    private double adjustRoot(Node root, double newHeight) {
-        if (root instanceof GRTNode) {
-            // if it's a GRTNode, we want to not set + return negative infinity if height is below the non-germline child
-            if (newHeight <= ((GRTNode) root).getMinimumHeight()) {
-                return Double.NEGATIVE_INFINITY;
-            }
-        }
-        else if (newHeight <= Math.max(root.getLeft().getHeight(), root.getRight().getHeight())) {
-            // if it's not a GRTNode, we want to not set + return negative infinity if height is below either child
+    private double adjustRoot(Node root, double newHeight, double heightMRCA) {
+        if (newHeight <= heightMRCA) {
+            // return negative infinity if height is below the minimum allowed height
             return Double.NEGATIVE_INFINITY;
         }
+        double oldHeight = root.getHeight();
+        double window = oldHeight-heightMRCA;
+        double change = newHeight-oldHeight;
+        if (Math.abs(change) >= window) {
+//            let's avoid the edge of the range, or for sure don't let the change outside the window (shouldn't be possible)
+            return Double.NEGATIVE_INFINITY;
+        }
+        double logHastingsRatio = Math.log((window)/(window+change));
+
         // if we haven't returned neg infinity at this point, height is safe to set whether it's a GRTNode or reg Node
         root.setHeight(newHeight);
-        return 0.0;
+        return logHastingsRatio;
     }
 
     /**
@@ -171,6 +158,6 @@ public class CombinedRootOperator extends TreeOperator {
             root.makeAllDirty(Tree.IS_DIRTY);
         }
 
-        return adjustRoot(root, newHeight);
+        return adjustRoot(root, newHeight, heightMRCA);
     }
 }

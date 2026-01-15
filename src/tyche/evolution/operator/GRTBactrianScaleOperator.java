@@ -46,7 +46,7 @@ public class GRTBactrianScaleOperator extends BactrianScaleOperator implements G
      * handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
      */
     @Override
-    public double doRootOnlyProposal() {
+    public double doGRTProposal() {
         final GermlineRootTree tree = (GermlineRootTree) InputUtil.get(treeInput, this);
         final GRTNode root = (GRTNode) tree.getRoot();
         final double scale = getScaler(root.getNr(), root.getHeight());
@@ -69,7 +69,7 @@ public class GRTBactrianScaleOperator extends BactrianScaleOperator implements G
     public double proposal() {
         try {
             if (isTreeScaler() && rootOnlyInput.get() && treeInput.get() instanceof GermlineRootTree) {
-                return doRootOnlyProposal();
+                return doGRTProposal();
             }
             else {
                 return super.proposal();

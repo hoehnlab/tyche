@@ -100,6 +100,10 @@ public class GRTNode extends Node {
             if (!this.isGermline()) {
                 setSuperHeight(height, isDA);
             }
+            if (this.getParent() != null && this.getParent().getParent() != null) {
+                // this is not the root and the parent is not the root, so we can set the germline height
+                setSuperHeight(height, isDA);
+            }
         }
     }
 

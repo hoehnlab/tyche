@@ -41,5 +41,5 @@ public interface GRTCompatibleOperator {
     /**
      * handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
      */
-    abstract double doRootOnlyProposal();
+    abstract double doGRTProposal();
 }

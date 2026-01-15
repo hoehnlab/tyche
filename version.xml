@@ -17,6 +17,9 @@
         <provider classname="tyche.evolution.operator.GRTScaleOperator"/>
         <provider classname="tyche.evolution.operator.GRTBactrianScaleOperator"/>
         <provider classname="tyche.evolution.operator.SubtreeTypeSwitchOperator"/>
+        <provider classname="tyche.evolution.operator.TestSubtreeSlide"/>
+        <provider classname="tyche.evolution.operator.GRTExchange"/>
+        <provider classname="tyche.evolution.operator.GRTWilsonBalding"/>
         <provider classname="tyche.inference.distribution.ElementwisePrior"/>
         <provider classname="tyche.evolution.branchratemodel.TycheMixedSwitchClockModel"/>
         <provider classname="tyche.evolution.tree.GRTNode"/>
