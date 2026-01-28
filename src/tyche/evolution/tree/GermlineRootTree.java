@@ -155,7 +155,8 @@ public class GermlineRootTree extends MetadataTree {
      */
     protected boolean isIncompatibleOperator(BEASTInterface o) {
         boolean isPotentiallyIncompatible = false;
-        if (o instanceof ScaleOperator so) {
+        if (o instanceof ScaleOperator) {
+            ScaleOperator so = (ScaleOperator) o;
             // if it's not an explicitly compatible scale operator, check if it's a case that breaks (i.e. rootOnly tree scaler)
             if (so.rootOnlyInput.get() && so.treeInput.get() != null) {
                 isPotentiallyIncompatible = true;
@@ -180,7 +181,8 @@ public class GermlineRootTree extends MetadataTree {
         }
         for (BEASTInterface o : getOutputs()) {
             if (isIncompatibleOperator(o)) {
-                if (o instanceof Operator op) { // we know it will be an operator this is just a check for java
+                if (o instanceof Operator) { // we know it will be an operator this is just a check for java
+                    Operator op = (Operator) o;
                     List<StateNode> stateNodes = op.listStateNodes();
                     if (stateNodes.contains(this)) {
                         String suggestedClass = GRTCompatibleOperatorsSuggestions.getOrDefault(o.getClass().getName(), "");
@@ -207,8 +209,5 @@ public class GermlineRootTree extends MetadataTree {
                     + nodeTypeInput.get() + ": " + e.getMessage());
         }
     }
-
-
-
 
 }

@@ -133,7 +133,7 @@ public class GRTNode extends Node {
     }
 
     /**
-     * assign values to a tree in array representation *
+     * assign values to a tree in array representation
      */
     @Override
     public void assignTo(final Node[] nodes) {
@@ -145,7 +145,7 @@ public class GRTNode extends Node {
     }
 
     /**
-     * assign values from a tree in array representation *
+     * assign values from a tree in array representation
      */
     @Override
     public void assignFrom(final Node[] nodes, final Node node) {
@@ -299,6 +299,7 @@ public class GRTNode extends Node {
 
 
     /**
+     * Makes a deepy copy of a node.
      * @return (deep) copy of node
      */
     @Override

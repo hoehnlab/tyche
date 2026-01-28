@@ -51,7 +51,6 @@ public class MetadataTree extends Tree {
 
     /**
      * Process trait sets.
-     *
      * @param traitList List of trait sets.
      */
     @Override
@@ -74,7 +73,6 @@ public class MetadataTree extends Tree {
      * Get the metadata value associated with a tip by its trait name
      * @param pattern  a String representing the name of the trait
      * @param tipID    a String representing the taxon/ID of the tip to get metadata for
-     *
      * @return Object representing the metadata value of trait name 'pattern' associated with tip 'tipID'
      */
     public Object getTipMetaData(String pattern, String tipID) {
@@ -86,7 +84,6 @@ public class MetadataTree extends Tree {
 
     /**
      * Get the names of the metadata traits associated with this tree.
-     *
      * @return Set of Strings containing all the metadata/trait names associated with this tree.
      */
     public Set<String> getTipMetaDataNames() {
