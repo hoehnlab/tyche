@@ -28,7 +28,7 @@ because cellular evolution is highly heterogenous. For example, B cells undergo
 periods of rapid somatic hypermutation in germinal centers during immune 
 responses before becoming quiescent memory cells.
 
-In contrast to other methods, TyCHE simultaneously reconstructs ancestral trait 
+In contrast to other methods, TyCHE simultaneously reconstructs ancestral type 
 states and dates of tree nodes using type-specific clock rates. 
 
 Requirements
@@ -142,7 +142,7 @@ XML templates for custom analyses.
 The templates used in this tutorial are:
 
 - ``StrictClock/StrictClock_Standard_EmpFreq.xml``: A simple strict clock model with empirical nucleotide frequencies.
-- ``TypeLinked/TypeLinkedExpectedOccupancy_EstTraitClockRates_EmpFreq.xml``: A trait-linked clock model using an expected occupancy method for determining the proportion of each branch in each state, estimating separate clock rates for each state, and using empirical nucleotide frequencies.
+- ``TypeLinked/TypeLinkedExpectedOccupancy_EstTraitClockRates_EmpFreq.xml``: A type-linked clock model using an expected occupancy method for determining the proportion of each branch in each state, estimating separate clock rates for each state, and using empirical nucleotide frequencies.
 
 You can specify the path to the
 template in the ``template`` argument of ``getTimeTreesIterate``, or you can pass a
@@ -195,12 +195,12 @@ be any discrete trait value such as cell types.
 Estimating the GC clock rate
 ****************************
 
-The type-linked clock models implemented in TyCHE link each trait to a separate 
+The type-linked clock models implemented in TyCHE link each type, or trait, to a separate 
 molecular clock rate which can be either fixed or estimated as a parameter. The
 models perform best when there is prior information about the rate of one 
 or both populations. 
 
-If you do not have an external estimate of the clock rate for each trait, you can estimate
+If you do not have an external estimate of the clock rate for each type, you can estimate
 the clock rate using a using root-to-tip regression or by fitting a strict clock 
 model to GC B cells. 
 
@@ -285,13 +285,13 @@ using a root-to-tip regression.
 Run getTimeTreesIterate with a TyCHE template
 *********************************************
 
-We can now run a trait-linked TyCHE model using the estimated GC rate. Here, we 
-use the ``TraitLinkedExpectedOccupancy`` model, which uses an expected 
+We can now run a type-linked TyCHE model using the estimated GC rate. Here, we 
+use the ``TypeLinkedExpectedOccupancy`` model, which uses an expected 
 occupancy method to determine the proportion of each branch in each state. 
 
 Features of this template:
 
-- Allows estimation of clock rates:
+- Allows estimation of type-linked clock rates:
 
   - we provide values of the mean (``TRAIT_RATE_MEAN_1``, ``TRAIT_RATE_MEAN_2``) 
     and sigma (``TRAIT_RATE_SIGMA_1``, ``TRAIT_RATE_SIGMA_2``)
@@ -328,7 +328,7 @@ is a fixed value).
     mixed_trees <- getTimeTreesIterate(
         clones,
         beast    = beast,
-        template = "TraitLinkedExpectedOccupancy_EstTraitClockRates_EmpFreq.xml",
+        template = "TypeLinkedExpectedOccupancy_EstTraitClockRates_EmpFreq.xml",
         trait    = trait,
         time     = "sample_time",
         dir      = "temp",
@@ -342,6 +342,11 @@ is a fixed value).
         TRAIT_RATE_SIGMA_1 = gcrate_tree * 0.01,
         TRAIT_RATE_SIGMA_2 = 0.001,
         RATE_INDICATORS = "1 0",
+        TYPE_SWITCH_INIT = 0.005,
+        TYPE_SWITCH_ALPHA = 0.001,
+        TYPE_SWITCH_BETA = 5.0,
+        TRANSITION_RATE_1_INIT = 1.0,
+        TRANSITION_RATE_2_INIT = 1.0,
         TRANSITION_RATE_ALPHA_1 = 0.1,
         TRANSITION_RATE_BETA_1  = 1.0,
         TRANSITION_RATE_ALPHA_2 = 0.1,
@@ -363,18 +368,29 @@ the ``mcmc_length`` and ``log_target`` (here, ``2000``, so we aim to have around
 samples in the log file). You can also set a fixed logging frequency by providing 
 an integer value.
 
-The rate indicators (``RATE_INDICATORS``) specify which traits can transition to each
+The rate indicators (``RATE_INDICATORS``) specify which types can transition to each
 other. In a primary immune response we recommend setting this to ``"1 0"``, as GC
 B cells can transition to other tissues, but not vice versa. If your data comprises
 chronic infections or repeated vaccinations, you may want to allow transitions in both
-directions, so you would set this to ``"1 1"``. Note: traits are always sorted ASCII alphabetically.
+directions, so you would set this to ``"1 1"``. Note: types are always sorted ASCII alphabetically.
 
-You can also specify alpha (shape) and beta (rate) values for the prior gamma distributions of the
-transition rates between traits. We recommend setting the same prior for each transition
-rate except in rare cases.
+You can specify an initial value for the type switch clock rate (``TYPE_SWITCH_INIT``), which
+describes the rate of switching between types. You can also specify the shape alpha
+(``TYPE_SWITCH_ALPHA``) and the rate beta (``TYPE_SWITCH_BETA``) of the gamma prior distribution
+on the type switch clock rate. Be sure to set the initial value within a reasonable range given
+the prior.
 
-The prior distribution on kappa is used by the nucleotide substitution model, and we
-recommend these values for BCR analyses.
+You can also specify an initial value for the relative transition rates between types
+(``TRANSITION_RATE_1_INIT`` and ``TRANSITION_RATE_2_INIT``), as well as the shape alpha
+(``TRANSITION_RATE_ALPHA_1`` and ``TRANSITION_RATE_ALPHA_2``) and the rate beta
+(``TRANSITION_RATE_BETA_1`` and ``TRANSITION_RATE_BETA_2``) of the gamma prior distributions of 
+the relative transition rates. We recommend setting the same prior for each transition
+rate except in rare cases. Be sure to set the initial values within a reasonable range given
+the prior.
+
+The prior distribution on the transition/transversion rate ratio kappa is a lognormal with
+parameters specified by ``KAPPA_PRIOR_M`` and ``KAPPA_PRIOR_S``. Kappa is used by the 
+nucleotide substitution model, and we recommend these values for BCR analyses.
 
 See ``?getTimeTreesIterate`` and TyCHE and BEAST2 documentation for more details.
 
@@ -449,7 +465,7 @@ logging in the XML template. In this case, we can see all the items that were lo
      [29] "typeLinkedRates.1"              "typeLinkedRates.2"
 
 
-These include the posterior, likelihood, and prior probabilities of the full model; the tree likelihood; estimated values of the tree height, the clock rates for each trait (``typeLinkedRates``), the relative transition rates between traits (``relativeGeoRates``), the rate of switching traits (``typeSwitchClockRate``); parameters relating to BayesianSkyline (``BayesianSkyline``, ``bPopSizes``, ``bGroupSizes``); and some fixed parameters that are included in logging for record-keeping convenience (the kappa value of the HKY substitution model, the empirical frequencies of the nucleotides, the frequencies of the traits).
+These include the posterior, likelihood, and prior probabilities of the full model; the tree likelihood; estimated values of the tree height, the clock rates for each type (``typeLinkedRates``), the relative transition rates between types (``relativeGeoRates``), the rate of switching types (``typeSwitchClockRate``); parameters relating to BayesianSkyline (``BayesianSkyline``, ``bPopSizes``, ``bGroupSizes``); the transition/transversion rate ratio kappa for the HKY substitution model; and some fixed parameters that are included in logging for record-keeping convenience (i.e., the empirical frequencies of the nucleotides and the frequencies of the types).
 
 If you want to revisit an analysis and no longer have the ``mixed_trees`` object 
 in your R environment, you can use ``readBEAST`` to read in the BEAST log and tree 
