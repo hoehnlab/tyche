@@ -1,54 +1,54 @@
+/*
+ *  Copyright (C) 2025 Hoehn Lab, Dartmouth College
+ *
+ * This file is part of TyCHE.
+ *
+ * TyCHE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * TyCHE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TyCHE.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
 package tyche.evolution.operator;
 
+import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.core.Input;
+import beast.base.evolution.operator.SubtreeSlide;
 import beast.base.evolution.operator.TreeOperator;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
+import tyche.evolution.tree.GermlineRootTree;
 
 import java.text.DecimalFormat;
 import java.util.*;
 
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import beast.base.core.Description;
-import beast.base.core.Input;
-import beast.base.evolution.tree.Node;
-import beast.base.evolution.tree.Tree;
-import beast.base.inference.parameter.RealParameter;
-import beast.base.inference.util.InputUtil;
-import beast.base.util.Randomizer;
-import tyche.evolution.tree.GRTNode;
-
 
 /**
- * Implements the subtree slide move.
+ * SubtreeSlide Operator that will appropriately handle if the provided Tree is a GermlineRootTree
  */
-@Description("Moves the height of an internal node along the branch. " +
-        "If it moves up, it can exceed the root and become a new root. " +
-        "If it moves down, it may need to make a choice which branch to " +
-        "slide down into.")
-public class TestSubtreeSlide extends TreeOperator {
+@Description("SubtreeSlide Operator that will appropriately handle if the provided Tree is a GermlineRootTree.")
+@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
+        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
+        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
+        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+public class GRTSubtreeSlide extends SubtreeSlide implements GRTCompatibleOperator {
 
-    final public Input<Double> sizeInput = new Input<>("size", "size of the slide, default 1.0", 1.0);
-    final public Input<Boolean> gaussianInput = new Input<>("gaussian", "Gaussian (=true=default) or uniform delta", true);
-    final public Input<Boolean> optimiseInput = new Input<>("optimise", "flag to indicate that the scale factor is automatically changed in order to achieve a good acceptance rate (default true)", true);
-    final public Input<Double> limitInput = new Input<>("limit", "limit on step size, default disable, " +
-            "i.e. -1. (when positive, gets multiplied by tree-height/log2(n-taxa).", -1.0);
-    // shadows size
-    protected double size;
-    private double limit;
-
-    @Override
-    public void initAndValidate() {
-        size = sizeInput.get();
-        limit = limitInput.get();
-    }
 
     protected boolean isGermline(Node node) {
         if (node.getID() == null) return false;
@@ -61,7 +61,7 @@ public class TestSubtreeSlide extends TreeOperator {
      * @return log of Hastings Ratio, or Double.NEGATIVE_INFINITY if proposal should not be accepted *
      */
     @Override
-    public double proposal() {
+    public double doGRTProposal() {
         final Tree tree = (Tree) InputUtil.get(treeInput, this);
 
         double logq;
@@ -97,27 +97,22 @@ public class TestSubtreeSlide extends TreeOperator {
                 Node newParent = PiP;
                 Node newChild = p;
                 while (newParent.getHeight() < newHeight) {
-                    if (newParent.getParent() == null) break;
                     newChild = newParent;
                     if( markClades ) newParent.makeDirty(Tree.IS_FILTHY); // JH
                     newParent = newParent.getParent();
+                    if (newParent == null) break;
                 }
                 // the moved node 'p' would become a child of 'newParent'
                 //
 
-                // 3.1.1 if creating a new root
-                if (newParent.isRoot()) {
-//                    return Double.NEGATIVE_INFINITY; // let's try never moving the root?
-                    // new root
-                    newParent.setHeight(newHeight+0.001);
-//                    replace(p, CiP, newChild);
-//                    replace(PiP, p, CiP);
-//
-//                    p.setParent(null);
-//                    tree.setRoot(p);
-//                    if (p instanceof GRTNode) {
-//                        System.out.println("new root has germline?: " + ((GRTNode) p).hasGermline());
-//                    }
+                // 3.1.1 JF: if we want to create a new root to allow this change, return Double.NEGATIVE_INFINITY
+                // to reject this proposal because moving "newChild" (i.e. the old root) would move the former root to
+                // be a child of the new root, and therefore the germline to be the grandchild of the new root,
+                // which breaks the premise of the GRT tree
+                if (newChild.isRoot()) {
+                    return Double.NEGATIVE_INFINITY;
+                    // JF: of note, this makes the proposal even, because in a GRT, the root can never move down the tree
+                    // see JF notes at 4.0 and 4.1
                 }
                 // 3.1.2 no new root
                 if (!Objects.equals(p, newChild)) {
@@ -150,6 +145,13 @@ public class TestSubtreeSlide extends TreeOperator {
             // 4.0 is it a valid move?
             if (i.getHeight() > newHeight) {
                 return Double.NEGATIVE_INFINITY;
+                // JF: if node i was the germline, newHeight effectively has to be below it, so we cannot move the root
+                // down the tree if i = germline (technically, if delta < GRTNode.EPSILON, i guess this is possible but
+                // it translates to such a small movement down the tree as to be negligible, and essentially does not change
+                // the tree structure)
+                // if i was the other child of the root, the root cannot move down its branch with i by design of 4.1,
+                // and root cannot move down its branch with germline since germline is a tip, so root cannot move
+                // down the tree
             }
 
             // 4.1 will the move change the topology
@@ -202,6 +204,27 @@ public class TestSubtreeSlide extends TreeOperator {
         return logq;
     }
 
+    /**
+     * Do a probabilistic subtree slide move.
+     *
+     * @return log of Hastings Ratio, or Double.NEGATIVE_INFINITY if proposal should not be accepted *
+     */
+    @Override
+    public double proposal() {
+        try {
+            if (treeInput.get() instanceof GermlineRootTree) {
+                return doGRTProposal();
+            }
+            else {
+                return super.proposal();
+            }
+        }
+        catch (Exception e) {
+            // whatever went wrong, we want to abort this operation...
+            return Double.NEGATIVE_INFINITY;
+        }
+    }
+
     private double getDelta() {
         if (!gaussianInput.get()) {
             return (Randomizer.nextDouble() * size) - (size / 2.0);
@@ -226,7 +249,6 @@ public class TestSubtreeSlide extends TreeOperator {
         }
 
         if (node.isLeaf()) {
-            // TODO: verify that this makes sense
             return 0;
         } else {
             final int count = intersectingEdges(node.getLeft(), height, directChildren) +
@@ -235,58 +257,6 @@ public class TestSubtreeSlide extends TreeOperator {
         }
     }
 
-    /**
-     * automatic parameter tuning *
-     */
-    @Override
-    public void optimize(final double logAlpha) {
-        if (optimiseInput.get()) {
-            double delta = calcDelta(logAlpha);
-            delta += Math.log(size);
-            final double f = Math.exp(delta);
-//            double f = Math.exp(delta);
-            if( limit > 0 ) {
-                final Tree tree = treeInput.get();
-                final double h = tree.getRoot().getHeight();
-                final double k = Math.log(tree.getLeafNodeCount()) / Math.log(2);
-                final double lim = (h / k) * limit;
-                if( f <= lim ) {
-                    size = f;
-                }
-            } else {
-                size = f;
-            }
-        }
-    }
 
-    @Override
-    public double getCoercableParameterValue() {
-        return size;
-    }
-
-    @Override
-    public void setCoercableParameterValue(final double value) {
-        size = value;
-    }
-
-    @Override
-    public String getPerformanceSuggestion() {
-        final double prob = m_nNrAccepted / (m_nNrAccepted + m_nNrRejected + 0.0);
-        final double targetProb = getTargetAcceptanceProbability();
-
-        double ratio = prob / targetProb;
-
-        if (ratio > 2.0) ratio = 2.0;
-        if (ratio < 0.5) ratio = 0.5;
-
-        final double newDelta = size * ratio;
-
-        final DecimalFormat formatter = new DecimalFormat("#.###");
-        if (prob < 0.10) {
-            return "Try decreasing size to about " + formatter.format(newDelta);
-        } else if (prob > 0.40) {
-            return "Try increasing size to about " + formatter.format(newDelta);
-        } else return "";
-    }
 
 }
