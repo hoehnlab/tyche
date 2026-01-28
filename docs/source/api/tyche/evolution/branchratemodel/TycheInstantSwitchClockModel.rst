@@ -2,7 +2,7 @@ TycheInstantSwitchClockModel
 ============================
 
 .. java:class:: public tyche.evolution.branchratemodel.TycheInstantSwitchClockModel
-   :inheritance: ReferenceType(arguments=None, dimensions=[], name=AbstractTycheTypeLinkedClockModel, sub_type=None)
+   :inheritance: tyche.evolution.branchratemodel.AbstractTycheTypeLinkedClockModel
 
 
    Defines a type-linked rate for each branch in the beast.tree, where the branch is assumed to be entirely in the child state.

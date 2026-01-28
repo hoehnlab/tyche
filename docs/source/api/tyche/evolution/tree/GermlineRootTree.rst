@@ -2,7 +2,7 @@ GermlineRootTree
 ================
 
 .. java:class:: public tyche.evolution.tree.GermlineRootTree
-   :inheritance: ReferenceType(arguments=None, dimensions=[], name=MetadataTree, sub_type=None)
+   :inheritance: tyche.evolution.tree.MetadataTree
 
 
    A MetadataTree that treats the Germline and root as one unit, using GRTNodes to set their heights together.
@@ -14,8 +14,14 @@ GermlineRootTree
 
    .. java:field:: String nodeType
 
+   .. java:field:: Map GRTCompatibleOperatorsSuggestions
+
 
    .. java:method:: public void initAndValidate()
+
+      Initialize and validate the tree.
+
+      
 
 
    .. java:method:: protected void findGermline()
@@ -39,6 +45,15 @@ GermlineRootTree
       ensures that the tree initializer is using a compatible node type.
 
       
+
+
+   .. java:method:: protected boolean isIncompatibleOperator(BEASTInterface o)
+
+      checks if a beast "outputs" associated with this tree is a problematic operator type that's not a GRTCompatibleOperator
+
+      :param o: BEASTInterface object to check
+
+      :return: true if not compatible, false if compatible 
 
 
    .. java:method:: protected void lookAtOperators()

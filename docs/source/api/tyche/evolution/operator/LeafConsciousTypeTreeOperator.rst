@@ -53,10 +53,15 @@ LeafConsciousTypeTreeOperator
 
 
    .. java:constructor:: LeafConsciousTypeTreeOperator(Tree)
-      :no-index:
 
 
    .. java:method:: protected void getAmbiguousTips(String traitName, MetadataTree metadataTree)
+
+      update isAmbiguous array with which tips are ambiguous for traitName in metadataTree
+
+      :param traitName: the name of the trait
+
+      :param metadataTree: the metadata tree which has the trait associated 
 
 
    .. java:method:: public void initAndValidate()
@@ -68,7 +73,7 @@ LeafConsciousTypeTreeOperator
 
    .. java:method:: public double proposal()
 
-      Change the parameter and return the hastings ratio.
+      Change the parameter.
 
       
 

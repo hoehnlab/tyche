@@ -1,7 +1,7 @@
 AbstractTycheTypeLinkedClockModel
 =================================
 
-.. java:class:: public abstract tyche.evolution.branchratemodel.AbstractTycheTypeLinkedClockModel
+.. java:class:: abstract public tyche.evolution.branchratemodel.AbstractTycheTypeLinkedClockModel
    :inheritance: beast.base.evolution.branchratemodel.BranchRateModel.Base
 
 
@@ -122,7 +122,7 @@ AbstractTycheTypeLinkedClockModel
       :return: a double array listing the expected occupancy for each type 
 
 
-   .. java:method:: public abstract double getBranchRate(Node node)
+   .. java:method:: abstract public double getBranchRate(Node node)
 
       Get the rate for this branch
 

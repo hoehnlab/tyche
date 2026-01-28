@@ -14,12 +14,16 @@ GRTNode
 
    .. java:field:: double EPSILON
 
+      branch length between root and germline since branches shouldn't be zero
+
+      
+
 
    .. java:method:: protected void addGermline(GRTNode germ)
 
       associate a germline node with this node
 
-      
+      :param germ: GRTNode representing the germline to associate with this node 
 
 
    .. java:method:: protected boolean isGermline()
@@ -69,14 +73,14 @@ GRTNode
 
    .. java:method:: public void assignTo(Node nodes)
 
-      assign values to a tree in array representation *
+      assign values to a tree in array representation
 
       
 
 
    .. java:method:: public void assignFrom(Node nodes, Node node)
 
-      assign values from a tree in array representation *
+      assign values from a tree in array representation
 
       
 
@@ -119,7 +123,7 @@ GRTNode
       :param newHeight: new root height 
 
 
-   .. java:method:: public static GRTNode makeNewFromNode(Node original)
+   .. java:method:: static public GRTNode makeNewFromNode(Node original)
 
       Makes a new GRTNode from a regular node
 
@@ -149,7 +153,16 @@ GRTNode
       :param child: the child to add 
 
 
+   .. java:method:: public void removeChild(Node child)
+
+      Removes a child from this node, if it is the germline, unassociates germline from this node.
+
+      :param child: the child to remove 
+
+
    .. java:method:: public Node copy()
+
+      Makes a deepy copy of a node.
 
       :return: (deep) copy of node 
 

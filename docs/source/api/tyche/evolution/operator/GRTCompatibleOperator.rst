@@ -10,5 +10,9 @@ GRTCompatibleOperator
 
 
 
-   .. java:method:: abstract double doRootOnlyProposal()
+   .. java:method:: abstract double doGRTProposal()
+
+      handle proposal appropriately if the provided Tree is a GermlineRootTree
+
+      
 
