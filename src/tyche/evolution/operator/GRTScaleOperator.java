@@ -47,7 +47,7 @@ public class GRTScaleOperator extends ScaleOperator implements GRTCompatibleOper
      * handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
      */
     @Override
-    public double doRootOnlyProposal() {
+    public double doGRTProposal() {
         final double scale = getScaler();
         // do our own scaler
         final GermlineRootTree tree = (GermlineRootTree) InputUtil.get(treeInput, this);
@@ -71,7 +71,7 @@ public class GRTScaleOperator extends ScaleOperator implements GRTCompatibleOper
     public double proposal() {
         try {
             if (isTreeScaler() && rootOnlyInput.get() && treeInput.get() instanceof GermlineRootTree) {
-                return doRootOnlyProposal();
+                return doGRTProposal();
             }
             else {
                 return super.proposal();

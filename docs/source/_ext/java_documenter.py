@@ -62,6 +62,8 @@ def generate_rst_for_java_file(java_path, package_prefix=None):
     tree.filter(javalang.tree.Import)
 
     for _, class_decl in tree.filter(javalang.tree.TypeDeclaration):
+        if isinstance(class_decl, javalang.tree.EnumDeclaration):
+            continue
         full_name = f"{package_name}.{class_decl.name}" if package_name else class_decl.name
         rst_lines.append(f"{class_decl.name}\n{'=' * len(class_decl.name)}\n")
 
@@ -81,6 +83,9 @@ def generate_rst_for_java_file(java_path, package_prefix=None):
                 if inherit.name in imprt.path:
                     inheritance[inheritance.index(inherit)] = imprt.path + subtype
                     break
+            if inherit in inheritance:
+                inheritance[inheritance.index(inherit)] = package_name + "." + inherit.name + subtype
+
  
         # find nearest preceding comment
         comment = class_decl.documentation

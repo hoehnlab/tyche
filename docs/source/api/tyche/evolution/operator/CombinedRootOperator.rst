@@ -2,31 +2,13 @@ CombinedRootOperator
 ====================
 
 .. java:class:: public tyche.evolution.operator.CombinedRootOperator
-   :inheritance: beast.base.evolution.operator.TreeOperator
+   :inheritance: tyche.evolution.operator.LeafConsciousTypeTreeOperator
 
 
-   Tree Operator
+   Tree Operator that operates on the root's height and type together.
 
    
 
-
-   .. java:field:: Input nodeTypesInput
-
-      input object for the node types parameter to operate on
-
-      
-
-   .. java:field:: IntegerParameter nodeTypes
-
-      the node types parameter to operate on
-
-      
-
-   .. java:field:: int lowerInt
-
-   .. java:field:: int upperInt
-
-   .. java:field:: int germlineNum
 
 
    .. java:constructor:: CombinedRootOperator()
@@ -37,17 +19,9 @@ CombinedRootOperator
 
 
    .. java:constructor:: CombinedRootOperator(Tree)
-      :no-index:
 
 
    .. java:method:: public void initAndValidate()
-
-      Initialize and validate the operator.
-
-      
-
-
-   .. java:method:: private double getRandomScale(double heightRoot, double heightMRCA)
 
 
    .. java:method:: private double getNewHeight(double heightRoot, double heightMRCA)
@@ -56,12 +30,12 @@ CombinedRootOperator
    .. java:method:: private int getRandomType()
 
 
-   .. java:method:: private double adjustRoot(Node root, double newHeight)
+   .. java:method:: private double adjustRoot(Node root, double newHeight, double heightMRCA)
 
 
    .. java:method:: public double proposal()
 
-      Change the parameter and return the hastings ratio.
+      Change the parameter.
 
       
 

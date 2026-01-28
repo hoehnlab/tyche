@@ -2,7 +2,7 @@ TycheExpectedOccupancyClockModel
 ================================
 
 .. java:class:: public tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel
-   :inheritance: ReferenceType(arguments=None, dimensions=[], name=AbstractTycheTypeLinkedClockModel, sub_type=None)
+   :inheritance: tyche.evolution.branchratemodel.AbstractTycheTypeLinkedClockModel
 
 
    Defines a type-linked rate for each branch in the beast.tree, where the branch rate is calculated from the expected occupancy in each type.

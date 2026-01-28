@@ -2,7 +2,7 @@ TycheMixedSwitchClockModel
 ==========================
 
 .. java:class:: public tyche.evolution.branchratemodel.TycheMixedSwitchClockModel
-   :inheritance: ReferenceType(arguments=None, dimensions=[], name=AbstractTycheTypeLinkedClockModel, sub_type=None)
+   :inheritance: tyche.evolution.branchratemodel.AbstractTycheTypeLinkedClockModel
 
 
    Defines a type-linked rate for each branch in the beast.tree, where the branch rate is calculated from the expected occupancy in each type on branches with differently typed nodes, and on branches with same-typed nodes is assumed to be entirely in that state.

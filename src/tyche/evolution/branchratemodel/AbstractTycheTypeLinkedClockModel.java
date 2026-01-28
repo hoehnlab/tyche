@@ -106,7 +106,6 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
     /**
      * the type for each node
      */
-
     protected IntegerParameter nodeTypes;
 
     Function muParameter;

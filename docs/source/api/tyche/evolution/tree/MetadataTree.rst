@@ -21,6 +21,10 @@ MetadataTree
 
    .. java:method:: protected void processTraits(List traitList)
 
+      Process trait sets.
+
+      :param traitList: List of trait sets. 
+
 
    .. java:method:: public Object getTipMetaData(String pattern, String tipID)
 
@@ -28,7 +32,7 @@ MetadataTree
 
       :param pattern: a String representing the name of the trait
 
-      :param tipID: a String representing the taxon/ID of the tip to get metadata for 
+      :param tipID: a String representing the taxon/ID of the tip to get metadata for
 
       :return: Object representing the metadata value of trait name 'pattern' associated with tip 'tipID' 
 
@@ -36,8 +40,6 @@ MetadataTree
    .. java:method:: public Set getTipMetaDataNames()
 
       Get the names of the metadata traits associated with this tree.
-
-      
 
       :return: Set of Strings containing all the metadata/trait names associated with this tree. 
 

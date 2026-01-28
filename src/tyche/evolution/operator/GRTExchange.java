@@ -20,26 +20,53 @@
 
 package tyche.evolution.operator;
 
+import beast.base.core.Citation;
+import beast.base.core.Description;
+import beast.base.evolution.operator.Exchange;
+import beast.base.evolution.tree.Node;
+import tyche.evolution.tree.GRTNode;
 
 /**
  * @author Jessie Fielding
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
 
-import beast.base.core.Citation;
-
 /**
- * Interface to implement when a class agrees to handle rootOnly scale proposals in such a way that the minimum possible
- * height of the root ignores the height of the germline. Compatible with GermlineRootTree tree classes.
+ * ExchangeOperator that will appropriately handle if the provided Tree is a GermlineRootTree
  */
+@Description("ExchangeOperator that will appropriately handle if the provided Tree is a GermlineRootTree.")
 @Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
         "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
         "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
         year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
-public interface GRTCompatibleOperator {
+public class GRTExchange extends Exchange implements GRTCompatibleOperator {
 
     /**
      * handle proposal appropriately if the provided Tree is a GermlineRootTree
      */
-    abstract double doGRTProposal();
+    @Override
+    public double doGRTProposal() {
+        Node root = treeInput.get().getRoot();
+        if (root instanceof GRTNode && ((GRTNode) root).hasGermline()) {
+            // then we need the root to still have germline after this proposal, or we return neg inf to reject
+            double toReturn = super.proposal();
+            if (!((GRTNode) treeInput.get().getRoot()).hasGermline()) {
+                return Double.NEGATIVE_INFINITY;
+            }
+            return toReturn;
+        }
+        else {
+            return super.proposal();
+        }
+    }
+
+    /**
+     * Change the parameter.
+     *
+     * @return Double.NEGATIVE_INFINITY if proposal should not be accepted
+     */
+    @Override
+    public double proposal() {
+        return doGRTProposal();
+    }
 }

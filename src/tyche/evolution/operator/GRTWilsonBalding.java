@@ -22,43 +22,41 @@ package tyche.evolution.operator;
 
 import beast.base.core.Citation;
 import beast.base.core.Description;
-import beast.base.evolution.operator.kernel.BactrianScaleOperator;
+import beast.base.evolution.operator.WilsonBalding;
+import beast.base.evolution.tree.Node;
 import beast.base.inference.util.InputUtil;
 import tyche.evolution.tree.GRTNode;
 import tyche.evolution.tree.GermlineRootTree;
 
 /**
- * @author Jessie Fielding
- * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
+ * WilsonBalding Operator that will appropriately handle if the provided Tree is a GermlineRootTree
  */
-
-/**
- * BactrianScaleOperator that will handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
- */
-@Description("BactrianScaleOperator that will handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree.")
+@Description("WilsonBalding Operator that will appropriately handle if the provided Tree is a GermlineRootTree.")
 @Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
         "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
         "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
         year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
-public class GRTBactrianScaleOperator extends BactrianScaleOperator implements GRTCompatibleOperator {
+public class GRTWilsonBalding extends WilsonBalding implements GRTCompatibleOperator {
 
     /**
-     * handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
+     * handle proposal appropriately if the provided Tree is a GermlineRootTree
      */
     @Override
     public double doGRTProposal() {
-        final GermlineRootTree tree = (GermlineRootTree) InputUtil.get(treeInput, this);
-        final GRTNode root = (GRTNode) tree.getRoot();
-        final double scale = getScaler(root.getNr(), root.getHeight());
-        final double newHeight = root.getHeight() * scale;
-
-        if (newHeight < root.getMinimumHeight()) {
-            return Double.NEGATIVE_INFINITY;
+        Node root = treeInput.get().getRoot();
+        if (root instanceof GRTNode && ((GRTNode) root).hasGermline()) {
+            // then we need the root to still have germline after this proposal, or we return neg inf to reject
+            double toReturn = super.proposal();
+            if (!((GRTNode) treeInput.get().getRoot()).hasGermline()) {
+                return Double.NEGATIVE_INFINITY;
+            }
+            return toReturn;
         }
-        root.setHeight(newHeight);
-        return Math.log(scale);
+        else {
+            double toReturn = super.proposal();
+            return toReturn;
+        }
     }
-
 
     /**
      * Change the parameter.
@@ -67,18 +65,6 @@ public class GRTBactrianScaleOperator extends BactrianScaleOperator implements G
      */
     @Override
     public double proposal() {
-        try {
-            if (isTreeScaler() && rootOnlyInput.get() && treeInput.get() instanceof GermlineRootTree) {
-                return doGRTProposal();
-            }
-            else {
-                return super.proposal();
-            }
-        }
-        catch (Exception e) {
-            // whatever went wrong, we want to abort this operation...
-            return Double.NEGATIVE_INFINITY;
-        }
+        return doGRTProposal();
     }
-
 }

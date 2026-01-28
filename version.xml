@@ -1,4 +1,4 @@
-<package name="TyCHE" version="0.0.5">
+<package name="TyCHE" version="0.0.6">
     <depends on='BEAST.base' atleast='2.7.6'/>
     <depends on='BEAST.app' atleast='2.7.6'/>
     <depends on='BEAST_CLASSIC' atleast='1.6.2'/>
@@ -17,6 +17,9 @@
         <provider classname="tyche.evolution.operator.GRTScaleOperator"/>
         <provider classname="tyche.evolution.operator.GRTBactrianScaleOperator"/>
         <provider classname="tyche.evolution.operator.SubtreeTypeSwitchOperator"/>
+        <provider classname="tyche.evolution.operator.GRTSubtreeSlide"/>
+        <provider classname="tyche.evolution.operator.GRTExchange"/>
+        <provider classname="tyche.evolution.operator.GRTWilsonBalding"/>
         <provider classname="tyche.inference.distribution.ElementwisePrior"/>
         <provider classname="tyche.evolution.branchratemodel.TycheMixedSwitchClockModel"/>
         <provider classname="tyche.evolution.tree.GRTNode"/>
