@@ -96,10 +96,7 @@ public class CombinedRootOperator extends LeafConsciousTypeTreeOperator {
 
     private double getNewHeight(double heightRoot, double heightMRCA) {
         double heightDiff = Math.abs(heightRoot - heightMRCA);
-        double newHeight = heightMRCA + (Randomizer.nextDouble() * 2 * heightDiff);
-        return newHeight;
-//        double scaleFactor = getRandomScale(heightRoot, heightMRCA);
-//        return scaleFactor * heightRoot;
+        return heightMRCA + (Randomizer.nextDouble() * 2 * heightDiff);
     }
 
     private int getRandomType() {
