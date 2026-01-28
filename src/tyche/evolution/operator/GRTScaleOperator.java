@@ -74,11 +74,7 @@ public class GRTScaleOperator extends ScaleOperator implements GRTCompatibleOper
                 return doGRTProposal();
             }
             else {
-                double allegedLogHastingsRatio = super.proposal();
-                if (allegedLogHastingsRatio == Double.NEGATIVE_INFINITY) {
-                    return allegedLogHastingsRatio;
-                }
-                return -allegedLogHastingsRatio;
+                return super.proposal();
             }
         }
         catch (Exception e) {
