@@ -25,17 +25,22 @@ import beast.base.core.BEASTInterface;
 import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.core.Log;
+import beast.base.evolution.operator.Exchange;
 import beast.base.evolution.operator.ScaleOperator;
+import beast.base.evolution.operator.SubtreeSlide;
+import beast.base.evolution.operator.WilsonBalding;
+import beast.base.evolution.operator.kernel.BactrianScaleOperator;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.coalescent.RandomTree;
 import beast.base.inference.Operator;
 import beast.base.inference.StateNode;
 import beast.pkgmgmt.BEASTClassLoader;
-import tyche.evolution.operator.GRTBactrianScaleOperator;
-import tyche.evolution.operator.GRTCompatibleOperator;
-import tyche.evolution.operator.GRTScaleOperator;
+import tyche.evolution.operator.*;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Jessie Fielding
@@ -56,6 +61,16 @@ public class GermlineRootTree extends MetadataTree {
     protected int germlineNum = -1;
 
     protected String nodeType;
+
+    private static final Map<String, String> GRTCompatibleOperatorsSuggestions = new HashMap<>(){
+        {
+            put(WilsonBalding.class.getName(), GRTWilsonBalding.class.getName());
+            put(Exchange.class.getName(), GRTExchange.class.getName());
+            put(BactrianScaleOperator.class.getName(), GRTBactrianScaleOperator.class.getName());
+            put(ScaleOperator.class.getName(), GRTScaleOperator.class.getName());
+            put(SubtreeSlide.class.getName(), GRTSubtreeSlide.class.getName());
+        }
+    };
 
 
     /**
@@ -133,6 +148,25 @@ public class GermlineRootTree extends MetadataTree {
 
     }
 
+    /**
+     * checks if a beast "outputs" associated with this tree is a problematic operator type that's not a GRTCompatibleOperator
+     * @param o BEASTInterface object to check
+     * @return true if not compatible, false if compatible
+     */
+    protected boolean isIncompatibleOperator(BEASTInterface o) {
+        boolean isPotentiallyIncompatible = false;
+        if (o instanceof ScaleOperator so) {
+            // if it's not an explicitly compatible scale operator, check if it's a case that breaks (i.e. rootOnly tree scaler)
+            if (so.rootOnlyInput.get() && so.treeInput.get() != null) {
+                isPotentiallyIncompatible = true;
+            }
+        } else if (o instanceof Exchange || o instanceof SubtreeSlide || o instanceof WilsonBalding) {
+            isPotentiallyIncompatible = true;
+        }
+
+        return isPotentiallyIncompatible && !(o instanceof GRTCompatibleOperator);
+    }
+
 
     /**
      * checks all beast "outputs" associated with this tree to identify scale operators that are not GRTCompatibleOperators
@@ -145,16 +179,14 @@ public class GermlineRootTree extends MetadataTree {
             return;
         }
         for (BEASTInterface o : getOutputs()) {
-            if (o instanceof ScaleOperator && !(o instanceof GRTCompatibleOperator)) {
-                // not explicitly compatible scale operator, check if it's a case that breaks (i.e. rootOnly tree scaler)
-                ScaleOperator so = (ScaleOperator) o;
-                if (so.rootOnlyInput.get() && so.treeInput.get() != null) {
-                    // not explicitly compatible and it is a case that breaks, let's double check that it actually applies
-                    // to this tree
-                    List<StateNode> stateNodes = so.listStateNodes();
+            if (isIncompatibleOperator(o)) {
+                if (o instanceof Operator op) { // we know it will be an operator this is just a check for java
+                    List<StateNode> stateNodes = op.listStateNodes();
                     if (stateNodes.contains(this)) {
+                        String suggestedClass = GRTCompatibleOperatorsSuggestions.getOrDefault(o.getClass().getName(), "");
+                        String suggestion = (Objects.equals(suggestedClass, "")) ? "" : suggestedClass + " or";
                         // now we're sure it applies to this tree, and it's a case that will break things, so throw an error
-                        throw new IllegalArgumentException(this.getID() + ": " + this.getClass() + " has found a germline, and is therefore incompatible with rootOnly scale operator " + o.getID() + " of class " + o.getClass() + ".\nUse one of these compatible scale operators instead: " + GRTScaleOperator.class.getName() + ", " + GRTBactrianScaleOperator.class.getName() + "\nor a class that implements " + GRTCompatibleOperator.class.getName());
+                        throw new IllegalArgumentException(this.getID() + ": " + this.getClass() + " has found a germline, and is therefore incompatible with rootOnly scale operator " + o.getID() + " of class " + o.getClass() + ".\nTry using " + suggestion + " a class that implements " + GRTCompatibleOperator.class.getName());
                     }
                 }
             }
