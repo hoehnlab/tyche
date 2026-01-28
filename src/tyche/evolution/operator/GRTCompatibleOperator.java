@@ -39,7 +39,7 @@ import beast.base.core.Citation;
 public interface GRTCompatibleOperator {
 
     /**
-     * handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
+     * handle proposal appropriately if the provided Tree is a GermlineRootTree
      */
     abstract double doGRTProposal();
 }

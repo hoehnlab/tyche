@@ -55,9 +55,6 @@ import java.util.Objects;
         year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
 public class CombinedRootOperator extends LeafConsciousTypeTreeOperator {
 
-    public final Input<Double> scaleFactorInput = new Input<>("scaleFactor", "scaling factor: range from 0 to 1. Close to zero is very large jumps, close to 1.0 is very small jumps.", 0.75);
-
-    private double scaleFactor;
 
     /**
      * empty constructor to facilitate construction by XML + initAndValidate
@@ -78,21 +75,8 @@ public class CombinedRootOperator extends LeafConsciousTypeTreeOperator {
     @Override
     public void initAndValidate() {
         super.initAndValidate();
-        scaleFactor = scaleFactorInput.get();
     }
 
-    protected double getScaler(double scaleFactor) {
-        return (scaleFactor + (Randomizer.nextDouble() * ((1.0 / scaleFactor) - scaleFactor)));
-    }
-
-
-    private double getRandomScale(double heightRoot, double heightMRCA) {
-//        double maxScale = heightRoot/heightMRCA;
-//        System.out.println("Max scale is: " + maxScale + " and scale factor could be: " + heightMRCA/heightRoot);
-//        double scaleAmount = Randomizer.nextDouble() * maxScale;
-//        boolean scaleDirection = Randomizer.nextDouble() > 0.5;
-        return getScaler(heightMRCA/heightRoot);
-    }
 
     private double getNewHeight(double heightRoot, double heightMRCA) {
         double heightDiff = Math.abs(heightRoot - heightMRCA);
