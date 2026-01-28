@@ -43,7 +43,7 @@
 
     <run id="mcmc" spec="MCMC" chainLength="10000">
         <state id="state" spec="State" storeEvery="5000">
-            <tree id="Tree.t:example" spec="beast.base.evolution.tree.Tree" name="stateNode">
+            <tree id="Tree.t:example" spec="tyche.evolution.tree.GermlineRootTree" name="stateNode">
                 <trait id="date:example" spec="beast.base.evolution.tree.TraitSet" taxa="@TaxonSet.example" traitname="date">
 1_4820750448_heavy=75,
 1_4827397248_heavy=100,
@@ -73,7 +73,7 @@
             <parameter id="typeSwitchClockRate.c:type" spec="parameter.RealParameter" name="stateNode" upper="0.5">0.004</parameter>
             <parameter id="clockRate.c:example" spec="parameter.RealParameter" name="stateNode">0.001</parameter>
             <parameter id="kappa.s:example" spec="parameter.RealParameter" lower="0.0" name="stateNode">2.0</parameter>
-            <parameter id="bPopSizes.t:example" spec="parameter.RealParameter" dimension="5" lower="0.0" name="stateNode">380.0</parameter>
+            <parameter id="bPopSizes.t:example" spec="parameter.RealParameter" dimension="5" lower="1.0" name="stateNode">380.0</parameter>
             <stateNode id="bGroupSizes.t:example" spec="parameter.IntegerParameter" dimension="5">1</stateNode>
             <parameter id="freqParameter.s:example" spec="parameter.RealParameter" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>
             <parameter idref="nodeTypes" spec="parameter.IntegerParameter" name="stateNode"/>
@@ -232,15 +232,18 @@ other=1,
         <operator id="nodeTypesSubtreeTypeSwitchOperator" spec="tyche.evolution.operator.SubtreeTypeSwitchOperator" tree="@Tree.t:example" weight="2.0">
             <input name="nodeTypes" idref="nodeTypes"/>
         </operator>
+        <operator id="rootHeightAndTypeOperator" spec="tyche.evolution.operator.CombinedRootOperator" tree="@Tree.t:example"  weight="5.0" traitName="newTrait">
+            <input name="nodeTypes" idref="nodeTypes"/>
+        </operator>
         <operator id="KappaScaler.s:example" spec="ScaleOperator" parameter="@kappa.s:example" scaleFactor="0.5" weight="0.05"/>
         <!-- bayesian skyline tree operators  -->
         <operator id="BayesianSkylineTreeScaler.t:example" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:example" weight="4.0"/>
-        <operator id="BayesianSkylineTreeRootScaler.t:example" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:example" weight="4.0"/>
+        <operator id="BayesianSkylineTreeRootScaler.t:example" spec="tyche.evolution.operator.GRTScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:example" weight="4.0"/>
         <operator id="BayesianSkylineUniformOperator.t:example" spec="Uniform" tree="@Tree.t:example" weight="40.0"/>
-        <operator id="BayesianSkylineSubtreeSlide.t:example" spec="SubtreeSlide" tree="@Tree.t:example" weight="20.0"/>
-        <operator id="BayesianSkylineNarrow.t:example" spec="Exchange" tree="@Tree.t:example" weight="20.0"/>
-        <operator id="BayesianSkylineWide.t:example" spec="Exchange" isNarrow="false" tree="@Tree.t:example" weight="4.0"/>
-        <operator id="BayesianSkylineWilsonBalding.t:example" spec="WilsonBalding" tree="@Tree.t:example" weight="4.0"/>
+        <operator id="BayesianSkylineSubtreeSlide.t:example" spec="tyche.evolution.operator.GRTSubtreeSlide" tree="@Tree.t:example" weight="20.0"/>
+        <operator id="BayesianSkylineNarrow.t:example" spec="tyche.evolution.operator.GRTExchange" tree="@Tree.t:example" weight="20.0"/>
+        <operator id="BayesianSkylineWide.t:example" spec="tyche.evolution.operator.GRTExchange" isNarrow="false" tree="@Tree.t:example" weight="4.0"/>
+        <operator id="BayesianSkylineWilsonBalding.t:example" spec="tyche.evolution.operator.GRTWilsonBalding" tree="@Tree.t:example" weight="4.0"/>
         <!-- up to here -->
         <operator id="popSizesScaler.t:example" spec="ScaleOperator" parameter="@bPopSizes.t:example" weight="15.0"/>
         <operator id="groupSizesDelta.t:example" spec="DeltaExchangeOperator" integer="true" weight="6.0">
