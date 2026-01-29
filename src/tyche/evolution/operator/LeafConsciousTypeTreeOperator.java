@@ -146,7 +146,10 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
         } else {
             germlineNum = ((GermlineRootTree) tree).getGermlineNum();
             isGermlineRoot = true;
-            if (!isAmbiguous[germlineNum]) {
+            if (germlineNum < 0) {
+                Log.warning("Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " did not find a germline.");
+            }
+            else if (!isAmbiguous[germlineNum]) {
                 Log.warning("Operator " + this.getID() + " of type " + this.getClass().getSimpleName() + " will not operate on germline as it appears to not be ambiguous, or no trait information was provided to determine ambiguity.");
                 germlineNum = -1;
             }
