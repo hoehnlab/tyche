@@ -284,19 +284,6 @@ public class GRTNode extends Node {
     }
 
 
-    /**
-     * Removes a child from this node, if it is the germline, unassociates germline from this node.
-     * @param child the child to remove
-     */
-    @Override
-    public void removeChild(final Node child) {
-        if (child instanceof GRTNode && ((GRTNode) child).isGermline()) {
-            germline = null;
-        }
-        super.removeChild(child);
-    }
-
-
 
     /**
      * Makes a deepy copy of a node.

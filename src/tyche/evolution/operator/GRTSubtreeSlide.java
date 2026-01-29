@@ -112,7 +112,7 @@ public class GRTSubtreeSlide extends SubtreeSlide implements GRTCompatibleOperat
                 if (newChild.isRoot()) {
                     return Double.NEGATIVE_INFINITY;
                     // JF: of note, this makes the proposal even, because in a GRT, the root can never move down the tree
-                    // see JF notes at 4.0 and 4.1
+                    // see JF notes at 4.0
                 }
                 // 3.1.2 no new root
                 if (!Objects.equals(p, newChild)) {
@@ -120,9 +120,6 @@ public class GRTSubtreeSlide extends SubtreeSlide implements GRTCompatibleOperat
                     replace(PiP, p, CiP);
                     replace(newParent, newChild, p);
                 }
-//                replace(p, CiP, newChild);
-//                replace(PiP, p, CiP);
-//                replace(newParent, newChild, p);
 
 
                 p.setHeight(newHeight);
@@ -145,10 +142,15 @@ public class GRTSubtreeSlide extends SubtreeSlide implements GRTCompatibleOperat
             // 4.0 is it a valid move?
             if (i.getHeight() > newHeight) {
                 return Double.NEGATIVE_INFINITY;
-                // JF: if node i was the germline, newHeight effectively has to be below it, so we cannot move the root
-                // down the tree if i = germline (technically, if delta < GRTNode.EPSILON, i guess this is possible but
-                // it translates to such a small movement down the tree as to be negligible, and essentially does not change
-                // the tree structure)
+                // JF: if node i was the germline, newHeight effectively has to be below it, so we almost cannot move the root
+                // down the tree if i = germline
+                // if |delta| < GRTNode.EPSILON, and CiP (MRCA) is closer to the root than the germline is -
+                // i.e. root.height - MRCA.height < |delta| < GRTNode.EPSILON -
+                // it would be possible to move the root down the tree.
+                // Even though it translates to such a small movement down the tree as to be negligible, and
+                // essentially does not change the tree structure, to be entirely safe, in 4.1.1 we return
+                // Double.NEGATIVE_INFINITY so that we enforce the GRT germline-root relationship and so that we match
+                // the upward case exactly, as explained in JF's notes in 3.1.1
                 // if i was the other child of the root, the root cannot move down its branch with i by design of 4.1,
                 // and root cannot move down its branch with germline since germline is a tip, so root cannot move
                 // down the tree
@@ -172,13 +174,7 @@ public class GRTSubtreeSlide extends SubtreeSlide implements GRTCompatibleOperat
 
                 // 4.1.1 if p was root
                 if (p.isRoot()) {
-                    // new root is CiP
-                    replace(p, CiP, newChild);
-                    replace(newParent, newChild, p);
-
-                    CiP.setParent(null);
-                    tree.setRoot(CiP);
-
+                    return Double.NEGATIVE_INFINITY;
                 } else {
                     replace(p, CiP, newChild);
                     replace(PiP, p, CiP);
