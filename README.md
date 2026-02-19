@@ -94,7 +94,7 @@ cd <parent-dir>
 git clone https://github.com/CompEvol/beast2.git
 git clone https://github.com/CompEvol/BeastFX.git
 git clone https://github.com/BEAST2-Dev/beast-classic.git
-git clone <this-repo>
+git clone https://github.com/hoehnlab/tyche.git
 ```
 
 Make sure you have `ant` installed. Set `JAVACMD` env variable to the path for the [JDK recommended for beast2 development](https://github.com/CompEvol/BeastFX/blob/master/DevGuideIntelliJ.md#azul-jdk-17). (See [here](https://www.beast2.org/package-development-guide/) for a general guide to Beast2 development.)
