@@ -24,6 +24,7 @@ import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.evolution.operator.WilsonBalding;
 import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
 import beast.base.inference.util.InputUtil;
 import tyche.evolution.tree.GRTNode;
 import tyche.evolution.tree.GermlineRootTree;
@@ -43,18 +44,16 @@ public class GRTWilsonBalding extends WilsonBalding implements GRTCompatibleOper
      */
     @Override
     public double doGRTProposal() {
-        Node root = treeInput.get().getRoot();
-        if (root instanceof GRTNode && ((GRTNode) root).hasGermline()) {
-            // then we need the root to still have germline after this proposal, or we return neg inf to reject
+        if (treeInput.get() instanceof GermlineRootTree && ((GermlineRootTree) treeInput.get()).getGermlineNum() > 0) {
+            boolean wasStartingStructureGRT = isStructureGRT(treeInput);
             double toReturn = super.proposal();
-            if (!((GRTNode) treeInput.get().getRoot()).hasGermline()) {
+            if (wasStartingStructureGRT && !isStructureGRT(treeInput)) {
                 return Double.NEGATIVE_INFINITY;
             }
             return toReturn;
         }
         else {
-            double toReturn = super.proposal();
-            return toReturn;
+            return super.proposal();
         }
     }
 

@@ -27,6 +27,10 @@ package tyche.evolution.operator;
  */
 
 import beast.base.core.Citation;
+import beast.base.core.Input;
+import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
+import tyche.evolution.tree.GRTNode;
 
 /**
  * Interface to implement when a class agrees to handle rootOnly scale proposals in such a way that the minimum possible
@@ -42,4 +46,23 @@ public interface GRTCompatibleOperator {
      * handle proposal appropriately if the provided Tree is a GermlineRootTree
      */
     abstract double doGRTProposal();
+
+    default boolean isStructureGRT(Input<Tree> treeInput) {
+        Node root = treeInput.get().getRoot();
+        if (root instanceof GRTNode) {
+            GRTNode rootGRT = (GRTNode) root;
+            boolean hasGermlineChild = (root.getLeft().getID() + root.getRight().getID()).toUpperCase().contains("germline".toUpperCase());
+            boolean hasGermline = rootGRT.hasGermline();
+            if (hasGermlineChild && !hasGermline) {
+                System.out.println("Why is there no germline associated with this node??" + rootGRT.getNr() + " " + rootGRT.hasGermline() + (root.getLeft().getID() + " " + root.getRight().getID()));
+            } else if (hasGermline && !hasGermlineChild) {
+                System.out.println("This is why I want to be able to remove the associated germline");
+                return false;
+            } else if (!hasGermline && !hasGermlineChild) {
+                return false;
+            } else return true;
+
+        } else return false;
+        return false;
+    }
 }

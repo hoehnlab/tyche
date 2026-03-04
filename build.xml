@@ -51,7 +51,7 @@
             <arg value="@"/>
         </exec>
         <echo message="git commit is: ${setDevVersion}"/>
-        <condition property="dev_version" value="${setDevVersion}-dev-${DATETIME}" else="">
+        <condition property="dev_version" value="-${setDevVersion}-built-${DATETIME}" else="">
             <and>
                 <isset property="setDevVersion"/>
                 <length string="${setDevVersion}" trim="yes" length="0" when="greater"/>

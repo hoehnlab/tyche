@@ -25,7 +25,10 @@ import beast.base.core.Description;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 /**
  * @author Jessie Fielding
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
@@ -67,14 +70,41 @@ public class GRTNode extends Node {
      */
     final static double EPSILON = 0.0000001;
 
+    private boolean addIfGermline(Node node) {
+        if ((node.getID() + " ").toUpperCase().contains("germline".toUpperCase())) {
+            addGermline((GRTNode) node);
+            return true;
+        }
+        return false;
+    }
+
+    public void resetGermline() {
+        germline = null;
+        getChildren().forEach(this::addIfGermline);
+    }
+
 
     /**
      * does this node have the germline as a child?
      * @return true if germline is associated with this node, otherwise false
      */
     public boolean hasGermline() {
-        return (germline != null);
+        boolean hasGermChild = getChildren().stream().anyMatch(this::addIfGermline);
+//        if (germline == null && hasGermChild) {
+//            for (Node child : getChildren()) {
+//                if ((child.getID() + " ").contains("germline".toUpperCase())) addGermline((GRTNode) child);
+//            }
+//        }
+        if (germline == null && hasGermChild) {
+            System.out.println("Howwwww");
+        }
+        return (germline != null) && hasGermChild;
     }
+
+//    public GRTNode getGermline() {
+//        hasGermline();
+//        return germline;
+//    }
 
 
     /**
@@ -139,7 +169,7 @@ public class GRTNode extends Node {
     public void assignTo(final Node[] nodes) {
         super.assignTo(nodes);
         final GRTNode node = (GRTNode) nodes[getNr()];
-        if (germline != null) {
+        if (hasGermline()) {
             node.addGermline((GRTNode) nodes[germline.getNr()]);
         }
     }
@@ -151,7 +181,7 @@ public class GRTNode extends Node {
     public void assignFrom(final Node[] nodes, final Node node) {
         super.assignFrom(nodes, node);
         if (node instanceof GRTNode) {
-            if (((GRTNode) node).germline != null) {
+            if (((GRTNode) node).hasGermline()) {
                 addGermline((GRTNode) nodes[((GRTNode) node).germline.getNr()]);
             }
         }
@@ -283,6 +313,11 @@ public class GRTNode extends Node {
         super.addChild(child);
     }
 
+    public void removeChild(final Node child) {
+        super.removeChild(child);
+        if (((GRTNode) child).isGermline() && germline != null) germline = null;
+    }
+
 
 
     /**
@@ -311,6 +346,7 @@ public class GRTNode extends Node {
             }
             node.addChild(childCopy); // this should handle setting the germline correctly
         }
+        if (isRoot()) node.resetGermline();
         return node;
     } // copy
 
@@ -348,5 +384,17 @@ public class GRTNode extends Node {
         }
 
         return dof;
+    }
+
+    public List<Node> getSubtreeNodesAsArray() {
+        List<Node> nodes = new ArrayList<>();
+        nodes.add(this);
+        for (Node child : getChildren()) {
+            if (child instanceof GRTNode) {
+                nodes.addAll(((GRTNode) child).getSubtreeNodesAsArray());
+            }
+        }
+        return nodes;
+
     }
 }

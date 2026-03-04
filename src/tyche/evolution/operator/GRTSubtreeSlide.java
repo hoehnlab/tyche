@@ -29,6 +29,7 @@ import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
+import tyche.evolution.tree.GRTNode;
 import tyche.evolution.tree.GermlineRootTree;
 
 import java.text.DecimalFormat;
@@ -50,10 +51,6 @@ import java.util.List;
 public class GRTSubtreeSlide extends SubtreeSlide implements GRTCompatibleOperator {
 
 
-    protected boolean isGermline(Node node) {
-        if (node.getID() == null) return false;
-        return node.getID().toUpperCase().contains("germline".toUpperCase());
-    }
 
     /**
      * Do a probabilistic subtree slide move.
@@ -208,8 +205,13 @@ public class GRTSubtreeSlide extends SubtreeSlide implements GRTCompatibleOperat
     @Override
     public double proposal() {
         try {
-            if (treeInput.get() instanceof GermlineRootTree) {
-                return doGRTProposal();
+            if (isStructureGRT(treeInput)) {
+                // then we need the root to still have germline after this proposal, or we return neg inf to reject
+                double toReturn = doGRTProposal();
+                if (!isStructureGRT(treeInput)) {
+                    return Double.NEGATIVE_INFINITY;
+                }
+                return toReturn;
             }
             else {
                 return super.proposal();

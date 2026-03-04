@@ -31,6 +31,7 @@ import beast.base.evolution.operator.SubtreeSlide;
 import beast.base.evolution.operator.WilsonBalding;
 import beast.base.evolution.operator.kernel.BactrianScaleOperator;
 import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
 import beast.base.evolution.tree.coalescent.RandomTree;
 import beast.base.inference.Operator;
 import beast.base.inference.StateNode;
@@ -194,6 +195,23 @@ public class GermlineRootTree extends MetadataTree {
             }
         }
 
+    }
+
+    @Override
+    public void store() {
+        if (root instanceof GRTNode) {
+            ((GRTNode) root).resetGermline();
+        }
+        super.store();
+//        System.out.println("Here?");
+    }
+
+    @Override
+    public void restore() {
+        super.restore();
+        if (root instanceof GRTNode) {
+            ((GRTNode) root).resetGermline();
+        }
     }
 
     /**

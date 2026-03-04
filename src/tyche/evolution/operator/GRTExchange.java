@@ -24,7 +24,10 @@ import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.evolution.operator.Exchange;
 import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
+import beast.base.util.Randomizer;
 import tyche.evolution.tree.GRTNode;
+import tyche.evolution.tree.GermlineRootTree;
 
 /**
  * @author Jessie Fielding
@@ -42,15 +45,75 @@ import tyche.evolution.tree.GRTNode;
 public class GRTExchange extends Exchange implements GRTCompatibleOperator {
 
     /**
+     * WARNING: Assumes strictly bifurcating beast.tree.
+     * @param tree
+     */
+    @Override
+    public double wide(final Tree tree) {
+        if (!(tree instanceof GermlineRootTree) || ((GermlineRootTree) tree).getGermlineNum() < 0) {
+            return super.wide(tree);
+        }
+
+        final int nodeCount = tree.getNodeCount();
+
+        Node i = tree.getRoot();
+
+        while (i.isRoot()) {
+            i = tree.getNode(Randomizer.nextInt(nodeCount));
+        }
+
+        Node j = i;
+        while (j.getNr() == i.getNr() || j.isRoot()) {
+            j = tree.getNode(Randomizer.nextInt(nodeCount));
+        }
+
+        final Node p = i.getParent();
+        final Node jP = j.getParent();
+
+        // TODO for future version for code simplicity: test if we need this
+        //  don't even make the change if i or j is the germline child of root:
+        if ((i.getID().toUpperCase().contains("germline".toUpperCase()) && i.getParent().isRoot())
+                || (j.getID().toUpperCase().contains("germline".toUpperCase()) && j.getParent().isRoot())) return Double.NEGATIVE_INFINITY;
+
+        if ((p != jP) && (i != jP) && (j != p)
+                && (j.getHeight() < p.getHeight())
+                && (i.getHeight() < jP.getHeight())) {
+            exchangeNodes(i, j, p, jP);
+
+            // All the nodes on the path from i/j to the common ancestor of i/j parents had a topology change,
+            // so they need to be marked FILTHY.
+            if( markCladesInput.get() ) {
+                Node iup = p;
+                Node jup = jP;
+                while (iup != jup) {
+                    if( iup.getHeight() < jup.getHeight() ) {
+                        assert !iup.isRoot();
+                        iup = iup.getParent();
+                        iup.makeDirty(Tree.IS_FILTHY);
+                    } else {
+                        assert !jup.isRoot();
+                        jup = jup.getParent();
+                        jup.makeDirty(Tree.IS_FILTHY);
+                    }
+                }
+            }
+            return 0;
+        }
+
+        // Randomly selected nodes i and j are not valid candidates for a wide exchange.
+        // reject instead of counting (like we do for narrow).
+        return Double.NEGATIVE_INFINITY;
+    }
+
+    /**
      * handle proposal appropriately if the provided Tree is a GermlineRootTree
      */
     @Override
     public double doGRTProposal() {
-        Node root = treeInput.get().getRoot();
-        if (root instanceof GRTNode && ((GRTNode) root).hasGermline()) {
-            // then we need the root to still have germline after this proposal, or we return neg inf to reject
+        if (treeInput.get() instanceof GermlineRootTree && ((GermlineRootTree) treeInput.get()).getGermlineNum() > 0) {
+            boolean wasStartingStructureGRT = isStructureGRT(treeInput);
             double toReturn = super.proposal();
-            if (!((GRTNode) treeInput.get().getRoot()).hasGermline()) {
+            if (wasStartingStructureGRT && !isStructureGRT(treeInput)) {
                 return Double.NEGATIVE_INFINITY;
             }
             return toReturn;
