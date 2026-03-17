@@ -156,6 +156,21 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
         }
     }
 
+    protected void setNodeType(int nodeNum, int newValue) {
+        if (isGermlineRoot && germlineNum > 0) {
+            final Tree tree = (Tree) InputUtil.get(treeInput, this);
+            boolean nodeIsGermline = nodeNum == germlineNum;
+            boolean nodeIsRoot = nodeNum == tree.getRoot().getNr();
+            if (nodeIsGermline || nodeIsRoot) {
+                nodeTypes.setValue(germlineNum, newValue);
+                nodeTypes.setValue(tree.getRoot().getNr(), newValue);
+                return;
+            }
+            // if this is GRT with germline, but this node isn't root or germline, we can just set value normally
+        }
+        nodeTypes.setValue(nodeNum, newValue);
+    }
+
     /**
      * Change the parameter.
      *
@@ -178,11 +193,7 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
             node = tree.getNode(nodeNr);
         } while ((node.isLeaf() && !isAmbiguous[node.getNr()]));
         int newValue = Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0,
-        nodeTypes.setValue(node.getNr(), newValue);
-        if (isGermlineRoot && germlineNum > 0) {
-            nodeTypes.setValue(germlineNum, newValue);
-            nodeTypes.setValue(tree.getRoot().getNr(), newValue);
-        }
+        setNodeType(node.getNr(), newValue);
 
         if (markCladesInput.get()) {
             node.makeAllDirty(Tree.IS_DIRTY);

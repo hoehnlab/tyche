@@ -71,9 +71,9 @@ public class GRTExchange extends Exchange implements GRTCompatibleOperator {
         final Node jP = j.getParent();
 
         // TODO for future version for code simplicity: test if we need this
-        //  don't even make the change if i or j is the germline child of root:
-        if ((i.getID().toUpperCase().contains("germline".toUpperCase()) && i.getParent().isRoot())
-                || (j.getID().toUpperCase().contains("germline".toUpperCase()) && j.getParent().isRoot())) return Double.NEGATIVE_INFINITY;
+        //  don't even make the change if i or j is the germline child of root
+        if (((i.getID() + " ").toUpperCase().contains("germline".toUpperCase()) && i.getParent().isRoot())
+                || ((j.getID() + " ").toUpperCase().contains("germline".toUpperCase()) && j.getParent().isRoot())) return Double.NEGATIVE_INFINITY;
 
         if ((p != jP) && (i != jP) && (j != p)
                 && (j.getHeight() < p.getHeight())

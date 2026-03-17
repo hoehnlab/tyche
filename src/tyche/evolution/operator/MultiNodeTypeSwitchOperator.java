@@ -270,7 +270,7 @@ public abstract class MultiNodeTypeSwitchOperator extends LeafConsciousTypeTreeO
 
     protected void setRelatedNodeType(int nodeNum, int newValue) {
         updateIsHomogenous(nodeTypes.getValue(nodeNum), newValue);
-        nodeTypes.setValue(nodeNum, newValue);
+        setNodeType(nodeNum, newValue);
     }
 
     /**
