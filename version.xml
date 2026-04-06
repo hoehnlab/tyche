@@ -29,5 +29,9 @@
         <provider classname="tyche.evolution.tree.GRTRootlessLogger"/>
         <provider classname="tyche.evolution.tree.GRTBayesianSkyline"/>
         <provider classname="tyche.evolution.operator.RelativeParameterOperator"/>
+        <provider classname="tyche.inference.distribution.RootType"/>
+        <provider classname="tyche.inference.distribution.RootTypePrior"/>
+        <provider classname="tyche.evolution.operator.UniformNodeTypeHeightOperator"/>
+        <provider classname="tyche.evolution.operator.EpochFlexAndTypeOperator"/>
     </service>
 </package>
