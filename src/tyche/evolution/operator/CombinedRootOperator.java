@@ -77,10 +77,11 @@ public class CombinedRootOperator extends LeafConsciousTypeTreeOperator {
         super.initAndValidate();
     }
 
-
+    private final double xWindow = 5.0;
     private double getNewHeight(double heightRoot, double heightMRCA) {
         double heightDiff = Math.abs(heightRoot - heightMRCA);
-        return heightMRCA + (Randomizer.nextDouble() * 2 * heightDiff);
+        double windowSize = (xWindow + (1/xWindow))*heightDiff;
+        return heightMRCA + heightDiff/xWindow + (Randomizer.nextDouble() * windowSize);
     }
 
     private int getRandomType() {
@@ -88,15 +89,15 @@ public class CombinedRootOperator extends LeafConsciousTypeTreeOperator {
     }
 
     private double adjustRoot(Node root, double newHeight, double heightMRCA) {
-        if (newHeight <= heightMRCA) {
+        if (newHeight <= heightMRCA + 0.00001) {
             // return negative infinity if height is below the minimum allowed height
             return Double.NEGATIVE_INFINITY;
         }
         double oldHeight = root.getHeight();
         double window = oldHeight-heightMRCA;
         double change = newHeight-oldHeight;
-        if (Math.abs(change) >= window) {
-//            let's avoid the edge of the range, or for sure don't let the change outside the window (shouldn't be possible)
+        if (change < -(window * (xWindow-1))/xWindow || change > (xWindow-1)*window) {
+//            let's make extra sure we don't let the change be outside the window (shouldn't be possible)
             return Double.NEGATIVE_INFINITY;
         }
         double logHastingsRatio = Math.log((window)/(window+change));
