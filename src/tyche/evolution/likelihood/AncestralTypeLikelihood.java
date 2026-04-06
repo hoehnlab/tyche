@@ -39,6 +39,7 @@ import beast.base.evolution.tree.TreeInterface;
 import beastclassic.evolution.tree.TreeTrait;
 import beastclassic.evolution.tree.TreeTraitProvider;
 import beast.base.inference.parameter.IntegerParameter;
+import tyche.evolution.tree.GermlineRootTree;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -82,6 +83,8 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     int stateCount;
     int[][] tipStates; // used to store tip states
 
+    protected boolean isGRT = false;
+
     /**
      * Initialize the model and validate inputs
      */
@@ -109,6 +112,9 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
 
         tag = tagInput.get();
         TreeInterface treeModel = treeInput.get();
+        if (treeModel instanceof GermlineRootTree && ((GermlineRootTree) treeModel).getGermlineNum() > 0) {
+            isGRT = true;
+        }
         patternCount = dataInput.get().getPatternCount();
 
         if (patternCount > 1) {
@@ -236,6 +242,10 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     public void traverseTypeTree(Node node, int parentState) {
         int nodeNum = node.getNr();
         int update = (node.isDirty() | hasDirt);
+
+        if (isGRT && (node.getID() + "").toUpperCase().contains("germline".toUpperCase()) && node.getParent() != null && node.getParent().isRoot()) {
+            return;
+        }
 
         double conditionalProbability;
         final int thisState = nodeTypes.getValue(nodeNum);
