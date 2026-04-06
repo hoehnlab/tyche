@@ -249,7 +249,7 @@ public class GRTIntervals extends TreeIntervals {
 
     @Override
     public double[] getCoalescentTimes(double[] coalescentTimes) {
-        if (!(treeInput.get() instanceof GermlineRootTree)) {
+        if (!(treeInput.get() instanceof GermlineRootTree) || ((GermlineRootTree) treeInput.get()).getGermlineNum() < 0) {
             return super.getCoalescentTimes(coalescentTimes);
         }
 
