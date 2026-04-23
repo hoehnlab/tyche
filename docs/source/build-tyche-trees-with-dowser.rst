@@ -34,9 +34,9 @@ states and dates of tree nodes using type-specific clock rates.
 Requirements
 ************
 
-This tutorial requires Dowser 2.4 or later.
+This tutorial requires Dowser 2.4.1.999 (dev) or 2.4.2 (release) or later.
 
-You will also need to have BEAST2, TyCHE and rootfreqs installed on your machine.
+You will also need to have BEAST2, TyCHE (v0.0.10 or later) and rootfreqs installed on your machine.
 
 
 
@@ -91,7 +91,7 @@ For Mac and Windows machines, we recommend:
 4. Follow this tutorial to add the "extra packages" package repository (use https://github.com/CompEvol/CBAN/blob/master/packages-extra-2.7.xml as the package repository URL):
    `www.beast2.org/managing-packages <https://www.beast2.org/managing-packages/index.html>`_
 
-5. In the package manager, find and install the "TyCHE" package.
+5. In the package manager, find and install the "TyCHE" package. This tutorial relies on version v0.0.10 or later.
 
 6. In the package manager, find and install the "rootfreqs" package.
 

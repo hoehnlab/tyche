@@ -1,4 +1,4 @@
-<package name="TyCHE" version="0.0.9">
+<package name="TyCHE" version="0.0.10">
     <depends on='BEAST.base' atleast='2.7.6'/>
     <depends on='BEAST.app' atleast='2.7.6'/>
     <depends on='BEAST_CLASSIC' atleast='1.6.2'/>
@@ -29,5 +29,9 @@
         <provider classname="tyche.evolution.tree.GRTRootlessLogger"/>
         <provider classname="tyche.evolution.tree.GRTBayesianSkyline"/>
         <provider classname="tyche.evolution.operator.RelativeParameterOperator"/>
+        <provider classname="tyche.inference.distribution.RootType"/>
+        <provider classname="tyche.inference.distribution.RootTypePrior"/>
+        <provider classname="tyche.evolution.operator.UniformNodeTypeHeightOperator"/>
+        <provider classname="tyche.evolution.operator.EpochFlexAndTypeOperator"/>
     </service>
 </package>
