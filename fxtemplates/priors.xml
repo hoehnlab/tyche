@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beast version='2.0'
+       xmlns:xi="http://www.w3.org/2001/XInclude"
+       namespace='beastfx.app.beauti:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.branchratemodel:beast.base.evolution.speciation:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood:beast.evolution:beast.base.inference.distribution:tyche.inference.distribution'>
+
+    <!-- Tyche prior templates -->
+    <mergewith point='treePriorTemplates'>
+        <!-- Root Type Prior -->
+        <subtemplate id='RootTypePrior' 
+                     class='tyche.inference.distribution.RootTypePrior'
+                     mainid='rootTypePrior'
+                     suppressInputs='tyche.inference.distribution.RootTypePrior.tree'>
+            <![CDATA[
+            <!-- Root Type Prior -->
+            <prior id='rootTypePrior' spec='tyche.inference.distribution.RootTypePrior'>
+                <arg spec='tyche.inference.distribution.RootType' id='rootType'/>
+                <typeProbabilities id='typeProbabilities' spec='beast.base.inference.parameter.RealParameter' value='0.5 0.5'/>
+            </prior>
+            ]]>
+            
+            <!-- Register prior to prior list -->
+            <connect srcID='rootTypePrior' targetID='prior' inputName='distribution'
+                     if='inposterior(rootTypePrior)'>
+                Root Type Prior
+            </connect>
+            
+            <!-- Register type probabilities as state node -->
+            <connect srcID='typeProbabilities' targetID='state' inputName='stateNode'
+                     if='inposterior(rootTypePrior) and typeProbabilities/estimate=true'/>
+            
+            <!-- Log parameters -->
+            <connect srcID='typeProbabilities' targetID='tracelog' inputName='log'
+                     if='inposterior(rootTypePrior)'/>
+        </subtemplate>
+
+        <!-- Elementwise Prior -->
+        <subtemplate id='ElementwisePrior'
+                     class='tyche.inference.distribution.ElementwisePrior'
+                     mainid='elementwisePrior'
+                     suppressInputs='tyche.inference.distribution.ElementwisePrior.tree'>
+            <![CDATA[
+            <!-- Elementwise Prior -->
+            <prior id='elementwisePrior' spec='tyche.inference.distribution.ElementwisePrior'>
+                <distInput spec='beast.base.inference.distribution.Uniform' lower='0' upper='1000'/>
+            </prior>
+            ]]>
+            
+            <!-- Register prior to prior list -->
+            <connect srcID='elementwisePrior' targetID='prior' inputName='distribution'
+                     if='inposterior(elementwisePrior)'>
+                Elementwise Prior
+            </connect>
+        </subtemplate>
+    </mergewith>
+
+</beast>

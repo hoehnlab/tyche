@@ -189,6 +189,7 @@
         <replaceregexp file="${TycheDir}/version.xml" match="${TYCHE_version}" replace="${file_version}" />
         <copy todir="${Package_dir}/fxtemplates">
             <fileset file="fxtemplates/${packageName}-beauti-template.xml" />
+            <fileset file="fxtemplates/priors.xml" />
         </copy>
         <copy todir="${Package_dir}">
             <fileset file="LICENSE" />

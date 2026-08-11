@@ -7,6 +7,15 @@
         <provider classname="beast.base.evolution.datatype.Nucleotide"/>
     </service>
 
+    <service type="beastfx.app.inputeditor.InputEditor">
+        <provider classname="tyche.app.beauti.ElementwisePriorInputEditor"/>
+        <provider classname="tyche.app.beauti.RootTypePriorInputEditor"/>
+    </service>
+
+    <service type="beastfx.app.beauti.PriorProvider">
+        <provider classname="tyche.app.beauti.RootTypePriorProvider"/>
+    </service>
+
     <service type="beast.base.core.BEASTInterface">
         <provider classname="tyche.evolution.branchratemodel.TycheInstantSwitchClockModel"/>
         <provider classname="tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel"/>
