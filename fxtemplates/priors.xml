@@ -32,6 +32,25 @@
             <connect srcID='typeProbabilities' targetID='tracelog' inputName='log'
                      if='inposterior(rootTypePrior)'/>
         </subtemplate>
+
+        <!-- Elementwise Prior -->
+        <subtemplate id='ElementwisePrior'
+                     class='tyche.inference.distribution.ElementwisePrior'
+                     mainid='elementwisePrior'
+                     suppressInputs='tyche.inference.distribution.ElementwisePrior.tree'>
+            <![CDATA[
+            <!-- Elementwise Prior -->
+            <prior id='elementwisePrior' spec='tyche.inference.distribution.ElementwisePrior'>
+                <distInput spec='beast.base.inference.distribution.Uniform' lower='0' upper='1000'/>
+            </prior>
+            ]]>
+            
+            <!-- Register prior to prior list -->
+            <connect srcID='elementwisePrior' targetID='prior' inputName='distribution'
+                     if='inposterior(elementwisePrior)'>
+                Elementwise Prior
+            </connect>
+        </subtemplate>
     </mergewith>
 
 </beast>
