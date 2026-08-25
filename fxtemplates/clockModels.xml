@@ -51,14 +51,4 @@
         </subtemplate>
     </mergewith>
 
-    <mergewith point='parametricDistributions'>
-        <subtemplate id='ElementwiseParametricDistribution'
-                     class='tyche.inference.distribution.ElementwiseParametricDistribution'
-                     mainid='[top]'>
-            <![CDATA[
-    <distr spec="tyche.inference.distribution.ElementwiseParametricDistribution"/>
-]]>
-        </subtemplate>
-    </mergewith>
-
 </beast>
