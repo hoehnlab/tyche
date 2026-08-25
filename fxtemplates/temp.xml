@@ -1,0 +1,116 @@
+<beast version='2.0'
+       namespace='beast.app.beauti:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.branchratemodel:beast.base.evolution.speciation:beast.evolution.Tree.t:coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood:beast.evolution:beast.base.inference.distribution'>
+
+
+    <mergewith point='aux-partitions-panels'>
+        <alignmentProvider id="Add TyCHE Trait" spec='tyche.app.beauti.TyCHEDiscreteTraitProvider' template='@TycheTraitTest'/>
+
+
+        <subtemplate id='TycheTraitTest' class='beastclassic.evolution.alignment.AlignmentFromTrait' mainid='$(n)'
+                     suppressInputs='beast.evolution.substitutionmodel.SVSGeneralSubstitutionModel.rates,
+				beast.evolution.substitutionmodel.SVSGeneralSubstitutionModel.rateIndicator,
+				beast.evolution.substitutionmodel.SVSGeneralSubstitutionModel.eigenSystem,
+				beast.evolution.substitutionmodel.SVSGeneralSubstitutionModel.frequencies'>
+            <![CDATA[
+        <!--distribution spec="CompoundDistribution" id="discrete-trait.$(n)" ignore="true"-->
+			<distribution id="traitedtreeLikelihood.$(n)" spec='tyche.evolution.likelihood.AncestralTypeLikelihood' useJava="true" tag="location" tree='@Tree.t:$(n)'>
+				<input name="nodeTypes" idref="nodeTypes"/>
+				<data spec="beastclassic.evolution.alignment.AlignmentFromTrait" id='$(n)'>
+					<userDataType spec='beast.base.evolution.datatype.UserDataType' id='traitDataType.$(n)'
+						states='4'
+						codelength='-1'
+						codeMap='A = 0, B = 1, C = 2, D = 3, ? = 0 1 2 3, - = 0 1 2 3'/>
+<!--
+					<traitSet id='traitset.$(n)' spec='beast.base.evolution.tree.TraitSet' traitname='discrete' value="">
+						<taxa spec='beast.base.evolution.alignment.TaxonSet' alignment='@$(n)'/>
+
+					</traitSet>
+-->
+				</data>
+				<siteModel spec='SiteModel' id="geoSiteModel.s:$(n)" gammaCategoryCount='1'>
+				        <proportionInvariant spec='parameter.RealParameter' id='proportionInvariant.s:$(n)' value='0.0' lower='0' upper='1' estimate='false'/>
+				        <mutationRate        spec='parameter.RealParameter' id='mutationRate.s:$(n)' value='1.0'        estimate='false'/>
+				        <shape               spec='parameter.RealParameter' id='gammaShape.s:$(n)' value='1.0'         estimate='false'/>
+					<substModel spec="tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel" id="svs.s:$(n)">
+						<rateIndicator id='rateIndicator.s:$(n)' spec='parameter.BooleanParameter' value='true' dimension='6'/>
+					    <frequencies id='traitfreqs.s:$(n)' spec='Frequencies'>
+					            <frequencies id='traitfrequencies.s:$(n)' spec='parameter.RealParameter' value='.25 .25 .25 .25'/>
+					    </frequencies>
+					    <rates id='relativeGeoRates.s:$(n)' spec='parameter.RealParameter' value='1.' dimension='6'/>
+					</substModel>
+				</siteModel>
+				<branchRateModel id="StrictClockModel.c:$(n)" spec="beast.base.evolution.branchratemodel.StrictClockModel">
+					<parameter id="traitClockRate.c:$(n)" name="clock.rate" value="1.0"/>
+				</branchRateModel>
+			</distribution>
+        <!--/distribution-->
+
+		<parameter spec='beast.base.inference.parameter.IntegerParameter' name='nodeTypes' id='nodeTypes' dimension="100" value="0" upper="1" lower="0"/>
+
+		<logger id='treeWithTraitLogger.$(n)' logEvery="10000" fileName="$(n)_tree_with_trait.trees" mode="tree">
+			<log id="treeWithTraitLoggerItem.t:$(n)" spec='beastclassic.evolution.tree.TreeWithTraitLogger' tree='@Tree.t:$(n)'>
+				<metadata idref="posterior"/>
+				<metadata idref="traitedtreeLikelihood.$(n)"/>
+			</log>
+		</logger>
+
+
+		<distribution  id='geoclockPrior.c:$(n)' x="@traitClockRate.c:$(n)" spec='beast.base.inference.distribution.Prior'>
+			<distr spec='beast.base.inference.distribution.Gamma' offset="0.0">
+				<alpha spec='parameter.RealParameter' estimate='false' value='0.001'/>
+				<beta spec='parameter.RealParameter' estimate='false' value='1000.0'/>
+			</distr>
+		</distribution>
+		<distribution  id='relativeGeoRatesPrior.s:$(n)' x="@relativeGeoRates.s:$(n)" spec='beast.base.inference.distribution.Prior'>
+			<distr spec='beast.base.inference.distribution.Gamma' offset="0.0">
+				<alpha spec='parameter.RealParameter' estimate='false' value='1.0'/>
+				<beta spec='parameter.RealParameter' estimate='false' value='1.0'/>
+			</distr>
+		</distribution>
+
+
+        <operator id='georateScaler.s:$(n)' spec='ScaleOperator' scaleFactor="0.99" weight="30" parameter="@relativeGeoRates.s:$(n)" scaleAllIndependently="true"/>
+
+	 	<operator id='geoMuScaler.c:$(n)' spec='ScaleOperator' scaleFactor="0.9" weight="3" parameter="@traitClockRate.c:$(n)"/>
+
+		<log id='geoSubstModelLogger.s:$(n)' spec='beastclassic.evolution.substitutionmodel.SVSGeneralSubstitutionModelLogger' model="@svs.s:$(n)" dataType="@traitDataType.$(n)" useLocationNames="true"/>
+]]>
+
+            <connect srcID='traitedtreeLikelihood.$(n)'              targetID='likelihood' inputName='distribution' if="isInitializing"/>
+
+            <connect srcID='nodeTypes' targetID='state' inputName='stateNode'/>
+
+            <!-- <connect srcID='nodeTypes' targetID='branchRates:$(n)' inputName='nodeTypes' if="inposterior(branchRates:$(n))"/>
+            <connect srcID='svs.s:$(n)' targetID='branchRates:$(n)' inputName='substitutionModel' if="inposterior(branchRates:$(n))"/> -->
+
+            <connect srcID='geoclockPrior.c:$(n)'                    targetID='prior' inputName='distribution' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null and inlikelihood(traitClockRate.c:$(n)) and traitClockRate.c:$(n)/estimate=true'/>
+            <connect srcID='relativeGeoRatesPrior.s:$(n)'            targetID='prior' inputName='distribution' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null and inlikelihood(relativeGeoRates.s:$(n)) and relativeGeoRates.s:$(n)/estimate=true'/>
+
+            <connect srcID='rateIndicator.s:$(n)'                    targetID='state' inputName='stateNode' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null and inlikelihood(rateIndicator.s:$(n)) and rateIndicator.s:$(n)/estimate=true'/>
+            <connect srcID='relativeGeoRates.s:$(n)'                 targetID='state' inputName='stateNode' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null and inlikelihood(relativeGeoRates.s:$(n)) and relativeGeoRates.s:$(n)/estimate=true'/>
+            <connect srcID='traitClockRate.c:$(n)'                   targetID='state' inputName='stateNode' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null and inlikelihood(traitClockRate.c:$(n)) and traitClockRate.c:$(n)/estimate=true'/>
+
+            <connect srcID='georateScaler.s:$(n)'                    targetID='mcmc' inputName='operator' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null and inlikelihood(relativeGeoRates.s:$(n)) and relativeGeoRates.s:$(n)/estimate=true'>Scales subst model rates of traits on partition $(n)</connect>
+            <connect srcID='geoMuScaler.c:$(n)'                      targetID='mcmc' inputName='operator' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null and inlikelihood(traitClockRate.c:$(n)) and traitClockRate.c:$(n)/estimate=true'>Scales migration rate of traits on partition $(n)</connect>
+
+            <!--connect srcID='traitedtreeLikelihood.$(n)'              targetID='tracelog' inputName='log' if='inposterior(traitedtreeLikelihood.$(n))'/-->
+            <connect srcID='rateIndicator.s:$(n)'                    targetID='tracelog' inputName='log' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null and inlikelihood(rateIndicator.s:$(n)) and rateIndicator.s:$(n)/estimate=true'/>
+            <connect srcID='relativeGeoRates.s:$(n)'                 targetID='tracelog' inputName='log' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null and inlikelihood(relativeGeoRates.s:$(n)) and relativeGeoRates.s:$(n)/estimate=true'/>
+            <connect srcID='traitClockRate.c:$(n)'                   targetID='tracelog' inputName='log' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null and inlikelihood(traitClockRate.c:$(n)) and traitClockRate.c:$(n)/estimate=true'/>
+            <connect srcID='geoSubstModelLogger.s:$(n)'              targetID='tracelog' inputName='log' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null and inlikelihood(relativeGeoRates.s:$(n)) and relativeGeoRates.s:$(n)/estimate=true'/>
+
+            <connect srcID='treeWithTraitLogger.$(n)'                targetID='mcmc' inputName='logger' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null'/>
+
+            <!--
+            <mergewith point='aux-priors'>
+                            <distribution spec="CompoundDistribution" id="discrete-trait">
+                            </distribution>
+            </mergewith>
+            -->
+        </subtemplate>
+
+
+    </mergewith>
+
+</beast>
+

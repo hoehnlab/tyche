@@ -1,0 +1,64 @@
+<beast version='2.0'
+       namespace='beastfx.app.beauti:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.branchratemodel:beast.base.evolution.speciation:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood:beast.evolution:beast.base.inference.distribution'>
+
+
+    <!-- Clock models -->
+    <mergewith point='clockModelTemplates'>
+
+        <!-- TycheExpectedOccupancy -->
+        <subtemplate id='TycheExpectedOccupancy' class='tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel'
+                     mainid='tycheBranchRates.c:$(n)' suppressInputs='tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.nodeTypes,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.typeSwitchClockRate,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.expectedOccupancy,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.substitutionModel,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.branchRates,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.clock.rate,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.typeLinkedRates'>
+            <![CDATA[
+        <plugin spec='tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel' id="tycheBranchRates.c:$(n)">
+            <parameter id="traitlinkedclock.rate" name="clock.rate" value="1.0"/>
+            <input name="substitutionModel" idref="svs.s:newTrait"/>
+            <input name="nodeTypes" idref="nodeTypes"/>
+            <input name="typeSwitchClockRate" idref="traitClockRate.c:newTrait"/>
+            <input name="expectedOccupancy" idref="expectedOccupancies"/>
+            <input name="typeLinkedRates" idref="typeLinkedRates"/>
+        </plugin>
+
+        <parameter spec='beast.base.inference.parameter.RealParameter' name='expectedOccupancies' id='expectedOccupancies' dimension="100" value="0" upper="1" lower="0"/>
+
+        <parameter id="typeLinkedRates" spec="parameter.RealParameter" estimate="true" name="typeLinkedRates" dimension="2" upper="0.05" lower="0.0">0.05 0.00001</parameter>
+
+        <parameter id="traitClockRate.c:newTrait" name="clock.rate" value="1.0"/>
+
+        <parameter spec='beast.base.inference.parameter.IntegerParameter' name='nodeTypes' id='nodeTypes' dimension="100" value="0" upper="1" lower="0"/>
+
+        <substModel spec="tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel" id="svs.s:newTrait">
+						<rateIndicator id='rateIndicator.s:newTrait' spec='parameter.BooleanParameter' value='true' dimension='6'/>
+					    <frequencies id='traitfreqs.s:newTrait' spec='Frequencies'>
+					            <frequencies id='traitfrequencies.s:newTrait' spec='parameter.RealParameter' value='.25 .25 .25 .25'/>
+					    </frequencies>
+					    <rates id='relativeGeoRates.s:newTrait' spec='parameter.RealParameter' value='1.' dimension='6'/>
+					</substModel>
+
+]]>
+
+            <!-- <connect srcID='expectedOccupancies' targetID='treeWithTraitLogger.$(n)' inputName='metadata'/> -->
+            <!-- <connect srcID='typeLinkedRates' targetID='state' inputName='stateNode' if="inposterior(branchRates:$(n)) and inposterior(typeLinkedRates)"/> -->
+
+            <!-- <connect srcID='branchRates:$(n)' targetID='treeLikelihood.$(n)' inputName='branchRateModel'/> -->
+            <!-- <connect srcID='typeLinkedRates' targetID='branchRates:$(n)' inputName='typeLinkedRates'/>
+            <connect srcID='svs.s:$(n)' targetID='branchRates:$(n)' inputName='substitutionModel' if="inposterior(
+            branchRates:$(n)) and inposterior(svs.s:newTrait)"/>
+            <connect srcID='nodeTypes' targetID='branchRates:$(n)' inputName='nodeTypes' if="inposterior(
+            branchRates:$(n)) and inposterior(nodeTypes)"/>
+            <connect srcID='traitClockRate.c:$(n)' targetID='branchRates:$(n)' inputName='typeSwitchClockRate' if="inposterior(
+            branchRates:$(n)) and inposterior(traitClockRate.c:newTrait)"/> -->
+
+        </subtemplate>
+    </mergewith>
+
+    <mergewith point='parametricDistributions'>
+        <subtemplate id='ElementwiseParametricDistribution'
+                     class='tyche.inference.distribution.ElementwiseParametricDistribution'
+                     mainid='[top]'>
+            <![CDATA[
+    <distr spec="tyche.inference.distribution.ElementwiseParametricDistribution"/>
+]]>
+        </subtemplate>
+    </mergewith>
+
+</beast>

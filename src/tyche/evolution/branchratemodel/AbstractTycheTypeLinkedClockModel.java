@@ -25,6 +25,7 @@ import beast.base.core.Description;
 import beast.base.core.Function;
 import beast.base.core.Input;
 import beast.base.evolution.branchratemodel.BranchRateModel;
+import beast.base.util.MachineAccuracy;
 import tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel;
 import beast.base.evolution.tree.Node;
 import beast.base.inference.parameter.IntegerParameter;
@@ -160,6 +161,10 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
      */
     public double[] getOccupancy(final int parentType, final int currentType, final Double time, final int nodeNum) {
 
+        if (time < MachineAccuracy.SQRT_EPSILON) {
+            return new double[]{0.5, 0.5};
+        }
+
         double alpha = qMatrix[0][1];
         double beta = qMatrix[1][0];
         double k = alpha + beta;
@@ -188,6 +193,18 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
         }
 
         occupancy[0] = occupancyTimeA/time; // get occupancy proportion in state 0
+        if (occupancy[0] > 1) {
+            if (occupancy[0] - 1 > 0.000001) {
+                System.err.printf("Warning: occupancy greater than 1: %f \n parentType is %d and currType is %d \n time is %e", occupancy[0], parentType, currentType, time);
+            }
+            occupancy[0] = 1;
+        }
+        if (occupancy[0] < 0) {
+            if (occupancy[0] < -0.000001) {
+                System.err.printf("Warning: occupancy less than 0: %f \n parentType is %d and currType is %d \n time is %e", occupancy[0], parentType, currentType, time);
+            }
+            occupancy[0] = 0;
+        }
 
         // set occupancy of second type so that occupancies sum to 1
         occupancy[1] = 1 - occupancy[0];

@@ -24,6 +24,8 @@ import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.evolution.tree.Node;
 
+import java.util.Arrays;
+
 /**
  * @author Jessie Fielding
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
