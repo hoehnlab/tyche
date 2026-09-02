@@ -7,46 +7,63 @@
 
         <!-- TycheExpectedOccupancy -->
         <subtemplate id='TycheExpectedOccupancy' class='tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel'
-                     mainid='tycheBranchRates.c:$(n)' suppressInputs='tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.nodeTypes,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.typeSwitchClockRate,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.expectedOccupancy,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.substitutionModel,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.branchRates,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.clock.rate,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.typeLinkedRates'>
+                     mainid='tycheBranchRates.c:$(n)' suppressInputs='tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.nodeTypes,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.typeSwitchClockRate,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.expectedOccupancy,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.substitutionModel,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.branchRates,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.clock.rate,tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel.typeLinkedRates,tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel.symmetric,tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel.rates,tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel.rateIndicator'>
             <![CDATA[
         <plugin spec='tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel' id="tycheBranchRates.c:$(n)">
-            <parameter id="traitlinkedclock.rate" name="clock.rate" value="1.0"/>
-            <input name="substitutionModel" idref="svs.s:newTrait"/>
-            <input name="nodeTypes" idref="nodeTypes"/>
-            <input name="typeSwitchClockRate" idref="traitClockRate.c:newTrait"/>
-            <input name="expectedOccupancy" idref="expectedOccupancies"/>
-            <input name="typeLinkedRates" idref="typeLinkedRates"/>
+            <parameter id="tycheDummyClock.rate:$(n)" name="clock.rate" value="1.0"/>
+            <input name="substitutionModel" idref="svs.s:$(n).tycheClockPlaceholder"/>
+            <input name="nodeTypes" idref="nodeTypes.$(n).tycheClockPlaceholder"/>
+            <input name="typeSwitchClockRate" idref="traitClockRate.$(n).tycheClockPlaceholder"/>
+            <input name="expectedOccupancy" idref="expectedOccupancies.c:$(n)"/>
+            <input name="typeLinkedRates" idref="typeLinkedRates.c:$(n)"/>
         </plugin>
 
-        <parameter spec='beast.base.inference.parameter.RealParameter' name='expectedOccupancies' id='expectedOccupancies' dimension="100" value="0" upper="1" lower="0"/>
+        <parameter spec='beast.base.inference.parameter.RealParameter' name='expectedOccupancies' id='expectedOccupancies.c:$(n)' dimension="100" value="0" upper="1" lower="0"/>
 
-        <parameter id="typeLinkedRates" spec="parameter.RealParameter" estimate="true" name="typeLinkedRates" dimension="2" upper="0.05" lower="0.0">0.05 0.00001</parameter>
+        <parameter id="typeLinkedRates.c:$(n)" spec="parameter.RealParameter" estimate="true" name="typeLinkedRates" dimension="2" lower="0.0">0.05 0.00001</parameter>
 
-        <parameter id="traitClockRate.c:newTrait" name="clock.rate" value="1.0"/>
+        <parameter id="traitClockRate.$(n).tycheClockPlaceholder" name="clock.rate" value="1.0"/>
 
-        <parameter spec='beast.base.inference.parameter.IntegerParameter' name='nodeTypes' id='nodeTypes' dimension="100" value="0" upper="1" lower="0"/>
+        <parameter spec='beast.base.inference.parameter.IntegerParameter' name='nodeTypes' id='nodeTypes.$(n).tycheClockPlaceholder' dimension="100" value="0" upper="1" lower="0"/>
 
-        <substModel spec="tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel" id="svs.s:newTrait">
-						<rateIndicator id='rateIndicator.s:newTrait' spec='parameter.BooleanParameter' value='true' dimension='6'/>
-					    <frequencies id='traitfreqs.s:newTrait' spec='Frequencies'>
-					            <frequencies id='traitfrequencies.s:newTrait' spec='parameter.RealParameter' value='.25 .25 .25 .25'/>
+        <substModel spec="tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel" id="svs.s:$(n).tycheClockPlaceholder" symmetric="false">
+						<rateIndicator id='rateIndicator.s:$(n).tycheClockPlaceholder' spec='parameter.BooleanParameter' value='true' dimension='6'/>
+					    <frequencies id='traitfreqs.s:$(n).tycheClockPlaceholder' spec='Frequencies'>
+					            <frequencies id='traitfrequencies.s:$(n).tycheClockPlaceholder' spec='parameter.RealParameter' value='.25 .25 .25 .25'/>
 					    </frequencies>
-					    <rates id='relativeGeoRates.s:newTrait' spec='parameter.RealParameter' value='1.' dimension='6'/>
+					    <rates id='relativeGeoRates.s:$(n).tycheClockPlaceholder' spec='parameter.RealParameter' value='1.' dimension='6'/>
 					</substModel>
+
+
+		<parameter id="typeLinkedRatesIndicator.c:$(n)" spec="parameter.BooleanParameter" dimension="2" name="indicator" estimate="false">1 1</parameter>
+        <operator id="typeLinkedRatesScaler.c:$(n)" spec="ScaleOperator" parameter="@typeLinkedRates.c:$(n)" scaleFactor="0.9" scaleAll="false" scaleAllIndependently="false" weight="2.0">
+            <input name="indicator" idref="typeLinkedRatesIndicator.c:$(n)"/>
+        </operator>
+
+        <prior id="typeLinkedRatesPrior.c:$(n)" name="distribution" x="@typeLinkedRates.c:$(n)">
+            <distr spec="tyche.inference.distribution.ElementwiseParametricDistribution" id="ElementwiseParametricDistribution.typeLinkedRates.c:$(n)">
+                <distribution spec="beast.base.inference.distribution.Normal" id="Normal.typeLinkedRates.1.c:$(n)">
+                    <parameter id="mean1.c:$(n)" spec="parameter.RealParameter" estimate="false" name="mean">0.001</parameter>
+                    <parameter id="sigma1.c:$(n)" spec="parameter.RealParameter" estimate="false" name="sigma">0.001</parameter>
+                </distribution>
+                <distribution spec="beast.base.inference.distribution.Normal" id="Normal.typeLinkedRates.2.c:$(n)">
+                    <parameter id="mean2.c:$(n)" spec="parameter.RealParameter" estimate="false" name="mean">0.001</parameter>
+                    <parameter id="sigma2.c:$(n)" spec="parameter.RealParameter" estimate="false" name="sigma">0.001</parameter>
+                </distribution>
+            </distr>
+        </prior>
 
 ]]>
 
-            <!-- <connect srcID='expectedOccupancies' targetID='treeWithTraitLogger.$(n)' inputName='metadata'/> -->
-            <!-- <connect srcID='typeLinkedRates' targetID='state' inputName='stateNode' if="inposterior(branchRates:$(n)) and inposterior(typeLinkedRates)"/> -->
+            <connect srcID='typeLinkedRates.c:$(n)' targetID='state' inputName='stateNode' if='inposterior(tycheBranchRates.c:$(n)) and typeLinkedRates.c:$(n)/estimate=true'/>
+            <connect srcID='typeLinkedRatesScaler.c:$(n)' targetID='mcmc' inputName='operator'
+                     if='inposterior(tycheBranchRates.c:$(n)) and typeLinkedRates.c:$(n)/estimate=true'>
+                Scales the type-linked rates for clock model tycheBranchRates.c:$(n)
+            </connect>
+            <connect srcID='typeLinkedRatesPrior.c:$(n)' targetID='prior' inputName='distribution' if='inposterior(tycheBranchRates.c:$(n)) and typeLinkedRates.c:$(n)/estimate=true'/>
+            <connect srcID='expectedOccupancies.c:$(n)' targetID='treeWithTraitLoggerItem.t:$(n)' inputName='metadata'
+                     if='inposterior(tycheBranchRates.c:$(n))'/>
 
-            <!-- <connect srcID='branchRates:$(n)' targetID='treeLikelihood.$(n)' inputName='branchRateModel'/> -->
-            <!-- <connect srcID='typeLinkedRates' targetID='branchRates:$(n)' inputName='typeLinkedRates'/>
-            <connect srcID='svs.s:$(n)' targetID='branchRates:$(n)' inputName='substitutionModel' if="inposterior(
-            branchRates:$(n)) and inposterior(svs.s:newTrait)"/>
-            <connect srcID='nodeTypes' targetID='branchRates:$(n)' inputName='nodeTypes' if="inposterior(
-            branchRates:$(n)) and inposterior(nodeTypes)"/>
-            <connect srcID='traitClockRate.c:$(n)' targetID='branchRates:$(n)' inputName='typeSwitchClockRate' if="inposterior(
-            branchRates:$(n)) and inposterior(traitClockRate.c:newTrait)"/> -->
 
         </subtemplate>
     </mergewith>

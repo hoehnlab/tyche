@@ -45,9 +45,7 @@ public class TyCHETraitInputEditor extends ListInputEditor {
     TreeInterface tree;
     TraitSet traitSet;
     TextField traitEntry;
-    //ComboBox relativeToComboBox;
     List<String> sTaxa;
-    // Object[][] tableData;
 
     public class LocationMap {
         String taxon;
@@ -93,17 +91,8 @@ public class TyCHETraitInputEditor extends ListInputEditor {
             likelihood = (AncestralTypeLikelihood) ((ArrayList<?>)input.get()).get(0);
         }
     }
-    //        if (((CompoundDistribution) plugin.outputs.toArray()[0]).ignoreInput.get()) {
-//        	add(new Label("not in use"));
-//        } else {
-//        	add(new Label("Got one!"));
-//        }
-//	}
-//
-//
-//
-////    @Override
-//    public void init2(Input<?> input, Plugin plugin, int itemNr, ExpandOption bExpandOption, boolean bAddButtons) {
+
+
     public void initPanel(AncestralTypeLikelihood likelihood_) {
         likelihood = likelihood_;
         m_beastObject = likelihood.dataInput.get();
@@ -173,7 +162,6 @@ public class TyCHETraitInputEditor extends ListInputEditor {
                     ex.printStackTrace();
                 }
             });
-//            box.add(useTipDates);
 
             if (traitSet != null) {
                 box.getChildren().add(createButtonBox());
@@ -205,7 +193,6 @@ public class TyCHETraitInputEditor extends ListInputEditor {
         for (String s : sTaxa) {
             taxonMapping.add(new LocationMap(s, ""));
         }
-        // tableData = new Object[sTaxa.size()][2];
         convertTraitToTableData();
 
 
@@ -268,7 +255,6 @@ public class TyCHETraitInputEditor extends ListInputEditor {
             String value = null;
             if (sStrs.length != 2) {
                 value = "";
-                //throw new Exception("could not parse trait: " + sTrait);
             } else {
                 value = sStrs[1].trim();
             }
@@ -276,7 +262,6 @@ public class TyCHETraitInputEditor extends ListInputEditor {
             int iTaxon = sTaxa.indexOf(sTaxonID);
             if (iTaxon < 0) {
                 System.err.println(sTaxonID);
-//                throw new Exception("Trait (" + sTaxonID + ") is not a known taxon. Spelling error perhaps?");
             } else {
                 taxonMapping.get(iTaxon).taxon = sTaxonID;
                 taxonMapping.get(iTaxon).trait = value;
@@ -285,9 +270,6 @@ public class TyCHETraitInputEditor extends ListInputEditor {
 
         if (table != null) {
             table.refresh();
-//            for (int i = 0; i < tableData.length; i++) {
-//                table.setValueAt(tableData[i][1], i, 1);
-//            }
         }
     } // convertTraitToTableData
 
@@ -296,7 +278,6 @@ public class TyCHETraitInputEditor extends ListInputEditor {
      */
     private void convertTableDataToTrait() {
         String sTrait = "";
-        //Set<String> values = new HashSet<String>();
         for (int i = 0; i < taxonMapping.size(); i++) {
             sTrait += taxonMapping.get(i).taxon + "=" + taxonMapping.get(i).trait;
             if (i < taxonMapping.size() - 1) {
@@ -316,7 +297,7 @@ public class TyCHETraitInputEditor extends ListInputEditor {
     private void convertTableDataToDataType() {
         List<String> values = new ArrayList<String>();
         for (int i = 0; i < taxonMapping.size(); i++) {
-            if (taxonMapping.get(i).trait.trim().length() > 0 && !values.contains(taxonMapping.get(i).trait)) {
+            if (taxonMapping.get(i).trait.trim().length() > 0 && !taxonMapping.get(i).trait.trim().equals("?") && !values.contains(taxonMapping.get(i).trait)) {
                 values.add(taxonMapping.get(i).trait);
             }
         }
@@ -342,6 +323,30 @@ public class TyCHETraitInputEditor extends ListInputEditor {
         validateInput();
     }
 
+    /** Keeps the four nodeTypes/tree operators' traitName in sync with the
+     *  TraitSet's own traitname -- these must match exactly for
+     *  LeafConsciousTypeTreeOperator (and its siblings) to find the trait
+     *  at all. The user can rename traitname freely via the text field
+     *  above, so this can't be a fixed string or $(n). */
+    protected void syncOperatorTraitNames() {
+        String traitName = traitSet.traitNameInput.get();
+        String context = BeautiDoc.parsePartition(likelihood.getID());
+        String[] operatorIds = {
+                "nodeTypesUniformTreeOperator." + context,
+                "nodeTypesSubtreeTypeSwitchOperator." + context,
+                "nodeTypeHeightOperator." + context,
+                "rootHeightAndTypeOperator." + context
+        };
+        for (String id : operatorIds) {
+            BEASTInterface o = doc.pluginmap.get(id);
+            if (o != null) {
+                try {
+                    o.setInputValue("traitName", traitName);
+                } catch (Exception ignored) {}
+            }
+        }
+    }
+
     /**
      * create box with comboboxes for selection units and trait name *
      */
@@ -356,25 +361,13 @@ public class TyCHETraitInputEditor extends ListInputEditor {
         traitEntry.setOnKeyReleased(e->{
             try {
                 traitSet.traitNameInput.setValue(traitEntry.getText(), traitSet);
+                syncOperatorTraitNames();
             } catch (Exception ex) {
                 // TODO: handle exception
             }
         });
-//        traitEntry.getDocument().addDocumentListener(new DocumentListener() {
-//
-//			@Override
-//			public void removeUpdate(DocumentEvent e) {update();}
-//			@Override
-//			public void insertUpdate(DocumentEvent e) {update();}
-//			@Override
-//			public void changedUpdate(DocumentEvent e) {update();}
-//			void update() {
-//			}
-//		});
-        //traitEntry.setColumns(12);
         traitEntry.setMinWidth(12*15);
         buttonBox.getChildren().add(traitEntry);
-        //buttonBox.add(Box.createHorizontalGlue());
 
         Button guessButton = new Button("Guess");
         guessButton.setId("guess");
@@ -408,7 +401,6 @@ public class TyCHETraitInputEditor extends ListInputEditor {
 
     private void guess() {
         GuessPatternDialog dlg = new GuessPatternDialog(this, m_sPattern);
-        //dlg.setName("GuessPatternDialog");
         String sTrait = "";
         switch (dlg.showDialog("Guess traits from taxon names")) {
             case canceled : return;
@@ -420,13 +412,13 @@ public class TyCHETraitInputEditor extends ListInputEditor {
                     Pattern pattern = Pattern.compile(sPattern);
                     for (String sTaxon : sTaxa) {
                         Matcher matcher = pattern.matcher(sTaxon);
-                        if (matcher.find()) {
-                            String sMatch = matcher.group(1);
-                            if (sTrait.length() > 0) {
-                                sTrait += ",";
-                            }
-                            sTrait += sTaxon + "=" + sMatch;
+
+                        String sMatch = matcher.find() ? matcher.group(1) : "?";
+                        if (sTrait.length() > 0) {
+                            sTrait += ",";
                         }
+                        sTrait += sTaxon + "=" + sMatch;
+
                         m_sPattern = sPattern;
                     }
                 } catch (Exception e) {
@@ -455,7 +447,6 @@ public class TyCHETraitInputEditor extends ListInputEditor {
             if (taxonMapping.get(i).trait.trim().length() == 0) {
                 m_validateLabel.setVisible(true);
                 m_validateLabel.setTooltip("trait for " + taxonMapping.get(i).taxon + " needs to be specified");
-                // m_validateLabel.repaint();
                 return;
             }
         }

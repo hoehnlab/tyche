@@ -9,6 +9,7 @@
 
     <service type="beast.base.core.BEASTInterface">
         <provider classname="tyche.app.beauti.TyCHEDiscreteTraitProvider"/>
+        <provider classname="tyche.app.beauti.GermlineRootAlignmentProvider"/>
         <provider classname="tyche.app.beauti.TyCHETraitInputEditor"/>
         <provider classname="tyche.evolution.branchratemodel.TycheInstantSwitchClockModel"/>
         <provider classname="tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel"/>
@@ -42,5 +43,6 @@
         <provider classname="tyche.app.beauti.TyCHETraitInputEditor"/>
         <provider classname="tyche.app.beauti.TycheClockInputEditor"/>
         <provider classname="tyche.app.beauti.ElementwisePriorInputEditor"/>
+        <provider classname="tyche.app.beauti.TycheSVSInputEditor"/>
     </service>
 </package>

@@ -1,17 +1,15 @@
 package tyche.app.beauti;
 
 import beast.base.core.BEASTInterface;
-import beast.base.core.Description;
 import beast.base.evolution.alignment.Alignment;
 import beast.base.evolution.datatype.UserDataType;
 import beast.base.evolution.sitemodel.SiteModel;
 import beast.base.evolution.tree.Tree;
+import beast.base.evolution.tree.TraitSet;
 import beast.base.inference.State;
 import beast.base.inference.StateNode;
-import beast.base.inference.distribution.ParametricDistribution;
-import beast.base.inference.distribution.Poisson;
-import beast.base.inference.distribution.Prior;
-import beast.base.inference.parameter.Parameter;
+import beast.base.inference.parameter.BooleanParameter;
+import beast.base.inference.parameter.IntegerParameter;
 import beast.base.inference.parameter.RealParameter;
 import beast.base.parser.PartitionContext;
 import beastclassic.app.beauti.TraitDialog;
@@ -26,6 +24,8 @@ import javafx.scene.control.DialogPane;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class TyCHEDiscreteTraitProvider extends BeautiAlignmentProvider {
 
@@ -45,7 +45,6 @@ public class TyCHEDiscreteTraitProvider extends BeautiAlignmentProvider {
                 String tree = dlg.getTree();
                 String name = dlg.getName();
                 PartitionContext context = new PartitionContext(name, name, name, tree);
-
                 Alignment alignment = (Alignment) doc.addAlignmentWithSubnet(context, template.get());
                 List<BEASTInterface> list = new ArrayList<BEASTInterface>();
                 list.add(alignment);
@@ -87,23 +86,61 @@ public class TyCHEDiscreteTraitProvider extends BeautiAlignmentProvider {
                 pane.setId("TyCHETraitEditor");
                 dlg.setResizable(true);
                 dlg.showAndWait();
+                editor.syncOperatorTraitNames();
 
                 try {
                     AlignmentFromTrait traitData = (AlignmentFromTrait) likelihood.dataInput.get();
                     int stateCount = ((UserDataType) traitData.userDataTypeInput.get()).stateCountInput.get();
                     SVSGeneralSubstitutionModel substModel = (SVSGeneralSubstitutionModel)
                             ((SiteModel.Base) likelihood.siteModelInput.get()).substModelInput.get();
-                    substModel.indicator.get().dimensionInput.setValue(stateCount * (stateCount - 1) / 2, null);
-                    ((Parameter.Base<?>) substModel.ratesInput.get()).dimensionInput.setValue(stateCount* (stateCount - 1) / 2, null);
+                    boolean isSymmetric = substModel.isSymmetricInput.get();
+                    int nRates = isSymmetric ? stateCount * (stateCount - 1) / 2 : stateCount * (stateCount - 1);
+
+                    BooleanParameter rateIndicatorParam = substModel.indicator.get();
+                    if (rateIndicatorParam.getDimension() != nRates) {
+                        final int oldDim = rateIndicatorParam.getDimension();
+                        String indicatorValueString = IntStream.range(0, nRates)
+                                .mapToObj(i -> i < oldDim ? rateIndicatorParam.getValue(i) : Boolean.TRUE)
+                                .map(String::valueOf)
+                                .collect(Collectors.joining(" "));
+                        rateIndicatorParam.setDimension(nRates);
+                        rateIndicatorParam.valuesInput.setValue(indicatorValueString, rateIndicatorParam);
+                        rateIndicatorParam.initAndValidate();
+                    }
+
+                    RealParameter relativeGeoRates = (RealParameter) substModel.ratesInput.get();
+                    if (relativeGeoRates.getDimension() != nRates) {
+                        final int oldDim = relativeGeoRates.getDimension();
+                        String ratesValueString = IntStream.range(0, nRates)
+                                .mapToObj(i -> i < oldDim ? relativeGeoRates.getValue(i) : 1.0)
+                                .map(String::valueOf)
+                                .collect(Collectors.joining(" "));
+                        relativeGeoRates.setDimension(nRates);
+                        relativeGeoRates.valuesInput.setValue(ratesValueString, relativeGeoRates);
+                        relativeGeoRates.initAndValidate();
+                    }
                     RealParameter freqs = substModel.frequenciesInput.get().frequenciesInput.get();
-                    freqs.dimensionInput.setValue(stateCount, freqs);
-                    freqs.valuesInput.setValue(1.0/stateCount + "", freqs);
-                    // set offset on non-zero rate prior
+                    if (freqs.getDimension() != stateCount) {
+                        double uniformFreq = 1.0 / stateCount;
+                        String freqValueString = IntStream.range(0, stateCount)
+                                .mapToObj(i -> String.valueOf(uniformFreq))
+                                .collect(Collectors.joining(" "));
+                        freqs.setDimension(stateCount);
+                        freqs.valuesInput.setValue(freqValueString, freqs);
+                        freqs.initAndValidate();
+                    }
+
                     PartitionContext context = new PartitionContext(likelihood);
-//                    Prior prior = (Prior) doc.pluginmap.get("nonZeroRatePrior.s:" + context.clockModel);
-//                    ParametricDistribution distr = prior.distInput.get();
-//                    Poisson poisson = (Poisson) distr;
-//                    poisson.offsetInput.setValue(stateCount - 1.0, poisson);
+                    // resize parameters for tree
+                    resizeNodeTypesForTree(likelihood);
+
+                    // attach the real TraitSet to the tree
+                    Tree tree = (Tree) likelihood.treeInput.get();
+                    TraitSet traitSet = traitData.traitInput.get();
+                    if (traitSet != null && !tree.m_traitList.get().contains(traitSet)) {
+                        tree.m_traitList.get().add(traitSet);
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -111,6 +148,35 @@ public class TyCHEDiscreteTraitProvider extends BeautiAlignmentProvider {
                 return;
             }
         }
+    }
+
+
+    /**
+     * Resizes nodeTypes to match the tree's node count. The fxtemplate only
+     * gives it a fixed placeholder dimension (100); AncestralTypeLikelihood
+     * itself never calls setDimension, only setValue at existing indices, so
+     * a tree with more than 100 nodes would otherwise throw at runtime.
+     */
+    private void resizeNodeTypesForTree(AncestralTypeLikelihood likelihood) {
+        System.out.println("\n RESIZING NODES !!!!! \n");
+        IntegerParameter nodeTypes = likelihood.nodeTypesInput.get();
+        Tree tree = (Tree) likelihood.treeInput.get();
+        if (nodeTypes == null || tree == null) return;
+        System.out.println("\n RESIZING NODES 2 electric boogaloo !!!!! \n");
+
+        int nNodes = tree.getNodeCount();
+        if (nodeTypes.getDimension() == nNodes) return;
+        System.out.println("\n RESIZING NODES 3 wee hee !!!!! \n");
+
+        final int oldDim = nodeTypes.getDimension();
+        String valueString = IntStream.range(0, nNodes)
+                .mapToObj(i -> i < oldDim ? nodeTypes.getValue(i) : 0)
+                .map(String::valueOf)
+                .collect(Collectors.joining(" "));
+
+        nodeTypes.setDimension(nNodes);
+        nodeTypes.valuesInput.setValue(valueString, nodeTypes);
+        nodeTypes.initAndValidate();
     }
 
 }
