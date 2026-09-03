@@ -1,7 +1,33 @@
 
 ## Stretch goals / future improvements
 
-Ordered roughly by how self-contained each one is, not by priority.
+Ordered roughly by how self-contained each one is, not by priority. Many of these
+are BEAUti integration and Sphinx/doc related, rather than new methodological 
+features, which probably are not yet ready to be public.
+
+### Java domain overload/constructor collisions (cross-reference integrity)
+
+`java_domain.py`'s method/constructor directives are built on Sphinx's
+*Python* domain machinery (`PyMethod`), which has no notion of
+overloading -- it registers objects under `module.ClassName.methodName`
+alone, with no parameter list in the identifier. Any class with multiple
+constructors, or an overloaded method sharing a name, collides:
+`WARNING: duplicate object description of ...`. Confirmed by inspecting
+actual generated output (`TycheSVSInputEditor`, two constructors) that
+this doesn't hide content -- both entries still render in full -- but
+the second one loses its real, semantic anchor ID and falls back to an
+auto-numbered one (`id0`), which is unstable across rebuilds. Any
+cross-reference or external link specifically targeting an overload
+past the first would be pointing at something that could silently
+change identity next regeneration.
+
+Real fix belongs in `java_documenter.py`'s signature-building step, not
+in the generated RST by hand (defeats the point of automating this at
+all): fold each overload's parameter types into its registered name so
+they're never identical, or have the generator auto-add `:no-index:` to
+every overload after the first sharing a name. Not a problem today --
+nothing is missing, only fragile -- worth doing before anything ever
+needs to link directly to a specific overload.
 
 ### Fix `TycheTraitTest`'s `mainid` collision properly
 `mainid='$(n)'` collides with any plain sequence `Alignment`'s own bare ID,

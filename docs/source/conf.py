@@ -22,16 +22,19 @@ release = re.sub('^v', '', os.popen('git describe --tags').read().strip())
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path('_ext').resolve()))
+conf_dir = Path(__file__).parent  # docs/source, wherever it's actually invoked from
+
+sys.path.append(str(conf_dir / '_ext'))
 
 extensions = [
     'java_domain',
+    'java_documenter'
 ]
 
 templates_path = ['_templates']
 exclude_patterns = []
 
-java_documenter_source = os.path.abspath('../../../src/')
+java_documenter_source = str((conf_dir / '..' / '..' / 'src').resolve())
 toc_object_entries = True
 
 html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html'] }
