@@ -66,6 +66,11 @@ public class ElementwisePriorInputEditor extends BEASTObjectInputEditor {
 
     /**
      * Builds the panel: one collapsible entry per parameter element.
+     * @param input the Input whose value (an ElementwiseParametricDistribution) this editor renders
+     * @param beastObject the object that owns the input
+     * @param itemNr the list index this editor is for, or -1 if the input is not a list item
+     * @param isExpandOption whether this editor should render expanded or collapsed
+     * @param addButtons whether add/remove buttons should be shown
      */
     @Override
     public void init(Input<?> input, BEASTInterface beastObject, int itemNr,
@@ -91,6 +96,8 @@ public class ElementwisePriorInputEditor extends BEASTObjectInputEditor {
      * (via its distInput), and from that, the parameter it applies to and its
      * dimension. Returns -1 if the model isn't currently wrapped by any Prior
      * yet (e.g. mid-construction, before BEAUti has fully wired the connection).
+     * @param model the ElementwiseParametricDistribution to find the owning Prior for
+     * @return the Prior whose distribution is the given model, or null if none is found
      */
     private Prior getOwningPrior(ElementwiseParametricDistribution model) {
         for (BEASTInterface o : doc.pluginmap.values()) {
@@ -101,13 +108,21 @@ public class ElementwisePriorInputEditor extends BEASTObjectInputEditor {
         return null;
     }
 
-    /** Parameter (Prior.m_x) that this distribution applies to, or null if not yet wrapped by a Prior. */
+    /**
+     * Parameter (Prior.m_x) that this distribution applies to, or null if not yet wrapped by a Prior.
+     * @param model the ElementwiseParametricDistribution whose target parameter should be found
+     * @return the parameter the given model supplies a prior for, or null if it can't be found
+     */
     private Function getOwningParameter(ElementwiseParametricDistribution model) {
         Prior prior = getOwningPrior(model);
         return (prior != null) ? prior.m_x.get() : null;
     }
 
-    /** Dimension of the owning parameter, or -1 if this distribution is not yet wrapped by a Prior. */
+    /**
+     * Dimension of the owning parameter, or -1 if this distribution is not yet wrapped by a Prior.
+     * @param model the ElementwiseParametricDistribution whose target parameter's dimension is needed
+     * @return the dimension of the parameter the given model applies to, or 0 if it can't be determined
+     */
     private int getOwningParameterDimension(ElementwiseParametricDistribution model) {
         Function param = getOwningParameter(model);
         return (param != null) ? param.getDimension() : -1;
@@ -130,6 +145,7 @@ public class ElementwisePriorInputEditor extends BEASTObjectInputEditor {
      * dimension first, then builds each element's editor via the standard
      * factory path (see wrapElement), restoring
      * each pane's expanded/collapsed state from expandedStates.
+     * @param model the ElementwiseParametricDistribution to build the per-element editor panel for
      */
     private void buildDistsPanel(ElementwiseParametricDistribution model) {
         distsContainer.getChildren().clear();
@@ -168,6 +184,9 @@ public class ElementwisePriorInputEditor extends BEASTObjectInputEditor {
      * fail against the raw list-typed Input otherwise. get()/setValue() are
      * overridden to read from and write back to the real list at index i, so
      * changes made through the returned editor persist in distsInput itself.
+     * @param dists the list of per-element distributions
+     * @param i the index of the element to wrap
+     * @return a synthetic, scalar Input wrapping the chosen element, suitable for the standard ParametricDistribution editor
      */
     private Input<ParametricDistribution> wrapElement(List<ParametricDistribution> dists, int i) {
         return new Input<ParametricDistribution>("distribution", "single element", dists.get(i), ParametricDistribution.class) {
@@ -189,6 +208,9 @@ public class ElementwisePriorInputEditor extends BEASTObjectInputEditor {
      * first '.') resolves to Uniform, not to ownerLabel's own class. Shrink
      * removes from the end and logs each removed distribution's type and
      * parameter values, so the user can reconstruct it if needed.
+     * @param dists the list of per-element distributions to resize
+     * @param targetDim the dimension the list should end up at
+     * @param ownerLabel a label identifying the owning parameter, used to build unique placeholder IDs
      */
     static void reconcileDists(List<ParametricDistribution> dists, int targetDim, String ownerLabel) {
         int currentDim = dists.size();
@@ -216,7 +238,11 @@ public class ElementwisePriorInputEditor extends BEASTObjectInputEditor {
         }
     }
 
-    /** Type name and every populated input's value, for a removed distribution's removal log entry. */
+    /**
+     * Type name and every populated input's value, for a removed distribution's removal log entry.
+     * @param d the distribution to describe
+     * @return a short, human-readable summary of the distribution's type and parameters
+     */
     static String describeDistribution(ParametricDistribution d) {
         StringBuilder sb = new StringBuilder(d.getClass().getSimpleName()).append("(");
         boolean first = true;

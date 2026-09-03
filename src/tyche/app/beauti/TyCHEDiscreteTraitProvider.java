@@ -187,6 +187,7 @@ public class TyCHEDiscreteTraitProvider extends BeautiAlignmentProvider {
      * gives it a fixed placeholder dimension (100); AncestralTypeLikelihood
      * itself never calls setDimension, only setValue at existing indices, so
      * a tree with more than 100 nodes would otherwise throw at runtime.
+     * @param likelihood the AncestralTypeLikelihood whose nodeTypes parameter should be resized to match its tree's node count
      */
     private void resizeNodeTypesForTree(AncestralTypeLikelihood likelihood) {
         System.out.println("\n RESIZING NODES !!!!! \n");

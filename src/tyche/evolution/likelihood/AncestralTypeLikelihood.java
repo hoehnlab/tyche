@@ -342,6 +342,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      * Method required for implementing TreeTraitProvider
      * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     * @return the data type used by this likelihood's alignment
      */
     public DataType getDataType() {
         return dataType;
@@ -350,6 +351,9 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      * Method required for implementing TreeTraitProvider
      * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     * @param tree the tree being logged; must be the same tree this likelihood was built with
+     * @param node the node to get the reconstructed state for
+     * @return the node's reconstructed state, wrapped in a length-1 array as required by TreeTraitProvider
      */
     public int[] getStatesForNode(TreeInterface tree, Node node) {
         if (tree != treeInput.get()) {
@@ -368,6 +372,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      * Method required for implementing TreeTraitProvider
      * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     * @return the tree traits this likelihood provides for logging
      */
     public TreeTrait[] getTreeTraits() {
         return treeTraits.getTreeTraits();
@@ -376,6 +381,8 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      * Method required for implementing TreeTraitProvider
      * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     * @param key the name of the requested trait
+     * @return the matching TreeTrait, or null if none is found
      */
     public TreeTrait getTreeTrait(String key) {
         return treeTraits.getTreeTrait(key);
@@ -385,6 +392,9 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      * Method required for implementing TreeTraitProvider
      * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     * @param state the reconstructed state code(s) to format
+     * @param dataType the data type used to convert codes back to their string representation
+     * @return the formatted state as a quoted, delimited string
      */
     private static String getFormattedState(int[] state, DataType dataType) {
         String delimiter = (dataType instanceof UserDataType) ? " " : "";

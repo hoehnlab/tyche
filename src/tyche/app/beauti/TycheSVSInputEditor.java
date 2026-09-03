@@ -96,7 +96,11 @@ public class TycheSVSInputEditor extends BEASTObjectInputEditor {
         getChildren().add(pane);
     }
 
-    /** Finds the codeMap of whichever AncestralTypeLikelihood is currently linked to this substModel. */
+    /**
+     * Finds the codeMap of whichever AncestralTypeLikelihood is currently linked to this substModel.
+     * @param substModel the substitution model to find the linked trait's code map for
+     * @return the code map string of whichever trait partition currently uses this substitution model, or null if none is found
+     */
     private String findCodeMap(TycheSVSGeneralSubstitutionModel substModel) {
         for (BEASTInterface o : doc.pluginmap.values()) {
             if (o instanceof AncestralTypeLikelihood) {

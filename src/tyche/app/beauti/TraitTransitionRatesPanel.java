@@ -45,7 +45,14 @@ import java.util.function.UnaryOperator;
  */
 class TraitTransitionRatesPanel {
 
-    /** Matches SVSGeneralSubstitutionModel.setupRateMatrix()'s indexing exactly, for both modes. */
+    /**
+     * Matches SVSGeneralSubstitutionModel.setupRateMatrix()'s indexing exactly, for both modes.
+     * @param i the index of the "from" state
+     * @param j the index of the "to" state
+     * @param stateCount the total number of trait states
+     * @param isSymmetric whether the substitution model treats i->j and j->i as the same rate
+     * @return the flat index into the rates/indicator arrays for this state pair, matching SVSGeneralSubstitutionModel's own indexing
+     */
     static int rateIndicatorIndex(int i, int j, int stateCount, boolean isSymmetric) {
         if (isSymmetric) {
             int a = Math.min(i, j), b = Math.max(i, j);

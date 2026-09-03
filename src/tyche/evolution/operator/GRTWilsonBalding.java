@@ -41,6 +41,7 @@ public class GRTWilsonBalding extends WilsonBalding implements GRTCompatibleOper
 
     /**
      * handle proposal appropriately if the provided Tree is a GermlineRootTree
+     * @return the log Hastings ratio for the proposal, or Double.NEGATIVE_INFINITY if it should be rejected
      */
     @Override
     public double doGRTProposal() {

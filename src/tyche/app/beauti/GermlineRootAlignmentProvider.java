@@ -100,6 +100,8 @@ public class GermlineRootAlignmentProvider extends BeautiAlignmentProvider {
      * and operators are constructed correctly, rather than hand-built here.
      * Does nothing if a skyline is already in place, or if the prior slot
      * or template can't be found.
+     * @param doc the active BeautiDoc, used to look up and swap the tree prior subtemplate
+     * @param tree the already-converted GermlineRootTree the new skyline prior should apply to
      */
     private void replaceTreePriorWithGRTBayesianSkyline(BeautiDoc doc, Tree tree) {
         BEASTInterface priorObj = doc.pluginmap.get("prior");
@@ -159,7 +161,12 @@ public class GermlineRootAlignmentProvider extends BeautiAlignmentProvider {
         doc.scrubAll(true, false);
     }
 
-    /** Mirrors BeautiSubTemplate's own (package-private) removeSubNet(Object) lookup. */
+    /**
+     * Mirrors BeautiSubTemplate's own (package-private) removeSubNet(Object) lookup.
+     * @param doc the active BeautiDoc, used to search the loaded subtemplates
+     * @param o the constructed object whose declaring subtemplate should be found
+     * @return the BeautiSubTemplate that built the given object, or null if none matches
+     */
     private BeautiSubTemplate findSubTemplateForObject(BeautiDoc doc, BEASTInterface o) {
         String id = o.getID();
         if (id.indexOf('.') > 0) {
@@ -177,7 +184,12 @@ public class GermlineRootAlignmentProvider extends BeautiAlignmentProvider {
         return ti != null && ti.treeInput.get() == tree;
     }
 
-    /** Replaces tree with a new GermlineRootTree, copying its inputs and repointing every reference to it. */
+    /**
+     * Replaces tree with a new GermlineRootTree, copying its inputs and repointing every reference to it.
+     * @param doc the active BeautiDoc
+     * @param tree the plain Tree built by the standard partition template, to be replaced
+     * @return the new GermlineRootTree that replaces the original tree in the document
+     */
     private Tree convertToGermlineRootTree(BeautiDoc doc, Tree tree) {
         try {
             GermlineRootTree newTree = new GermlineRootTree();
@@ -195,7 +207,11 @@ public class GermlineRootAlignmentProvider extends BeautiAlignmentProvider {
         }
     }
 
-    /** Replaces every reference to original with replacement, using the object's own back-reference list. */
+    /**
+     * Replaces every reference to original with replacement, using the object's own back-reference list.
+     * @param original the object being replaced
+     * @param replacement the object that should take its place in every input that referenced the original
+     */
     private static void repointReferences(BEASTInterface original, BEASTInterface replacement) {
         for (Object output : original.getOutputs().toArray()) {
             BEASTInterface consumer = (BEASTInterface) output;
@@ -228,6 +244,8 @@ public class GermlineRootAlignmentProvider extends BeautiAlignmentProvider {
      * height/date prior gets attached directly to one tip. Unsure we need the
      * germline one with a GermlineRootTree constraint but it can't really hurt
      * in most analyses we're doing, and the user can always edit it.
+     * @param doc the active BeautiDoc, used to register the new prior objects
+     * @param tree the GermlineRootTree the outgroup priors apply to
      */
     private void addOutgroupPriors(BeautiDoc doc, Tree tree) {
         String suffix = partitionSuffix(tree);   // e.g. "t:H5N1"
@@ -290,7 +308,11 @@ public class GermlineRootAlignmentProvider extends BeautiAlignmentProvider {
         }
     }
 
-    /** "Tree.t:H5N1" -> "t:H5N1". Falls back to the full tree ID if it doesn't match the usual pattern. */
+    /**
+     * "Tree.t:H5N1" -> "t:H5N1". Falls back to the full tree ID if it doesn't match the usual pattern.
+     * @param tree the tree to derive a partition-scoped ID suffix from
+     * @return the tree's own ".t:<partition>" suffix, or its full ID if it doesn't follow that convention
+     */
     private String partitionSuffix(Tree tree) {
         String id = tree.getID();
         int idx = id.indexOf(".t:");

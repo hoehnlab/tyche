@@ -97,7 +97,6 @@ public class EpochFlexAndTypeOperator extends LeafConsciousTypeTreeOperator {
 
     /**
      * Change the parameter.
-     *
      * @return Double.NEGATIVE_INFINITY if proposal should not be accepted
      */
     @Override
@@ -178,7 +177,7 @@ public class EpochFlexAndTypeOperator extends LeafConsciousTypeTreeOperator {
 
     /**
      * Optimize the operator by changing the scale factor.
-     *
+     * @param logAlpha the log MCMC acceptance probability from the most recent step, used to adjust this operator's tuning parameter
      */
     @Override
     public void optimize(double logAlpha) {

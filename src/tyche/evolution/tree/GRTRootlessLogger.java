@@ -215,8 +215,8 @@ public class GRTRootlessLogger extends TreeWithMetaDataLogger {
      * the private DecimalFormat instance, if the input 'dp' has been
      * given a non-negative integer, otherwise just uses default
      * formatting.
-     * @param buf
-     * @param d
+     * @param buf the StringBuffer to append to
+     * @param d the value to append
      */
     private void appendDouble(StringBuffer buf, double d) {
         if (df == null) {

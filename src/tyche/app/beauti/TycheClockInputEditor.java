@@ -138,6 +138,7 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
      * Reuses the same codeMap-derived trait names as buildTraitPanel(),
      * and on selection writes the chosen type's integer code into every
      * internal-node entry of the shared nodeTypes IntegerParameter.
+     * @return the panel letting the user choose which trait value newly-initialized internal nodes start at
      */
     private GridPane buildInternalNodeInitContent() {
         GridPane g = new GridPane();
@@ -179,6 +180,8 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
      * nodeTypes parameter (the same IntegerParameter object pointed to
      * by both the model and the AncestralTypeLikelihood — see
      * updateModelsFromPartition).
+     * @param atl the AncestralTypeLikelihood whose internal nodes should be initialized
+     * @param typeCode the trait state code to assign to every internal node
      */
     private void applyInternalNodeInit(AncestralTypeLikelihood atl, int typeCode) {
         if (atl == null) return;
@@ -214,6 +217,7 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
     /**
      * Resizes expectedOccupancies to match nodeTypes' dimension (already
      * correctly sized to the tree's node count by TyCHEDiscreteTraitProvider).
+     * @param model the clock model whose expectedOccupancies parameter should be resized to match its linked trait's node count
      */
     private void resizeExpectedOccupanciesIfNeeded(TycheExpectedOccupancyClockModel model) {
         RealParameter occupancies = model.occupanciesInput.get();
@@ -509,6 +513,7 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
 
     /** Looks up the current relativeGeoRates fresh on every click -- unlike typeLinkedRates,
      *  this parameter belongs to the linked trait's svs model, which swaps identity whenever
+     * @return the title-bar button that opens the native detail dialog for the linked trait's relative rates parameter
      *  the trait-partition combo changes. Capturing it once at build time would go stale. */
     private Button createAllowedTransitionsEditButton() {
         Button b = new Button("e");

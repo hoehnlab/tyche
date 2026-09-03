@@ -60,6 +60,7 @@ public class GRTIntervals extends TreeIntervals {
      * @param mrca        the node representing the mrca
      * @param times       the times of the nodes in the beast.tree
      * @param childCounts the number of children of each node
+     * @param indices output array receiving each collected node's node number, parallel to times
      */
     protected static void collectGRTTimes(Node mrca, double[] times, int[] childCounts, int[] indices) {
         if (!(mrca instanceof GRTNode)) {

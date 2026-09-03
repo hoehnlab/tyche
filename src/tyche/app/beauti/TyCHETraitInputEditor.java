@@ -380,6 +380,7 @@ public class TyCHETraitInputEditor extends ListInputEditor {
 
     /**
      * create box with comboboxes for selection units and trait name *
+     * @return the HBox containing the trait-name field and the Guess/Clear buttons
      */
     private HBox createButtonBox() {
         HBox buttonBox = FXUtils.newHBox();

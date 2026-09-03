@@ -79,6 +79,7 @@ public class ElementwisePrior extends Distribution {
 
     /**
      * return name of the parameter this prior is applied to *
+     * @return the wrapped parameter's ID, or the string "null" if no parameter is set
      */
     public String getParameterName() {
         if (parameter != null) {

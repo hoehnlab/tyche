@@ -44,6 +44,7 @@ public class GRTBactrianScaleOperator extends BactrianScaleOperator implements G
 
     /**
      * handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
+     * @return the log Hastings ratio for the proposal, or Double.NEGATIVE_INFINITY if it should be rejected
      */
     @Override
     public double doGRTProposal() {
