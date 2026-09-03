@@ -217,11 +217,35 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
             }
         }
         if (atl == null) return;
-//        model.nodeTypesInput.set(atl.nodeTypesInput.get());
         System.out.println("atl is " + atl.getID() + " atl partition is " + doc.getPartition(atl) + " subst model is " + ((SubstitutionModel.Base)((SiteModel.Base) atl.siteModelInput.get()).substModelInput.get()).getID());
         model.svsInput.set(((SiteModel.Base) atl.siteModelInput.get()).substModelInput.get());
         model.nodeTypesInput.set(atl.nodeTypesInput.get());
         model.typeSwitchClockRateInput.set(atl.branchRateModelInput.get().meanRateInput.get());
+        resizeExpectedOccupanciesIfNeeded(model);
+    }
+
+
+    /**
+     * Resizes expectedOccupancies to match nodeTypes' dimension (already
+     * correctly sized to the tree's node count by TyCHEDiscreteTraitProvider).
+     */
+    private void resizeExpectedOccupanciesIfNeeded(TycheExpectedOccupancyClockModel model) {
+        RealParameter occupancies = model.occupanciesInput.get();
+        IntegerParameter nodeTypes = model.nodeTypesInput.get();
+        if (occupancies == null || nodeTypes == null) return;
+
+        int nNodes = nodeTypes.getDimension();
+        if (occupancies.getDimension() == nNodes) return;
+
+        final int oldDim = occupancies.getDimension();
+        String valueString = IntStream.range(0, nNodes)
+                .mapToObj(i -> i < oldDim ? occupancies.getValue(i) : 0.0)
+                .map(String::valueOf)
+                .collect(Collectors.joining(" "));
+
+        occupancies.setDimension(nNodes);
+        occupancies.valuesInput.setValue(valueString, occupancies);
+        occupancies.initAndValidate();
     }
 
     private AncestralTypeLikelihood getATL(Alignment partitionToUseForTrait) {
@@ -237,7 +261,6 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
             }
         }
         if (atl == null) return null;
-//        model.nodeTypesInput.set(atl.nodeTypesInput.get());
 
         return atl;
     }
@@ -298,7 +321,6 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
         box.getChildren().add(traitPartitionCombo);
         box.getChildren().add(traitPartitionValidateLabel);
 
-//        traitPartitionCombo.setButtonCell();
         traitPartitionCombo.setButtonCell(new ListCell<Alignment>() {
             @Override
             protected void updateItem(Alignment item, boolean empty) {
@@ -313,12 +335,8 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
         });
 
         traitPartitionCombo.setOnAction(e -> {
-//            System.out.println("HERE!!!!!!!!!!");
-//            System.out.println(((ComboBox<BEASTObject>) e.getSource()).getValue());
             Object selected = (e.getSource() instanceof ComboBox) ? ((ComboBox<?>) e.getSource()).getValue() : null;
-//            String selectedID = (e.getSource() instanceof ComboBox) ? ((ComboBox<String>) e.getSource()).getValue() : null;
             partitionToUseForTrait = (selected instanceof Alignment) ? ((Alignment) selected) : null;
-//            partitionToUseForTrait = (selected instanceof Alignment) ? ((Alignment) selected) : null;
             String newID = (selected instanceof Alignment) ? ((Alignment) selected).getID() : null;
             System.out.println("selected partition is " + partitionToUseForTrait + " and ID is " + newID);
             updateModelsFromPartition(model, partitionToUseForTrait);
@@ -493,99 +511,7 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
         return false;
     }
 
-//    private GridPane buildAllowedTransitionsContent() {
-//        GridPane g = new GridPane();
-//        g.setHgap(8);
-//        g.setVgap(4);
-//        g.setPadding(new Insets(4));
-//
-//        AncestralTypeLikelihood atl = getATL(partitionToUseForTrait);
-//        if (atl == null) {
-//            g.add(new Label("Select a trait partition above to configure allowed transitions."), 0, 0);
-//            return g;
-//        }
-//
-//        DataType.Base dataType = (DataType.Base) atl.dataInput.get().getDataType();
-//        String codeMap = ((UserDataType) dataType).codeMapInput.get();
-//        int stateCount = getStateCount(codeMap);
-//
-//        TycheSVSGeneralSubstitutionModel substModel = (TycheSVSGeneralSubstitutionModel)
-//                ((SiteModel.Base) atl.siteModelInput.get()).substModelInput.get();
-//        BooleanParameter rateIndicator = substModel.indicator.get();
-//        RealParameter relativeGeoRates = (RealParameter) substModel.ratesInput.get();
-//        boolean isSymmetric = substModel.isSymmetricInput.get();
-//
-//        int nRates = isSymmetric ? stateCount * (stateCount - 1) / 2 : stateCount * (stateCount - 1);
-//        if (rateIndicator.getDimension() != nRates || relativeGeoRates.getDimension() != nRates) {
-//            g.add(new Label("Rate dimensions do not match trait state count -- please reopen the trait editor."), 0, 0);
-//            return g;
-//        }
-//
-//        CheckBox[][] boxes = new CheckBox[stateCount][stateCount];
-//        TextField[][] rateFields = new TextField[stateCount][stateCount];
-//
-//        int row = 0;
-//        for (int i = 0; i < stateCount; i++) {
-//            for (int j = 0; j < stateCount; j++) {
-//                if (i == j) continue;
-//                g.add(new Label(getTraitFromInt(i, codeMap) + " -> " + getTraitFromInt(j, codeMap)), 0, row);
-//
-//                int idx = rateIndicatorIndex(i, j, stateCount, isSymmetric);
-//
-//                TextField rateField = new TextField(String.valueOf(relativeGeoRates.getValue(idx)));
-//                UnaryOperator<TextFormatter.Change> filter = change -> {
-//                    String newText = change.getControlNewText();
-//                    return newText.matches("-?\\d*(\\.\\d*)?([eE][-+]?\\d*)?") ? change : null;
-//                };
-//                rateField.setTextFormatter(new TextFormatter<>(filter));
-//                rateFields[i][j] = rateField;
-//
-//                int finalJ = j;
-//                int finalI = i;
-//                Runnable commitRate = () -> {
-//                    double value = Double.parseDouble(rateField.getText());
-//                    List<Double> rateValues = relativeGeoRates.valuesInput.get();
-//                    rateValues.set(idx, value);
-//                    relativeGeoRates.setValue(idx, value);
-//                    if (isSymmetric) {
-//                        TextField pairedField = rateFields[finalJ][finalI];
-//                        if (pairedField != null && !pairedField.getText().equals(rateField.getText())) {
-//                            pairedField.setText(rateField.getText());
-//                        }
-//                    }
-//                };
-//                rateField.setOnAction(e -> commitRate.run());
-//                rateField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-//                    if (!isFocused) commitRate.run();
-//                });
-//                g.add(rateField, 1, row);
-//
-//                CheckBox allowedBox = new CheckBox("Allowed");
-//                allowedBox.setSelected(rateIndicator.getValue(idx));
-//                boxes[i][j] = allowedBox;
-//
-//                rateField.disableProperty().bind(allowedBox.selectedProperty().not());
-//
-//                int finalJ1 = j;
-//                int finalI1 = i;
-//                allowedBox.setOnAction(e -> {
-//                    boolean selected = allowedBox.isSelected();
-//                    List<Boolean> indicatorValues = rateIndicator.valuesInput.get();
-//                    indicatorValues.set(idx, selected);
-//                    rateIndicator.setValue(idx, selected);
-//                    if (isSymmetric) {
-//                        CheckBox pairedBox = boxes[finalJ1][finalI1];
-//                        if (pairedBox != null && pairedBox.isSelected() != selected) {
-//                            pairedBox.setSelected(selected);
-//                        }
-//                    }
-//                });
-//                g.add(allowedBox, 2, row);
-//                row++;
-//            }
-//        }
-//        return g;
-//    }
+
     private TitledPane buildAllowedTransitionsPanel() {
         Label titleLabel = new Label("Relative State Transition Rates");
         Region spacer = new Region();
