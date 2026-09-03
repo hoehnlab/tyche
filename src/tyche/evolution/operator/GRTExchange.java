@@ -46,7 +46,7 @@ public class GRTExchange extends Exchange implements GRTCompatibleOperator {
 
     /**
      * WARNING: Assumes strictly bifurcating beast.tree.
-     * @param tree
+     * @param tree Tree to operate on
      */
     @Override
     public double wide(final Tree tree) {

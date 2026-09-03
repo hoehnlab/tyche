@@ -1,3 +1,23 @@
+/*
+ *  Copyright (C) 2025 Hoehn Lab, Dartmouth College
+ *
+ * This file is part of TyCHE.
+ *
+ * TyCHE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * TyCHE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TyCHE.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
 package tyche.app.beauti;
 
 import beast.base.core.BEASTInterface;
@@ -30,6 +50,18 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * @author Jessie Fielding
+ * This file is part of the TyCHE package - https://github.com/hoehnlab/tyche
+ */
+
+/**
+ * BEAUti editor for TycheExpectedOccupancyClockModel. Lets the user pick
+ * which trait partition the clock links to, then edits that trait's
+ * type-linked rates, internal-node initialization, and relative state
+ * transition rates -- all rebuilt from scratch whenever the linked trait
+ * partition changes.
+ */
 public class TycheClockInputEditor extends BEASTObjectInputEditor {
 
     public TycheClockInputEditor() {
@@ -40,8 +72,6 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
         super(doc);
     }
 
-    private ComboBox<String> traitCombo;
-
     @Override
     public Class<?> type() {
         return TycheExpectedOccupancyClockModel.class;
@@ -49,8 +79,6 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
 
 
     private Alignment partitionToUseForTrait;
-
-    private VBox perCategoryBox;
 
     private TitledPane traitRatesPane;
     private TitledPane internalNodeInitPane;
@@ -161,48 +189,6 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
         nodeTypes.initAndValidate();
     }
 
-
-//    private TitledPane buildPerCategoryPanel() {
-//        perCategoryBox = new VBox(4);
-//        perCategoryBox.setPadding(new Insets(4));
-//        TitledPane p = new TitledPane("Per-Type Evolutionary Rates", perCategoryBox);
-//        p.setExpanded(true);
-//        return p;
-//    }
-
-//    public InputEditor createMutationRateEditor() {
-//        DataType dataType = partitionToUseForTrait.getDataType();
-//        int nStates = dataType.getStateCount();
-//
-//        dataType.getCharacter(code);
-//        if (partitionToUseForTrait instanceof AlignmentFromTrait)
-//        final Input<?> input = sitemodel.muParameterInput;
-//        ParameterInputEditor mutationRateEditor = new ParameterInputEditor(doc);
-//        mutationRateEditor.init(input, sitemodel, -1, ExpandOption.FALSE, true);
-//        mutationRateEditor.getEntry().setDisable(doc.autoUpdateFixMeanSubstRate);
-//        mutationRateEditor.m_isEstimatedBox.setOnAction(e -> {
-//            mutationRateEditor.toggleEstimate();
-//            setUpOperator();
-//        });
-//
-//        return mutationRateEditor;
-//    }
-
-//    private Node createTypeLinkedRatesEditor(TycheExpectedOccupancyClockModel model) {
-//        InputEditor editor;
-//        System.out.println("are we even here? " + model.typeLinkedRatesInput + " " + model.typeLinkedRatesInput.get());
-//        try {
-//            editor = doc.getInputEditorFactory()
-//                    .createInputEditor(model.typeLinkedRatesInput, model, doc);
-//        } catch (Exception ex) {
-////            Alert.showMessageDialog(getComponent(),
-////                    "Could not set estimate flag: " + ex.getMessage());
-//            System.out.println("Error making typelinkedrateseditor: " + ex);
-//            return null;
-//        }
-//
-//        return editor.getComponent();
-//    }
 
     private void updateModelsFromPartition(TycheExpectedOccupancyClockModel model, Alignment partitionToUseForTrait) {
         AncestralTypeLikelihood atl = null;
@@ -367,11 +353,7 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
         values.set(traitCode, rate);                 // valuesInput's List: what gets saved
         typeLinkedRates.setValue(traitCode, rate);   // values[]: what runtime/printing reads
         System.out.println("updated values are " + values);
-//        typeLinkedRates.valuesInput.setValue(null, typeLinkedRates);
-//        typeLinkedRates.valuesInput.setValue(values, typeLinkedRates);
         System.out.println("updated typelinkedrates is " + ((TycheExpectedOccupancyClockModel) m_input.get()).typeLinkedRatesInput.get().valuesInput.get());
-//        typeLinkedRates.setValue(traitCode, rate);
-//        ((TycheExpectedOccupancyClockModel) m_input.get()).typeLinkedRatesInput.setValue(typeLinkedRates,((TycheExpectedOccupancyClockModel) m_input.get()));
     }
 
     private int getIntFromTrait(String trait, String codeMap) {
@@ -564,25 +546,6 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
         return TraitTransitionRatesPanel.buildContent(substModel, codeMap);
     }
 
-//    private TitledPane buildAllowedTransitionsPanel() {
-//        return new TitledPane("Allowed Transitions", buildAllowedTransitionsContent());
-//    }
-
-    private int rateIndicatorIndex(int i, int j, int stateCount, boolean isSymmetric) {
-        if (isSymmetric) {
-            int a = Math.min(i, j), b = Math.max(i, j);
-            int count = 0;
-            for (int x = 0; x < stateCount; x++) {
-                for (int y = x + 1; y < stateCount; y++) {
-                    if (x == a && y == b) return count;
-                    count++;
-                }
-            }
-            return -1;
-        } else {
-            return i * (stateCount - 1) + (j < i ? j : j - 1);   // matches GeneralSubstitutionModel exactly
-        }
-    }
 
     private void validateTraitPartition(Object selectedTrait, SmallLabel traitPartitionValidateLabel) {
         String partitionID = (selectedTrait instanceof Alignment) ? ((Alignment) selectedTrait).getID() : null;

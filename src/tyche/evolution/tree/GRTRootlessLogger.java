@@ -21,6 +21,8 @@
 package tyche.evolution.tree;
 
 import beast.base.core.BEASTObject;
+import beast.base.core.Citation;
+import beast.base.core.Description;
 import beast.base.core.Function;
 import beast.base.evolution.TreeWithMetaDataLogger;
 import beast.base.evolution.branchratemodel.BranchRateModel;
@@ -35,6 +37,22 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.List;
 
+/**
+ * @author Jessie Fielding
+ * This file is part of the TyCHE package - https://github.com/hoehnlab/tyche
+ */
+
+/**
+ * Tree logger that omits the germline tip and root branch from the logged
+ * Newick tree, writing out only the MRCA of the observed taxa -- so the
+ * logged tree looks like an ordinary rooted tree of samples, without the
+ * germline/root structure GermlineRootTree adds.
+ */
+@Description("Logs a GermlineRootTree without its germline tip and root branch, showing only the observed-taxa clade.")
+@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
+        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
+        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
+        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
 public class GRTRootlessLogger extends TreeWithMetaDataLogger {
 
     boolean someMetaDataNeedsLogging;

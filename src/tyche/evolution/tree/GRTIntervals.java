@@ -20,6 +20,8 @@
 
 package tyche.evolution.tree;
 
+import beast.base.core.Citation;
+import beast.base.core.Description;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 import beast.base.evolution.tree.TreeIntervals;
@@ -27,6 +29,21 @@ import beast.base.util.HeapSort;
 
 import java.util.List;
 
+/**
+ * @author Jessie Fielding
+ * This file is part of the TyCHE package - https://github.com/hoehnlab/tyche
+ */
+
+/**
+ * TreeIntervals that recognizes a GermlineRootTree and computes coalescent
+ * intervals accounting for the germline/root pairing (via GRTNode), rather
+ * than treating the germline tip as an ordinary sample.
+ */
+@Description("TreeIntervals aware of GermlineRootTree's germline/root pairing.")
+@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
+        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
+        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
+        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
 public class GRTIntervals extends TreeIntervals {
 
     protected boolean isGRT = false;

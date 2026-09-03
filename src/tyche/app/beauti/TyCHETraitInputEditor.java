@@ -1,3 +1,23 @@
+/*
+ *  Copyright (C) 2025 Hoehn Lab, Dartmouth College
+ *
+ * This file is part of TyCHE.
+ *
+ * TyCHE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * TyCHE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TyCHE.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
 package tyche.app.beauti;
 
 import beast.base.core.BEASTInterface;
@@ -30,6 +50,17 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @author Jessie Fielding
+ * This file is part of the TyCHE package - https://github.com/hoehnlab/tyche
+ */
+
+/**
+ * Per-taxon editor for a TyCHE discrete trait -- a table of taxon names
+ * and trait values, a field for the trait's own name, and a "Guess"
+ * button that fills in values from a pattern in the taxon names. Taxa
+ * that don't match the pattern are set to "?" rather than left blank.
+ */
 public class TyCHETraitInputEditor extends ListInputEditor {
 
     public TyCHETraitInputEditor(BeautiDoc doc) {
