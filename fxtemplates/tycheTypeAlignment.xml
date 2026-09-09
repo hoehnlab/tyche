@@ -5,14 +5,12 @@
     <mergewith point='aux-partitions-panels'>
         <alignmentProvider id="Add TyCHE Trait" spec='tyche.app.beauti.TyCHEDiscreteTraitProvider' template='@TycheTraitTest'/>
 
-
         <subtemplate id='TycheTraitTest' class='beastclassic.evolution.alignment.AlignmentFromTrait' mainid='$(n)'
                      suppressInputs='beast.evolution.substitutionmodel.SVSGeneralSubstitutionModel.rates,
 				beast.evolution.substitutionmodel.SVSGeneralSubstitutionModel.rateIndicator,
 				beast.evolution.substitutionmodel.SVSGeneralSubstitutionModel.eigenSystem,
 				beast.evolution.substitutionmodel.SVSGeneralSubstitutionModel.frequencies,tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel.eigenSystem,tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel.symmetric,tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel.rates,tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel.rateIndicator'>
             <![CDATA[
-        <!--distribution spec="CompoundDistribution" id="discrete-trait.$(n)" ignore="true"-->
 			<distribution id="traitedtreeLikelihood.$(n)" spec='tyche.evolution.likelihood.AncestralTypeLikelihood' useJava="true" tag="location" tree='@Tree.t:$(n)'>
 				<input name="nodeTypes" idref="nodeTypes.$(n)"/>
 				<data spec="beastclassic.evolution.alignment.AlignmentFromTrait" id='$(n)'>
@@ -20,12 +18,6 @@
 						states='4'
 						codelength='-1'
 						codeMap='A = 0, B = 1, C = 2, D = 3, ? = 0 1 2 3, - = 0 1 2 3'/>
-<!--
-					<traitSet id='traitset.$(n)' spec='beast.base.evolution.tree.TraitSet' traitname='discrete' value="">
-						<taxa spec='beast.base.evolution.alignment.TaxonSet' alignment='@$(n)'/>
-
-					</traitSet>
--->
 				</data>
 				<siteModel spec='SiteModel' id="geoSiteModel.s:$(n)" gammaCategoryCount='1'>
 				        <proportionInvariant spec='parameter.RealParameter' id='proportionInvariant.s:$(n)' value='0.0' lower='0' upper='1' estimate='false'/>
@@ -43,7 +35,6 @@
 					<parameter id="traitClockRate.c:$(n)" name="clock.rate" value="1.0"/>
 				</branchRateModel>
 			</distribution>
-        <!--/distribution-->
 
 		<parameter spec='beast.base.inference.parameter.IntegerParameter' name='nodeTypes' id='nodeTypes.$(n)' dimension="100" value="0" upper="1" lower="0"/>
 
@@ -117,8 +108,31 @@
             <connect srcID='nodeTypeHeightOperator.$(n)'             targetID='mcmc' inputName='operator' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null'>Draws new node-type-change heights uniformly for trait $(n)</connect>
             <connect srcID='rootHeightAndTypeOperator.$(n)'          targetID='mcmc' inputName='operator' if='inposterior(traitedtreeLikelihood.$(n)) and $(n)/traitSet!=null'>Jointly proposes root height and type for trait $(n)</connect>
 
+            <!-- paired with TycheInitReconnector below - see its comment -->
+            <connect srcID='traitedtreeLikelihood.$(n)' targetID='mcmc' inputName='init' if='isInitializing'/>
+
 
         </subtemplate>
+
+        <!--
+         Counters beastfx.app.beauti.StateNodeInitialiserListInputEditor.customConnector
+        (wired in BeastFX's Standard.xml), which runs on every sync and strips any
+        StateNodeInitialiser from mcmc's "init" list that doesn't initialise a Tree -
+        it assumes every initialiser seeds a Tree. AncestralTypeLikelihood initialises
+        nodeTypes instead, so it gets scrubbed every time. This re-adds it, mainid='mcmc'
+        so it fires right after that scrub on every sync. Do not remove.
+        -->
+        <!-- TycheInitReconnectorPlaceholder.unused is placeholder only: this subtemplate
+        never constructs anything, but value/CDATA is Validate.REQUIRED at fxtemplate
+        load time -->
+
+        <subtemplate id='TycheInitReconnector' class='beast.base.inference.MCMC' mainid='mcmc'>
+            <![CDATA[
+    <parameter id='TycheInitReconnectorPlaceholder.unused' spec='parameter.BooleanParameter' value='true'/>
+]]>
+            <connect method="tyche.app.beauti.TycheInitConnector.reconnectInits"/>
+        </subtemplate>
+
 
         <alignmentProvider id="Import Germline-Root Alignment" spec='tyche.app.beauti.GermlineRootAlignmentProvider' template='@StandardPartitionTemplate'/>
 

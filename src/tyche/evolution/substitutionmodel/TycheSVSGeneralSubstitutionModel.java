@@ -56,6 +56,8 @@ public class TycheSVSGeneralSubstitutionModel extends SVSGeneralSubstitutionMode
         super.initAndValidate();
         storedRateMatrix = new double[nrOfStates][nrOfStates];
         rateIndicator = indicator.get();
+        setupRelativeRates();
+        setupRateMatrix();
     }
 
 
