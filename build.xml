@@ -176,6 +176,7 @@
         <mkdir dir="${Package_dir}" />
         <mkdir dir="${Package_dir}/lib" />
         <mkdir dir="${Package_dir}/fxtemplates" />
+        <mkdir dir="${Package_dir}/examples"/>
         <copy todir="${Package_dir}/lib">
             <fileset dir="${distTyche}" includes="${packageName}.package.jar" />
         </copy>
@@ -191,6 +192,9 @@
             <fileset file="fxtemplates/tycheTypeAlignment.xml"/>
             <fileset file="fxtemplates/clockModels.xml"/>
             <fileset file="fxtemplates/priors.xml"/>
+        </copy>
+        <copy todir="${Package_dir}/examples">
+            <fileset dir="examples"/>
         </copy>
         <copy todir="${Package_dir}">
             <fileset file="LICENSE" />
