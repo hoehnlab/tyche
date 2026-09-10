@@ -205,7 +205,7 @@ This is the same information, not a separate copy — editing a rate or a
 checkbox in either tab updates the other. Use whichever tab you happen
 to be in; there’s no need to set this up twice.
 
-7. Set the type-transition clock rate
+6. Set the type-transition clock rate
 -------------------------------------
 
 Select the type partition (``newTrait``) from the **Clock Model** tab.
@@ -215,13 +215,13 @@ Relative Type-Transition Rates to determine how likely type-switches are.
 
 For this example, set this initial value to ``0.004``.
 
-8. Set the sequence Site Model
+7. Set the sequence Site Model
 ------------------------------
 
 Select the sequence partition (``GLSS-4F0A``) from the **Site Model** tab.
 For the glioma data, we recommend changing ``JC69`` to ``HKY``.
 
-9. Review the priors
+8. Review the priors
 --------------------
 
 Navigate to the **Priors** tab.
@@ -263,7 +263,7 @@ For the glioma example, we recommend setting a LogNormal distribution
 with ``M = 1.25`` and ``S = 0.5``.
 
 
-10. Save your file
+9. Save your file
 -----------------
 
 File → Save.
@@ -276,7 +276,7 @@ File → Save.
 Your analysis is ready to run.
 
 
-11. Run your analysis in BEAST2
+10. Run your analysis in BEAST2
 -------------------------------
 
 Launch BEAST2 and import the file you just saved.
