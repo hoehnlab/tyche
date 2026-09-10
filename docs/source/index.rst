@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-TyCHE: Type-linked Clocks for Heterogenous Evolution
+TyCHE: Type-linked Clocks for Heterogeneous Evolution
 ====================================================
 
 .. raw:: html
@@ -27,7 +27,7 @@ Welcome to TyCHE!
    </p>
 
 
-TyCHE stands for Type-linked Clocks for Heterogenous Evolution, and is named in honor of the Greek goddess of chance in recognition of the stochastic nature of Bayesian analysis.
+TyCHE stands for Type-linked Clocks for Heterogeneous Evolution, and is named in honor of the Greek goddess of chance in recognition of the stochastic nature of Bayesian analysis.
 
 
 .. include:: contact.rst

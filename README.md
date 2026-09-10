@@ -1,8 +1,8 @@
-# TyCHE
+# TyCHE: Type-linked Clocks for Heterogeneous Evolution
 
-TyCHE is a Bayesian phylogenetics BEAST2 package that infers time trees of populations with distinct evolutionary rates. Mutation rates often vary dramatically by cell type, and TyCHE improves accuracy of trees for these heterogenously evolving populations by simultaneously reconstructing ancestral cell types and inferring the time tree by linking those cell types to mutation rates for each branch.
+TyCHE is a Bayesian phylogenetics BEAST2 package that infers time trees of populations with distinct evolutionary rates. Mutation rates often vary dramatically by cell type, and TyCHE improves accuracy of trees for these heterogeneously evolving populations by simultaneously reconstructing ancestral cell types and inferring the time tree by linking those cell types to mutation rates for each branch.
 
-TyCHE stands for Type-linked Clocks for Heterogenous Evolution, and is named in honor of the Greek goddess of chance in recognition of the stochastic nature of Bayesian analysis.
+TyCHE stands for Type-linked Clocks for Heterogeneous Evolution, and is named in honor of the Greek goddess of chance in recognition of the stochastic nature of Bayesian analysis.
 
 :globe_with_meridians: [TyCHE website](https://tyche.readthedocs.io)
 

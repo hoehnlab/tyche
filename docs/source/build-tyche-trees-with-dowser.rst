@@ -24,7 +24,7 @@ model assumes a constant rate of evolution over time. Other models allow clock
 rates to vary, such as the uncorrelated lognormal distribution relaxed clock.
 
 Inferring time trees for cell populations using natural mutations is challenging 
-because cellular evolution is highly heterogenous. For example, B cells undergo 
+because cellular evolution is highly heterogeneous. For example, B cells undergo
 periods of rapid somatic hypermutation in germinal centers during immune 
 responses before becoming quiescent memory cells.
 
