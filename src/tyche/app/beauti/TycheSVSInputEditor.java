@@ -73,7 +73,7 @@ public class TycheSVSInputEditor extends BEASTObjectInputEditor {
 
         TycheSVSGeneralSubstitutionModel substModel = (TycheSVSGeneralSubstitutionModel) input.get();
 
-        Label titleLabel = new Label("Relative State Transition Rates");
+        Label titleLabel = new Label("Relative Type-Transition Rates");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox titleBox = new HBox(titleLabel, spacer, createRatesEditButton(substModel));

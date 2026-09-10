@@ -29,7 +29,7 @@ Requirements
 1. Import the alignment as a Germline-Root Alignment
 ----------------------------------------------------
 
-Partitions tab → **+** → **Import Germline-Root Alignment** from the
+Partitions tab → Click **+** or go to **File** menu → **Import Germline-Root Alignment** from the
 dropdown → OK.
 
 .. figure:: _static/beauti/01_import_germline_root_alignment.png
@@ -109,10 +109,16 @@ got wrong. Close the dialog when you’re done.
 
 If your samples were collected at different times, set that up from the
 **Tip Dates** tab — check **Use tip dates**, then either type each date
-in directly or use **Auto-configure**. BEAUti's Tip Date editor cannot
+in directly or use **Auto-configure**.
+
+BEAUti's Tip Date editor cannot
 guess from taxon names when any tips are present that don't match the
-pattern, so **Auto-configure** can only be used to get dates from a
-file in a germline-rooted tree.
+pattern, so **Auto-configure** can only be used to get dates for a germline-rooted tree
+using the **read from file** option. This option reads from a separate file
+which links each taxon with a date. The file must contain one row
+per taxon, with each row containing the taxon name and the date value
+separated by a tab character.
+Click **Auto-configure** -> **read from file**.
 
 Set the date for ``Germline`` to 0, as it will be automatically estimated
 with the root during the actual BEAST2 run.
@@ -158,7 +164,7 @@ Three panels appear once a trait partition is linked:
    estimated rate and an **estimate** checkbox.
 -  **Internal Node Initialization** — which trait value internal nodes
    start at, before MCMC has a chance to sample anything better.
--  **Relative State Transition Rates** — one row per *direction* of
+-  **Relative Type-Transition Rates** — one row per *direction* of
    change between trait values (``H → N``, ``N → H``, …), each with its
    own rate and an **allowed** checkbox. Unchecking a row disables its
    rate field, meaning that direction of change is not allowed in the
@@ -172,7 +178,7 @@ For our example:
 -  **Internal Node Initialization** should be ``N``, so that there are
    no impossible switches in the initial tree, since we disallow switches
    from ``H`` to ``N``.
--  **Relative State Transition Rates** should make sure that the **allowed**
+-  **Relative Type-Transition Rates** should make sure that the **allowed**
    checkbox for ``H → N`` is unchecked. The value of the only allowed transition
    can be left as 1, since these are relative rates.
 
@@ -186,8 +192,8 @@ individually.
 Note: The Site Model tab shows the same transition rates
 -----------------------------------------------------
 
-Selecting the trait partition (``newTrait``) from the **Site Model** tab shows the
-same **Relative State Transition Rates** panel you just saw on the Clock
+Selecting the type partition (``newTrait``) from the **Site Model** tab shows the
+same **Relative Type-Transition Rates** panel you just saw on the Clock
 Model tab:
 
 .. figure:: _static/beauti/11_site_model_newtrait.png
@@ -199,7 +205,23 @@ This is the same information, not a separate copy — editing a rate or a
 checkbox in either tab updates the other. Use whichever tab you happen
 to be in; there’s no need to set this up twice.
 
-6. Review the priors
+7. Set the type-transition clock rate
+-------------------------------------
+
+Select the type partition (``newTrait``) from the **Clock Model** tab.
+We recommend using a strict clock for this clock rate. This clock rate
+applies to all type transitions, and is used in conjunction with the
+Relative Type-Transition Rates to determine how likely type-switches are.
+
+For this example, set this initial value to ``0.004``.
+
+8. Set the sequence Site Model
+------------------------------
+
+Select the sequence partition (``GLSS-4F0A``) from the **Site Model** tab.
+For the glioma data, we recommend changing ``JC69`` to ``HKY``.
+
+9. Review the priors
 --------------------
 
 Navigate to the **Priors** tab.
@@ -218,6 +240,7 @@ For the glioma example, we recommend setting:
 -  Element0 (``H``): ``Mean = 2.223E-3`` and ``Sigma = 2.223E-6``
 -  Element1 (``N``): ``Mean = 3.140E-6`` and ``Sigma = 3.140E-9``
 
+
 Expand the **GRTBayesianSkyline tree prior**, to see its full settings. Because we have so few
 tips, we need to adjust the number of groups, which we will do by clicking on the small round
 button next to ``Pop Sizes`` and setting the ``Dimension`` to ``1``. We will do the same for ``Group Sizes``.
@@ -231,7 +254,16 @@ button next to ``Pop Sizes`` and setting the ``Dimension`` to ``1``. We will do 
 *except* ``Germline`` forms one group, which is what makes ``Germline``
 the outgroup. This is set automatically on import and you shouldn't need to change it.
 
-7. Save your file
+To adjust the type-transition clock rate's prior, expand the **traitClockRate prior**.
+For the glioma example, we recommend setting a Gamma distribution
+with ``Alpha = 0.001`` and ``Beta = 5.0``.
+
+To adjust the **kappa** prior, expand it.
+For the glioma example, we recommend setting a LogNormal distribution
+with ``M = 1.25`` and ``S = 0.5``.
+
+
+10. Save your file
 -----------------
 
 File → Save.
@@ -243,7 +275,8 @@ File → Save.
 
 Your analysis is ready to run.
 
-8. Run your analysis in BEAST2
+
+11. Run your analysis in BEAST2
 -------------------------------
 
 Launch BEAST2 and import the file you just saved.

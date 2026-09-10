@@ -499,7 +499,7 @@ public class TycheClockInputEditor extends BEASTObjectInputEditor {
 
 
     private TitledPane buildAllowedTransitionsPanel() {
-        Label titleLabel = new Label("Relative State Transition Rates");
+        Label titleLabel = new Label("Relative Type-Transition Rates");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox titleBox = new HBox(titleLabel, spacer, createAllowedTransitionsEditButton());
