@@ -2,7 +2,7 @@ name: Build package
 
 # Reusable workflow: checks out TyCHE and its three pinned sibling repos,
 # builds each of them, then builds the TyCHE package itself. Called by
-# both increment_version_and_release.yml and make_package_zip.yml so the checkout/toolchain/build
+# both increase_version_and_release.yml and make_package_zip.yml so the checkout/toolchain/build
 # logic only lives in one place.
 on:
   workflow_call:
