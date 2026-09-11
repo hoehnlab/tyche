@@ -24,12 +24,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: CompEvol/beast2
+          ref: 9080c1863e1602e97dfcd4f76189344452b78163
           path: beast2
 
       - name: Checkout BeastFX
         uses: actions/checkout@v4
         with:
           repository: CompEvol/BeastFX
+          ref: ced6596ac2f79a92ed369fa618568474f9797b74
           path: BeastFX
 
       - name: Checkout beast-classic
