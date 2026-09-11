@@ -1,4 +1,4 @@
-name: Build package
+name: Make package zip
 
 # Manually triggered: builds the package exactly like the release
 # workflow does, but makes no changes to version.xml and creates no
