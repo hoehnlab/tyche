@@ -46,7 +46,8 @@ public class GRTExchange extends Exchange implements GRTCompatibleOperator {
 
     /**
      * WARNING: Assumes strictly bifurcating beast.tree.
-     * @param tree
+     * @param tree Tree to operate on
+     * @return the log Hastings ratio for the proposed wide exchange, or Double.NEGATIVE_INFINITY if it should be rejected
      */
     @Override
     public double wide(final Tree tree) {
@@ -107,6 +108,7 @@ public class GRTExchange extends Exchange implements GRTCompatibleOperator {
 
     /**
      * handle proposal appropriately if the provided Tree is a GermlineRootTree
+     * @return the log Hastings ratio for the proposal, or Double.NEGATIVE_INFINITY if it should be rejected
      */
     @Override
     public double doGRTProposal() {

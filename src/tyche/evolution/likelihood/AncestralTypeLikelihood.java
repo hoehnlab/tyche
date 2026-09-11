@@ -36,12 +36,15 @@ import beast.base.evolution.substitutionmodel.SubstitutionModel;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 import beast.base.evolution.tree.TreeInterface;
+import beast.base.inference.StateNodeInitialiser;
+import beast.base.inference.StateNode;
 import beastclassic.evolution.tree.TreeTrait;
 import beastclassic.evolution.tree.TreeTraitProvider;
 import beast.base.inference.parameter.IntegerParameter;
 import tyche.evolution.tree.GermlineRootTree;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -57,7 +60,7 @@ import java.util.stream.Collectors;
         "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
         "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
         year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
-public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTraitProvider {
+public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTraitProvider, StateNodeInitialiser {
     public static final String STATES_KEY = "states";
 
     /**
@@ -140,6 +143,44 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
         tipStates = new int[tipCount][];
 
         // get the state for each leaf
+        populateNodeTypesFromTips();
+
+        if (m_siteModel.getCategoryCount() > 1)
+            throw new RuntimeException("Reconstruction not implemented for multiple categories yet.");
+
+        if (substitutionModel instanceof GeneralSubstitutionModel) {
+            qMatrix = ((GeneralSubstitutionModel) substitutionModel).getRateMatrix();
+        } else {
+            throw new RuntimeException("Reconstruction not implemented for substitution models which do not inherit from the GeneralSubstitutionModel class.");
+        }
+
+        // use this for readable logging
+        treeTraits.addTrait(STATES_KEY, new TreeTrait.IA() {
+            public String getTraitName() {
+                return tag;
+            }
+
+            public Intent getIntent() {
+                return Intent.NODE;
+            }
+
+            public int[] getTrait(TreeInterface tree, Node node) {
+                return getStatesForNode(tree,node);
+            }
+
+            public String getTraitString(TreeInterface tree, Node node) {
+                return getFormattedState(getStatesForNode(tree,node), dataType);
+            }
+        });
+
+    }
+
+    /**
+     * Writes each tip's real state from the alignment into nodeTypes.
+     * Called from both initAndValidate() and initStateNodes() -- see the
+     * comment on initStateNodes() below for why both call this.
+     */
+    private void populateNodeTypesFromTips() {
         Alignment data = dataInput.get();
         for (Node node : treeInput.get().getExternalNodes()) {
             // need to look each leaf up in the data by taxon/ID to get its index in the data
@@ -172,35 +213,32 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
                 nodeTypes.setValue(node.getNr(), states[0]);
             }
         }
+    }
 
-        if (m_siteModel.getCategoryCount() > 1)
-            throw new RuntimeException("Reconstruction not implemented for multiple categories yet.");
+    /**
+     * Re-runs the same population initAndValidate() already does, in the
+     * dedicated StateNodeInitialiser pass MCMC.run() executes before the
+     * first posterior evaluation -- regardless of where this object is
+     * declared in the XML relative to anything reading nodeTypes (e.g. the
+     * clock model feeding treeLikelihood). initAndValidate() alone runs in
+     * XML declaration order, which is what caused the NaN when
+     * treeLikelihood was declared first.
+     *
+     * initAndValidate() still calls populateNodeTypesFromTips() too, as a
+     * fallback for XML files that don't register this object in mcmc's
+     * init list -- that fallback only works if declaration order happens
+     * to be correct, same as before this fix; it does not regress anything
+     * that worked before.
+     */
+    @Override
+    public void initStateNodes() {
+        populateNodeTypesFromTips();
+    }
 
-        if (substitutionModel instanceof GeneralSubstitutionModel) {
-            qMatrix = ((GeneralSubstitutionModel) substitutionModel).getRateMatrix();
-        } else {
-            throw new RuntimeException("Reconstruction not implemented for substitution models which do not inherit from the GeneralSubstitutionModel class.");
-        }
-
-        // use this for readable logging
-        treeTraits.addTrait(STATES_KEY, new TreeTrait.IA() {
-            public String getTraitName() {
-                return tag;
-            }
-
-            public Intent getIntent() {
-                return Intent.NODE;
-            }
-
-            public int[] getTrait(TreeInterface tree, Node node) {
-                return getStatesForNode(tree,node);
-            }
-
-            public String getTraitString(TreeInterface tree, Node node) {
-                return getFormattedState(getStatesForNode(tree,node), dataType);
-            }
-        });
-
+    /** Method required for implementing StateNodeInitialiser; reports nodeTypes as the state node this object initialises. */
+    @Override
+    public void getInitialisedStateNodes(List<StateNode> stateNodes) {
+        stateNodes.add(nodeTypes);
     }
 
     /**
@@ -342,6 +380,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      * Method required for implementing TreeTraitProvider
      * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     * @return the data type used by this likelihood's alignment
      */
     public DataType getDataType() {
         return dataType;
@@ -350,6 +389,9 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      * Method required for implementing TreeTraitProvider
      * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     * @param tree the tree being logged; must be the same tree this likelihood was built with
+     * @param node the node to get the reconstructed state for
+     * @return the node's reconstructed state, wrapped in a length-1 array as required by TreeTraitProvider
      */
     public int[] getStatesForNode(TreeInterface tree, Node node) {
         if (tree != treeInput.get()) {
@@ -368,6 +410,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      * Method required for implementing TreeTraitProvider
      * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     * @return the tree traits this likelihood provides for logging
      */
     public TreeTrait[] getTreeTraits() {
         return treeTraits.getTreeTraits();
@@ -376,6 +419,8 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      * Method required for implementing TreeTraitProvider
      * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     * @param key the name of the requested trait
+     * @return the matching TreeTrait, or null if none is found
      */
     public TreeTrait getTreeTrait(String key) {
         return treeTraits.getTreeTrait(key);
@@ -385,6 +430,9 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      * Method required for implementing TreeTraitProvider
      * for logging with beastclassic.evolution.tree.TreeWithTraitLogger
+     * @param state the reconstructed state code(s) to format
+     * @param dataType the data type used to convert codes back to their string representation
+     * @return the formatted state as a quoted, delimited string
      */
     private static String getFormattedState(int[] state, DataType dataType) {
         String delimiter = (dataType instanceof UserDataType) ? " " : "";

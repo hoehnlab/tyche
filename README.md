@@ -1,8 +1,8 @@
-# TyCHE
+# TyCHE: Type-linked Clocks for Heterogeneous Evolution
 
-TyCHE is a Bayesian phylogenetics BEAST2 package that infers time trees of populations with distinct evolutionary rates. Mutation rates often vary dramatically by cell type, and TyCHE improves accuracy of trees for these heterogenously evolving populations by simultaneously reconstructing ancestral cell types and inferring the time tree by linking those cell types to mutation rates for each branch.
+TyCHE is a Bayesian phylogenetics BEAST2 package that infers time trees of populations with distinct evolutionary rates. Mutation rates often vary dramatically by cell type, and TyCHE improves accuracy of trees for these heterogeneously evolving populations by simultaneously reconstructing ancestral cell types and inferring the time tree by linking those cell types to mutation rates for each branch.
 
-TyCHE stands for Type-linked Clocks for Heterogenous Evolution, and is named in honor of the Greek goddess of chance in recognition of the stochastic nature of Bayesian analysis.
+TyCHE stands for Type-linked Clocks for Heterogeneous Evolution, and is named in honor of the Greek goddess of chance in recognition of the stochastic nature of Bayesian analysis.
 
 :globe_with_meridians: [TyCHE website](https://tyche.readthedocs.io)
 
@@ -14,11 +14,11 @@ Fielding J, Wu S, Melton H, Du Plessis L, Fisk N, Hoehn K (2025). "TyCHE enables
 
 ## Getting started
 
-A full tutorial, including installation and recommended usage with Dowser, is available at Dowser's [Build Time Trees with TyCHE vignette](https://dowser.readthedocs.io/en/latest/vignettes/Building-Time-Trees-Vignette/).
+A full tutorial, including installation and recommended usage with Dowser, is available at TyCHE's [Build TyCHE Trees Using Dowser vignette](https://tyche.readthedocs.io/en/latest/build-tyche-trees-with-dowser.html).
 
-A BEAUti template is currently in development. 🏗️
+You can also use BEAUti to choose your TyCHE settings: [Build a Germline-Root TyCHE Analysis in BEAUti](https://tyche.readthedocs.io/en/latest/beauti.html). 
 
-For full API reference, visit [tyche.readthedocs.io](https://tyche.readthedocs.io).
+For more documentation and full API reference, visit [tyche.readthedocs.io](https://tyche.readthedocs.io).
 
 
 ## Install TyCHE and dependecies
@@ -35,11 +35,11 @@ For full API reference, visit [tyche.readthedocs.io](https://tyche.readthedocs.i
 
 3. In the package manager, find and install the "BEAST Classic" package.
 
-4. Follow this tutorial to install the TyCHE package from this repository "by hand" (see [releases](/releases):
-[www.beast2.org/managing-packages](https://www.beast2.org/managing-packages/index.html)
+4. Follow [this tutorial](https://www.beast2.org/managing-packages/index.html) to add the "extra packages" package repository (use https://github.com/CompEvol/CBAN/blob/master/packages-extra-2.7.xml as the package repository URL).
 
-5. Follow this tutorial to install the [rootfreqs package](https://github.com/rbouckaert/rootfreqs) "by hand":
-[www.beast2.org/managing-packages](https://www.beast2.org/managing-packages/index.html)
+5. In the package manager, find and install the "TyCHE" package.
+
+6. In the package manager, find and install the "rootfreqs" package.
 
 #### For Linux machines, we recommend running:
 ```
@@ -60,9 +60,9 @@ rm $BEAST
 ~/beast/bin/packagemanager -add BEAST_CLASSIC
 
 # install TyCHE package (currently not released on BEAST package manager)
-curl -O https://github.com/hoehnlab/tyche/releases/download/v0.0.3/TyCHE.v0.0.3.zip 
-unzip -o -d ~/.beast/2.7/TyCHE TyCHE.v0.0.3.zip
-rm -f TyCHE.v0.0.3.zip
+curl -O https://github.com/hoehnlab/tyche/releases/download/v0.0.11/TyCHE.v0.0.11.zip 
+unzip -o -d ~/.beast/2.7/TyCHE TyCHE.v0.0.11.zip
+rm -f TyCHE.v0.0.11.zip
 
 # install rootfreqs package
 ROOTFREQS=rootfreqs.package.v0.0.2.zip

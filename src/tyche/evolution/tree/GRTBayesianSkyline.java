@@ -20,10 +20,28 @@
 
 package tyche.evolution.tree;
 
+import beast.base.core.Citation;
+import beast.base.core.Description;
 import beast.base.evolution.tree.TreeIntervals;
 import beast.base.evolution.tree.coalescent.BayesianSkyline;
 import beast.base.inference.parameter.IntegerParameter;
 
+/**
+ * @author Jessie Fielding
+ * This file is part of the TyCHE package - https://github.com/hoehnlab/tyche
+ */
+
+/**
+ * Bayesian Skyline that derives its group sizes automatically from the
+ * number of coalescent events in a GermlineRootTree, splitting them as
+ * evenly as possible across groups -- so group sizes never need to be
+ * specified by hand for a germline-rooted analysis.
+ */
+@Description("Bayesian Skyline tree prior that auto-derives group sizes from a GermlineRootTree's coalescent events.")
+@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
+        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
+        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
+        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
 public class GRTBayesianSkyline extends BayesianSkyline {
 
     @Override

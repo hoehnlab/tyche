@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><beast beautitemplate='Standard' beautistatus='' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.base.evolution.alignment:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.tree.coalescent:beast.pkgmgmt:beast.base.core:beast.base.inference.util:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood" required="BEAST.base v2.7.7:TyCHE v-52a7be9-built-09081406:BEAST_CLASSIC v1.6.4" version="2.7">
+
+    <data
+id="GLSS-4F0A"
+spec="Alignment"
+name="alignment">
+        <sequence id="seq_GLSS-HF-4F0A_R1_N_3042" spec="Sequence" taxon="GLSS-HF-4F0A_R1_N_3042" totalcount="4" value="TCTGGGACGGCGCCCCCACCCCTCCTCGGCCCGGCCCGGGGTACGGGCCCCCCCCGGGGGGGGCCGAGGCGACCCGCACGGGCGGCCCCAGGCGGACGGGTCCCCGTGCCCGCCCCCCCCTCCGCGGGAGCTGTCGGGCCCGCCGGGGTAAAGAGCGTCAAACCTGGTTATTTTTCCACACCCGCCCCCCGGGGCGGCGGCCCGCCCGCCCCCCCCGGGCGCGGCCCCGCGCGCCACGCCCCGGCGCGCCTGCGCCCGCCCGCGCCGCCCCCGGGCGCCAGCGGGCCCGCCCGCGCCGCGCGCTCCCCGGCCGCCGGGCCCGGGGCCGGCGGCCGGCGCGGGCCCCGGCCCGCGGCGCGACCGCCCGGGGCCCGCCCGGGAGCGCGGGGGGCGGGCCGCCCCCGCAGTGGCGGGCGCGGCGTGGCCGGCGGGGCGGGGGCCCCCGCCCGCGCCTGCGCCCCGGGGCCCCGCGGGCCGCCGGCCGGGCCCCCCGGCGCGGGGACCGCCCCTGCCCGAGCCGCGGCCGCGCGGGCGCGGGGGCGGCCCGCGCGCGGCCGCCCGCGGCCGCTGCGCCGCGGGCCGGGCGGCCGACGTGGCCGGTCGCCGGATGGGCGCATGAGGAGTTCCTCCGGCGCCGAGGCCGGCCCGCGGCGCCGGTGACCCAGGCCCCGCCACGGGGGCCGGAGGCCGGGGGTCCCTGGCCGCGGCGCACGGCGTCCGCCGGCGGGCCCGGGGAGCGCGGCCGGGACGGCGCTGCCGCGCGGTGGGCGTACCCCGCCTCCCTCGTTCCGGGCAGCGCAGCCGTCGTGCTGTCTGCCGCCCCCGGCGGCCGCTCCCGCCCCGGGCGCCGGACCGGCCCCGCCCCCCCGGCCGGCCCGCCCGCTCCGGGTGCTCCGCCCGGCGAGCCGGCTGGCCCGGGCTCCCGGCCACACCCGGTCTGGCCGGCCCGCGGTGGCGCTGGGGGCGGCCGGCGCCGGCCACGCCCCCTCGGCTTGTTCGCCCGCGGGCGCACCCCGGGCCCGTCCGCGACCGGAGGCACGCGGGCCGTACCCGGACCAGGGCGAGGGCGGTGCCGGGGCGCGCGCCGGCCGCGCCGCGGGCTGACTGCGGCAGCCCCGGCCGGCCGCGCCGCCCCGGGGCACCCCGGCGGCCGCGGCCCGCCGCGGGGAGGCCCGCGCAGGCGCACAGCCGCCCCGGCGGTGGCCGCGCCGCGGGACCTCCCGCGGCCCCGCAGGCCCACGGTCCGCCCCCCGGGTGGGGGCGGCAGTGGTGTCCGCCGCCGGCCCCGGAGACGGCCCGGCCGGCCGAGGACCGAGGCCCGACGAGCGCCCCACGGGGTGGGGCTTGAGGCGGGCTCTCCGCCCCCACCAACGGCGCGCGCACCGGGAACTGGCCGCGCGGGTCAGGGGGCCGGTCAGCCTCGGGGGCGTCCGCGCGGCCTCGAGCCCCCGGCGGGTCGGGGGAGCCAGCGGGGGCCCCCGACGGCGAGGCCCCCGACCTCTCGGCGCCGGGTGGGGCGCTCGCGCTGCGGCGCTGACCGGCCGCCGGCCCCGCCGAGCTCGGTCTCCCGGCTGGGCGGCGACCCCCCCTCGGGCTGCCGCAGCGACGCCCAGGCGGGCCCGCGGGTGCGGAAGTCCCCACCCGCGCCCCGGTGGGC"/>
+        <sequence id="seq_GLSS-HF-4F0A_R2_H_3772" spec="Sequence" taxon="GLSS-HF-4F0A_R2_H_3772" totalcount="4" value="TCTACAGTAATATTTTTGTTTTATGATACTTTAATTTAAAATATAAATTTTTTTTAAAAAAAATTACAATAGTTTATGTAAATAATTATGAAAAAGTAAACTTTTAAATTTATTTTTTTTGTTATACAGATCACTTATTTTTTTAAAACAGGAAGCGCGGGGCCAAACCCCCCCCGGGGGTTCATTTTTTAAAATAATAATTTATTTATTTTTTTTAAATATAATTTTATATATTCTATTTTAATATATTCATATTTATTTATATTATTTTTAATAATTGATAAATTTATTTATATAATATATCTTTTAATTATTAAATTTAAAATTAATAATTAATATAAATTTTAATTTATAATATAGTTATTTAAAATTTATTTAAAGATATAAAAAATAAATTATTTTTATGACAATAAATATAATACAATTAATAAATTAAAAATTTTTATTTATATTCATATTTTAAAATTTTATAAATTATTAATTAAATTTTTTAATATAAAACTTATTTTCATTTAGTTTATAATTATATAAATATAAAAATAATTTATATATAATTATTTATAATTATCATATTATAAATTAAATAATTAGTAAAATTAACTATAAAGCAAATATGCACAACACCTTCTTAATAATACAATGTATTTAGAATATTAACAGTTTGAATTTTATTGTAAAACTTAAGAATTAAAAACTTTCAATTATAATATCTAATACTTATTAATCAATTTCAAAGATATCATTAAAGTAATATCAATCTATAAGAAATACGTTTTATACTTTCTAGATTAAATGATAGGATTACTACATGAGTGATGATTTAGAATAATTATCTTTATTTTAAATATTAAGATAATTATATTTTGTTAATTAATTTATTTAACTTAAAGATCTTATTTAATACTTTATGCAATTTAAATATTTAATTCTGTTTAAGTCAATTAATTTATAACCATATCAATATTAATTAATATTAATTGTATTTTTATAATCCAAATATTTATAAATATTTTTTTAATTTCCTTATAGGTAACAATGTATAAATTACCTTTAAGTTGAAAGAGAAATAAGATTAAAATATATATTAATTATCTTATAAATCAGTCATAATCATTTTAATTAATAATATTTTTTTAAAATGTTTTAATAATTATAAGTTATTATAAAATAATATATATTAATATGAGATTATTTTAATAACAATTATATTATTAAGTTCTTTATAATGTTATGAATTTCTAACTTATTTTTTAAACAATAATAATGACAACACTTATTATTAATTTAAAGAGTAATATAATTAATTACAAGTTATAATTTTGGATATATTATGTAAAAAAAAATCCAGAATAAATCTCGAATTTTTCTTGTGAATATATATGTAAACCGTCAATTAGATATACTGTAAAATTAACTGTTTCTAAAAATACTTATATAATTGTACATTTTTTATCAAGTATAAACATTGATACAAATTATTAGTAATAGAATTTTTAGTTGTCTAATATAAAAAAAAATATGTATATCTTAATATCAGTTAATTATTAATGTTATTAGTTGTACATCTTTAATCAAATAATAGGATTTTTGTCAATGATGATGATAGTATGTCAATATATTTCTAAACATATGCACTTTTGTTTATACCCCGGTGGGC"/>
+        <sequence id="seq_GLSS-HF-4F0A_TP_N_0" spec="Sequence" taxon="GLSS-HF-4F0A_TP_N_0" totalcount="4" value="TCTGGGACGGCGCCCCCACCCCTCCTCGGCCCGGCCCGGGGCACGGGCCCCCCCCGGGGGGGGCCGAGGCGACCCGCACGGGCGGCCCCAGGCGGACGGGTCCCCGTGCCCGCCCCCCCCTCCGCGGGAGCTGTCGGGCCCGCCGGGGTGGGAAGCGCGAGGCCAAACCCCCCCCGGGGGTTCGCCCCCCGGGGCGGCGGCCCGCCCGCCCCCCCCGGGCGCGGCCCCGCGCGCCACGCCCCGGCGCGCCTGCGCCCGCCCGCGCCGCCCCCGGGCGCCAGCGGGCCCGCCCGCGCCGCGCGCTCCCCGGCCGCCGGGCCCGGGGCCGGCGGCCGGCGCGGGCCCCGGCCCGCGGCGCGACCGCCCGGGGCCCGCCCGGGAGCGCGGGGGGCGGGCCGCCCCCGCGGTGGCGGGCGCGGCGTGGCCGGCGGGGCGGGGGCCCCCGCCCGCGCCTGCGCCCCGGGGCCCCGCGGGCCGCCGGCCGGGCCCCCCGGCGCGGGGACCGCCCCTGCCCGAGCCGCGGCCGCGCGGGCGCGGGGGCGGCCCGCGCGCGGCCGCCCGCGGCCGCTGCGCCGCGGGCCGGGCGGCCGACGTGGCCGGTCGCCGGATGGGCGCATGAGGAGTTCCTCCGGCGCCGAGGCCGGCCCGCGGCGCCGGTGACCCAGGCCCCGCCACGGGGGCCGGAGGCCGGGGGTCCCTGGCCGCGGCGCACGGCGTCCGCCGGCGGGCCCGGGGAGCGCGGCCGGGACGGCGCTGCCGCGCGGTGGGCGTACCCCGCCTCCCTCGTTCCGGGCAGCGCAGCCGTCGTGCTGTCTGCCGCCCCCGGCGGCCGCTCCCGCCCCGGGCGCCGGACCGGCCCCGCCCCCCCGGCCGGCCCGCCCGCTCCGGGTGCTCCGCCCGGCGAGCCGGCTGGCCCGGGCTCCCGGCCACACCCGGTCTGGCCGGCCCGCGGTGGCGCTGGGGGCGGCCGGCGCCGGCCACGCCCCCTCGGCTTGTTCGCCCGCGGGCGCACCCCGGGCCCGTCCGCGACCGGAGGCACGCGGGCCGTACCCGGACCAGGGCGAGGGCGGTGCCGGGGCGCGCGCCGGCCGCGCCGCGGGCTGACTGCGGCAGCCCCGGCCGGCCGCGCCGCCCCGGGGCACCCCGGCGGCCGCGGCCCGCCGCGGGGAGGCCCGCGCAGGCGCACAGCCGCCCCGGCGGTGGCCGCGCCGCGGGACCTCCCGCGGCCCCGCAGGCCCACGGTCCGCCCCCCGGGTGGGGGCGGCAGTGGTGTCCGCCGCCGGCCCCGGAGACGGCCCGGCCGGCCGAGGACCGAGGCCCGACGAGCGCCCCACGGGGTGGGGCTTGAGGCGGGCTCTCCGCCCCCACCAACGGCGCGCGCACCGGGAACTGGCCGCGCGGGTCAGGGGGCCGGTCAGCCTCGGGGGCGTCCGCGCGGCCTCGAGCCCCCGGCGGGTCGGGGGAGCCAGCGGGGGCCCCCGACGGCGAGGCCCCCGACCTCTCGGCGCCGGGTGGGGCGCTCGCGCTGCGGCGCTGACCGGCCGCCGGCCCCGCCGAGCTCGGTCTCCCGGCTGGGCGGCGACCCCCCCTCGGGCTGCCGCAGCGACGCCCAGGCGGGCCCGCGGGTGCGGAAGTCCCCACCCGCGTTTTATCACAT"/>
+        <sequence id="seq_Germline" spec="Sequence" taxon="Germline" totalcount="4" value="CTGGGGACGGCGCCCCCACCCCTCCTCGGCCCGGCCCGGGGCGCGGGCCCCCCCCGGGGGGGGCCGAGGCGACCCGCACGGGCGGCCCCAGGCGGACGGGTCCCCGTGCCCGCCCCCCCCTCCGCGGGAGCTGTCGGGCCCGCCGGGGTAGGAGAAACGGGGGTAAACCCCCCCCGGGGGTTTGCCCCCCGGGGCGGCGGCCCGCCCGCCCCCCCCGGGCGCGGCCCCGCGCGCCACGCCCCGGCGCGCCTGCGCCCGCCCGCGCCGCCCCCGGGCGCCAGCGGGCCCGCCCGCGCCGCGCGCTCCCCGGCCGCCGGGCCCGGGGCCGGCGGCCGGCGCGGGCCCCGGCCCGCGGCGCGACCGCCCGGGGCCCGCCCGGGAGCGCGGGGGGCGGGCCGCCCCCGCAGTGGCGGGCGCGGCGTGGCCGGCGGGGCGGGGGCCCCCGCCCGCGCCTGCGCCCCGGGGCCCCGCGGGCCGCCGGCCGGGCCCCCCGGCGCGGGGACCGCCCCTGCCCGAGCCGCGGCCGCGCGGGCGCGGGGGCGGCCCGCGCGCGGCCGCCCGCGGCCGCTGCGCCGCGGGCCGGGCGGCCGACGTGGCCGGTCGCCGGATGGGCGCATGAGGAGTTCCTCCGGCGCCGAGGCCGGCCCGCGGCGCCGGTGACCCAGGCCCCGCCACGGGGGCCGGAGGCCGGGGGTCCCTGGCCGCGGCGCACGGCGTCCGCCGGCGGGCCCGGGGAGCGCGGCCGGGACGGCGCTGCCGCGCGGTGGGCGTACCCCGCCTCCCTCGTTCCGGGCAGCGCAGCCGTCGTGCTGTCTGCCGCCCCCGGCGGCCGCTCCCGCCCCGGGCGCCGGACCGGCCCCGCCCCCCCGGCCGGCCCGCCCGCTCCGGGTGCTCCGCCCGGCGAGCCGGCTGGCCCGGGCTCCCGGCCACACCCGGTCTGGCCGGCCCGCGGTGGCGCTGGGGGCGGCCGGCGCCGGCCACGCCCCCTCGGCTTGTTCGCCCGCGGGCGCACCCCGGGCCCGTCCGCGACCGGAGGCACGCGGGCCGTACCCGGACCAGGGCGAGGGCGGTGCCGGGGCGCGCGCCGGCCGCGCCGCGGGCTGACTGCGGCAGCCCCGGCCGGCCGCGCCGCCCCGGGGCACCCCGGCGGCCGCGGCCCGCCGCGGGGAGGCCCGCGCAGGCGCACAGCCGCCCCGGCGGTGGCCGCGCCGCGGGACCTCCCGCGGCCCCGCAGGCCCACGGTCCGCCCCCCGGGTGGGGGCGGCAGTGGTGTCCGCCGCCGGCCCCGGAGACGGCCCGGCCGGCCGAGGACCGAGGCCCGACGAGCGCCCCACGGGGTGGGGCTTGAGGCGGGCTCTCCGCCCCCACCAACGGCGCGCGCACCGGGAACTGGCCGCGCGGGTCAGGGGGCCGGTCAGCCTCGGGGGCGTCCGCGCGGCCTCGAGCCCCCGGCGGGTCGGGGGAGCCAGCGGGGGCCCCCGACGGCGAGGCCCCCGACCTCTCGGCGCCGGGTGGGGCGCTCGCGCTGCGGCGCTGACCGGCCGCCGGCCCCGCCGAGCTCGGTCTCCCGGCTGGGCGGCGACCCCCCCTCGGGCTGCCGCAGCGACGCCCAGGCGGGCCCGCGGGTGCGGAAGTCCCCACCCGCGCCCCGGTGGGC"/>
+    </data>
+
+    <map name="Uniform" >beast.base.inference.distribution.Uniform</map>
+
+    <map name="Exponential" >beast.base.inference.distribution.Exponential</map>
+
+    <map name="LogNormal" >beast.base.inference.distribution.LogNormalDistributionModel</map>
+
+    <map name="Normal" >beast.base.inference.distribution.Normal</map>
+
+    <map name="Beta" >beast.base.inference.distribution.Beta</map>
+
+    <map name="Gamma" >beast.base.inference.distribution.Gamma</map>
+
+    <map name="LaplaceDistribution" >beast.base.inference.distribution.LaplaceDistribution</map>
+
+    <map name="prior" >beast.base.inference.distribution.Prior</map>
+
+    <map name="InverseGamma" >beast.base.inference.distribution.InverseGamma</map>
+
+    <map name="OneOnX" >beast.base.inference.distribution.OneOnX</map>
+
+    <run id="mcmc" spec="MCMC" chainLength="10000000">
+        <state id="state" spec="State" storeEvery="5000">
+            <stateNode id="Tree.t:GLSS-4F0A" spec="tyche.evolution.tree.GermlineRootTree">
+                <trait id="traitSet.newTrait" spec="beast.base.evolution.tree.TraitSet" traitname="tycheType">
+                                    Germline=?,
+
+GLSS-HF-4F0A_R1_N_3042=N,
+
+GLSS-HF-4F0A_R2_H_3772=H,
+
+GLSS-HF-4F0A_TP_N_0=N                
+                    <taxa id="TaxonSet.GLSS-4F0A" spec="TaxonSet">
+                        <alignment idref="GLSS-4F0A"/>
+                    </taxa>
+                </trait>
+                <trait id="dateTrait.t:GLSS-4F0A" spec="beast.base.evolution.tree.TraitSet" taxa="@TaxonSet.GLSS-4F0A" traitname="date">Germline=0,
+
+GLSS-HF-4F0A_R1_N_3042=3042,
+
+GLSS-HF-4F0A_R2_H_3772=3772,
+
+GLSS-HF-4F0A_TP_N_0=0</trait>
+                <taxonset idref="TaxonSet.GLSS-4F0A"/>
+            </stateNode>
+            <parameter id="bPopSizes.t:GLSS-4F0A" spec="parameter.RealParameter" lower="0.0" name="stateNode">380.0</parameter>
+            <stateNode id="bGroupSizes.t:GLSS-4F0A" spec="parameter.IntegerParameter">1</stateNode>
+            <stateNode id="nodeTypes.newTrait" spec="parameter.IntegerParameter" dimension="7" lower="0" upper="1">1</stateNode>
+            <stateNode id="rateIndicator.s:newTrait" spec="parameter.BooleanParameter" dimension="2">false true</stateNode>
+            <parameter id="relativeGeoRates.s:newTrait" spec="parameter.RealParameter" dimension="2" name="stateNode">1.0 1.0</parameter>
+            <parameter id="traitClockRate.c:newTrait" spec="parameter.RealParameter" name="stateNode">0.004</parameter>
+            <parameter id="typeLinkedRates.c:GLSS-4F0A" spec="parameter.RealParameter" dimension="2" lower="0.0" name="stateNode">0.002223 3.14E-6</parameter>
+            <parameter id="kappa.s:GLSS-4F0A" spec="parameter.RealParameter" lower="0.0" name="stateNode">2.0</parameter>
+            <parameter id="freqParameter.s:GLSS-4F0A" spec="parameter.RealParameter" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>
+        </state>
+        <init id="RandomTree.t:GLSS-4F0A" spec="RandomTree" estimate="false" initial="@Tree.t:GLSS-4F0A" taxa="@GLSS-4F0A">
+            <populationModel id="ConstantPopulation0.t:GLSS-4F0A" spec="ConstantPopulation">
+                <parameter id="randomPopSize.t:GLSS-4F0A" spec="parameter.RealParameter" name="popSize">1.0</parameter>
+            </populationModel>
+        </init>
+        <init id="traitedtreeLikelihood.newTrait" spec="tyche.evolution.likelihood.AncestralTypeLikelihood" nodeTypes="@nodeTypes.newTrait" tag="location" tree="@Tree.t:GLSS-4F0A">
+            <data
+id="newTrait"
+spec="beastclassic.evolution.alignment.AlignmentFromTrait"
+traitSet="@traitSet.newTrait">
+                <userDataType id="traitDataType.newTrait" spec="beast.base.evolution.datatype.UserDataType" codeMap="H=0,N=1,? = 0 1 " codelength="-1" states="2"/>
+            </data>
+            <siteModel id="geoSiteModel.s:newTrait" spec="SiteModel" gammaCategoryCount="1">
+                <parameter id="mutationRate.s:newTrait" spec="parameter.RealParameter" estimate="false" name="mutationRate">1.0</parameter>
+                <parameter id="gammaShape.s:newTrait" spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
+                <parameter id="proportionInvariant.s:newTrait" spec="parameter.RealParameter" estimate="false" lower="0.0" name="proportionInvariant" upper="1.0">0.0</parameter>
+                <substModel id="svs.s:newTrait" spec="tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel" rateIndicator="@rateIndicator.s:newTrait" rates="@relativeGeoRates.s:newTrait" symmetric="false">
+                    <frequencies id="traitfreqs.s:newTrait" spec="Frequencies">
+                        <parameter id="traitfrequencies.s:newTrait" spec="parameter.RealParameter" dimension="2" name="frequencies">0.5 0.5</parameter>
+                    </frequencies>
+                </substModel>
+            </siteModel>
+            <branchRateModel id="StrictClockModel.c:newTrait" spec="beast.base.evolution.branchratemodel.StrictClockModel" clock.rate="@traitClockRate.c:newTrait"/>
+        </init>
+        <distribution id="posterior" spec="CompoundDistribution">
+            <distribution id="prior" spec="CompoundDistribution">
+                <distribution id="GRTBayesianSkyline.t:GLSS-4F0A" spec="tyche.evolution.tree.GRTBayesianSkyline" groupSizes="@bGroupSizes.t:GLSS-4F0A" popSizes="@bPopSizes.t:GLSS-4F0A">
+                    <treeIntervals id="GRTBSPTreeIntervals.t:GLSS-4F0A" spec="tyche.evolution.tree.GRTIntervals" tree="@Tree.t:GLSS-4F0A"/>
+                </distribution>
+                <distribution id="MarkovChainedPopSizes.t:GLSS-4F0A" spec="distribution.MarkovChainDistribution" jeffreys="true" parameter="@bPopSizes.t:GLSS-4F0A"/>
+                <prior id="FrequenciesPrior.s:GLSS-4F0A" name="distribution" x="@freqParameter.s:GLSS-4F0A">
+                    <distr id="Dirichlet.0" spec="distribution.Dirichlet">
+                        <parameter id="RealParameter.7" spec="parameter.RealParameter" dimension="4" estimate="false" name="alpha">4.0 4.0 4.0 4.0</parameter>
+                    </distr>
+                </prior>
+                <prior id="KappaPrior.s:GLSS-4F0A" name="distribution" x="@kappa.s:GLSS-4F0A">
+                    <LogNormal id="LogNormalDistributionModel.0" name="distr">
+                        <parameter id="RealParameter.5" spec="parameter.RealParameter" estimate="false" name="M">1.25</parameter>
+                        <parameter id="RealParameter.6" spec="parameter.RealParameter" estimate="false" name="S">0.5</parameter>
+                    </LogNormal>
+                </prior>
+                <prior id="relativeGeoRatesPrior.s:newTrait" name="distribution" x="@relativeGeoRates.s:newTrait">
+                    <Gamma id="Gamma.1" name="distr">
+                        <parameter id="RealParameter.3" spec="parameter.RealParameter" estimate="false" name="alpha">0.1</parameter>
+                        <parameter id="RealParameter.4" spec="parameter.RealParameter" estimate="false" name="beta">1.0</parameter>
+                    </Gamma>
+                </prior>
+                <prior id="geoclockPrior.c:newTrait" name="distribution" x="@traitClockRate.c:newTrait">
+                    <Gamma id="Gamma.0" name="distr">
+                        <parameter id="RealParameter.1" spec="parameter.RealParameter" estimate="false" name="alpha">0.001</parameter>
+                        <parameter id="RealParameter.2" spec="parameter.RealParameter" estimate="false" name="beta">5.0</parameter>
+                    </Gamma>
+                </prior>
+                <prior id="typeLinkedRatesPrior.c:GLSS-4F0A" name="distribution" x="@typeLinkedRates.c:GLSS-4F0A">
+                    <distr id="ElementwiseParametricDistribution.typeLinkedRates.c:GLSS-4F0A" spec="tyche.inference.distribution.ElementwiseParametricDistribution">
+                        <Normal id="Normal.typeLinkedRates.1.c:GLSS-4F0A" name="distribution">
+                            <parameter id="mean1.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="mean">3.14E-6</parameter>
+                            <parameter id="sigma1.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="sigma">3.14E-9</parameter>
+                        </Normal>
+                        <Normal id="Normal.typeLinkedRates.2.c:GLSS-4F0A" name="distribution">
+                            <parameter id="mean2.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="mean">0.002223</parameter>
+                            <parameter id="sigma2.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="sigma">2.223E-6</parameter>
+                        </Normal>
+                    </distr>
+                </prior>
+                <distribution id="Germline.prior.t:GLSS-4F0A" spec="beast.base.evolution.tree.MRCAPrior" tipsonly="true" tree="@Tree.t:GLSS-4F0A">
+                    <taxonset id="germSet.t:GLSS-4F0A" spec="TaxonSet">
+                        <taxon id="Germline" spec="Taxon"/>
+                    </taxonset>
+                    <Uniform id="Uniform.1:Germline.t:GLSS-4F0A" lower="-10000.0" name="distr" upper="10000.0"/>
+                </distribution>
+                <distribution id="obs.prior.t:GLSS-4F0A" spec="beast.base.evolution.tree.MRCAPrior" monophyletic="true" tree="@Tree.t:GLSS-4F0A">
+                    <taxonset id="obs.t:GLSS-4F0A" spec="TaxonSet">
+                        <taxon id="GLSS-HF-4F0A_R1_N_3042" spec="Taxon"/>
+                        <taxon id="GLSS-HF-4F0A_R2_H_3772" spec="Taxon"/>
+                        <taxon id="GLSS-HF-4F0A_TP_N_0" spec="Taxon"/>
+                    </taxonset>
+                </distribution>
+            </distribution>
+            <distribution id="likelihood" spec="CompoundDistribution" useThreads="true">
+                <distribution id="treeLikelihood.GLSS-4F0A" spec="ThreadedTreeLikelihood" data="@GLSS-4F0A" tree="@Tree.t:GLSS-4F0A">
+                    <siteModel id="SiteModel.s:GLSS-4F0A" spec="SiteModel">
+                        <parameter id="mutationRate.s:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" lower="0.0" name="mutationRate">1.0</parameter>
+                        <parameter id="gammaShape.s:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" lower="0.1" name="shape">1.0</parameter>
+                        <parameter id="proportionInvariant.s:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" lower="0.0" name="proportionInvariant" upper="1.0">0.0</parameter>
+                        <substModel id="hky.s:GLSS-4F0A" spec="HKY" kappa="@kappa.s:GLSS-4F0A">
+                            <frequencies id="estimatedFreqs.s:GLSS-4F0A" spec="Frequencies" frequencies="@freqParameter.s:GLSS-4F0A"/>
+                        </substModel>
+                    </siteModel>
+                    <branchRateModel id="tycheBranchRates.c:GLSS-4F0A" spec="tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel" nodeTypes="@nodeTypes.newTrait" substitutionModel="@svs.s:newTrait" typeLinkedRates="@typeLinkedRates.c:GLSS-4F0A" typeSwitchClockRate="@traitClockRate.c:newTrait">
+                        <parameter id="expectedOccupancies.c:GLSS-4F0A" spec="parameter.RealParameter" dimension="7" lower="0.0" name="expectedOccupancy" upper="1.0">0.0 0.0 0.0 0.0 0.0 0.0 0.0</parameter>
+                        <parameter id="tycheDummyClock.rate:GLSS-4F0A" spec="parameter.RealParameter" name="clock.rate">1.0</parameter>
+                    </branchRateModel>
+                </distribution>
+                <distribution idref="traitedtreeLikelihood.newTrait"/>
+            </distribution>
+        </distribution>
+        <operator id="GRTBayesianSkylineBICEPSEpochTop.t:GLSS-4F0A" spec="EpochFlexOperator" scaleFactor="0.1" tree="@Tree.t:GLSS-4F0A" weight="2.0"/>
+        <operator id="GRTBayesianSkylineBICEPSEpochAll.t:GLSS-4F0A" spec="EpochFlexOperator" fromOldestTipOnly="false" scaleFactor="0.1" tree="@Tree.t:GLSS-4F0A" weight="2.0"/>
+        <operator id="GRTBayesianSkylineBICEPSTreeFlex.t:GLSS-4F0A" spec="TreeStretchOperator" scaleFactor="0.01" tree="@Tree.t:GLSS-4F0A" weight="2.0"/>
+        <operator id="GRTBayesianSkylineTreeRootScaler.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTBactrianScaleOperator" rootOnly="true" scaleFactor="0.1" tree="@Tree.t:GLSS-4F0A" weight="3.0"/>
+        <operator id="GRTBayesianSkylineUniformOperator.t:GLSS-4F0A" spec="kernel.BactrianNodeOperator" tree="@Tree.t:GLSS-4F0A" weight="30.0"/>
+        <operator id="GRTBayesianSkylineSubtreeSlide.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTSubtreeSlide" tree="@Tree.t:GLSS-4F0A" weight="15.0"/>
+        <operator id="GRTBayesianSkylineNarrow.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTExchange" tree="@Tree.t:GLSS-4F0A" weight="15.0"/>
+        <operator id="GRTBayesianSkylineWide.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTExchange" isNarrow="false" tree="@Tree.t:GLSS-4F0A" weight="3.0"/>
+        <operator id="GRTBayesianSkylineWilsonBalding.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTWilsonBalding" tree="@Tree.t:GLSS-4F0A" weight="3.0"/>
+        <operator id="popSizesScaler.t:GLSS-4F0A" spec="kernel.BactrianScaleOperator" parameter="@bPopSizes.t:GLSS-4F0A" weight="15.0"/>
+        <operator id="groupSizesDelta.t:GLSS-4F0A" spec="operator.kernel.BactrianDeltaExchangeOperator" integer="true" weight="6.0">
+            <intparameter idref="bGroupSizes.t:GLSS-4F0A"/>
+        </operator>
+        <operator id="georateScaler.s:newTrait" spec="ScaleOperator" parameter="@relativeGeoRates.s:newTrait" scaleAllIndependently="true" scaleFactor="0.99" weight="30.0"/>
+        <operator id="geoMuScaler.c:newTrait" spec="ScaleOperator" parameter="@traitClockRate.c:newTrait" scaleFactor="0.9" weight="3.0"/>
+        <operator id="nodeTypesUniformTreeOperator.newTrait" spec="tyche.evolution.operator.LeafConsciousTypeTreeOperator" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
+        <operator id="nodeTypesSubtreeTypeSwitchOperator.newTrait" spec="tyche.evolution.operator.SubtreeTypeSwitchOperator" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
+        <operator id="nodeTypeHeightOperator.newTrait" spec="tyche.evolution.operator.UniformNodeTypeHeightOperator" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
+        <operator id="rootHeightAndTypeOperator.newTrait" spec="tyche.evolution.operator.CombinedRootOperator" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
+        <operator id="typeLinkedRatesScaler.c:GLSS-4F0A" spec="ScaleOperator" parameter="@typeLinkedRates.c:GLSS-4F0A" scaleFactor="0.9" weight="2.0">
+            <indicator id="typeLinkedRatesIndicator.c:GLSS-4F0A" spec="parameter.BooleanParameter" dimension="2" estimate="false">true true</indicator>
+        </operator>
+        <operator id="KappaScaler.s:GLSS-4F0A" spec="AdaptableOperatorSampler" weight="0.05">
+            <parameter idref="kappa.s:GLSS-4F0A"/>
+            <operator id="AVMNOperator.GLSS-4F0A" spec="kernel.AdaptableVarianceMultivariateNormalOperator" allowNonsense="true" beta="0.05" burnin="400" initial="800" weight="0.1">
+                <transformations id="AVMNSumTransform.GLSS-4F0A" spec="operator.kernel.Transform$LogConstrainedSumTransform">
+                    <f idref="freqParameter.s:GLSS-4F0A"/>
+                </transformations>
+                <transformations id="AVMNLogTransform.GLSS-4F0A" spec="operator.kernel.Transform$LogTransform">
+                    <f idref="kappa.s:GLSS-4F0A"/>
+                </transformations>
+                <transformations id="AVMNNoTransform.GLSS-4F0A" spec="operator.kernel.Transform$NoTransform">
+                    <f idref="Tree.t:GLSS-4F0A"/>
+                </transformations>
+            </operator>
+            <operator id="KappaScalerX.s:GLSS-4F0A" spec="kernel.BactrianScaleOperator" parameter="@kappa.s:GLSS-4F0A" scaleFactor="0.1" upper="10.0" weight="0.1"/>
+        </operator>
+        <operator id="FrequenciesExchanger.s:GLSS-4F0A" spec="AdaptableOperatorSampler" weight="0.05">
+            <parameter idref="freqParameter.s:GLSS-4F0A"/>
+            <operator idref="AVMNOperator.GLSS-4F0A"/>
+            <operator id="FrequenciesExchangerX.s:GLSS-4F0A" spec="operator.kernel.BactrianDeltaExchangeOperator" delta="0.01" weight="0.1">
+                <parameter idref="freqParameter.s:GLSS-4F0A"/>
+            </operator>
+        </operator>
+        <logger id="tracelog" spec="Logger" fileName="$(filebase).log" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <log idref="prior"/>
+            <log idref="treeLikelihood.GLSS-4F0A"/>
+            <log id="TreeHeight.t:GLSS-4F0A" spec="beast.base.evolution.tree.TreeStatLogger" tree="@Tree.t:GLSS-4F0A"/>
+            <log idref="GRTBayesianSkyline.t:GLSS-4F0A"/>
+            <log idref="bPopSizes.t:GLSS-4F0A"/>
+            <log idref="bGroupSizes.t:GLSS-4F0A"/>
+            <log idref="rateIndicator.s:newTrait"/>
+            <log idref="relativeGeoRates.s:newTrait"/>
+            <log idref="traitClockRate.c:newTrait"/>
+            <log id="geoSubstModelLogger.s:newTrait" spec="beastclassic.evolution.substitutionmodel.SVSGeneralSubstitutionModelLogger" dataType="@traitDataType.newTrait" model="@svs.s:newTrait"/>
+            <log idref="kappa.s:GLSS-4F0A"/>
+            <log idref="freqParameter.s:GLSS-4F0A"/>
+        </logger>
+        <logger id="screenlog" spec="Logger" logEvery="1000">
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <log idref="prior"/>
+        </logger>
+        <logger id="treelog.t:GLSS-4F0A" spec="Logger" fileName="$(filebase)-$(tree).trees" logEvery="1000" mode="tree">
+            <log id="TreeWithMetaDataLogger.t:GLSS-4F0A" spec="beast.base.evolution.TreeWithMetaDataLogger" tree="@Tree.t:GLSS-4F0A"/>
+        </logger>
+        <logger id="treeWithTraitLogger.newTrait" spec="Logger" fileName="newTrait_tree_with_trait.trees" logEvery="10000" mode="tree">
+            <log id="treeWithTraitLoggerItem.t:GLSS-4F0A" spec="beastclassic.evolution.tree.TreeWithTraitLogger" tree="@Tree.t:GLSS-4F0A">
+                <metadata idref="posterior"/>
+                <metadata idref="traitedtreeLikelihood.newTrait"/>
+                <metadata idref="expectedOccupancies.c:GLSS-4F0A"/>
+            </log>
+        </logger>
+        <operatorschedule id="OperatorSchedule" spec="OperatorSchedule"/>
+    </run>
+
+</beast>

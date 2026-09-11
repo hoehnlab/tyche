@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-TyCHE documentation
-===================
+TyCHE: Type-linked Clocks for Heterogeneous Evolution
+====================================================
 
 .. raw:: html
 
@@ -27,7 +27,7 @@ Welcome to TyCHE!
    </p>
 
 
-TyCHE stands for Type-linked Clocks for Heterogenous Evolution, and is named in honor of the Greek goddess of chance in recognition of the stochastic nature of Bayesian analysis.
+TyCHE stands for Type-linked Clocks for Heterogeneous Evolution, and is named in honor of the Greek goddess of chance in recognition of the stochastic nature of Bayesian analysis.
 
 
 .. include:: contact.rst
@@ -39,7 +39,7 @@ Getting Started
 ----------------
 We recommend starting with :ref:`dowser-vignette`. 
 
-A BEAUti template for TyCHE is under development and will be made available soon.
+You can also use BEAUti to choose your TyCHE settings: :ref:`beauti-vignette`.
 
 .. toctree::
    :maxdepth: 1
@@ -47,6 +47,7 @@ A BEAUti template for TyCHE is under development and will be made available soon
 
    About TyCHE <self>
    build-tyche-trees-with-dowser.rst
+   beauti.rst
    api/packages_index.rst
 
 .. include:: citing.rst

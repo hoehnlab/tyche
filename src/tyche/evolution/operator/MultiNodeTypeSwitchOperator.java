@@ -277,6 +277,7 @@ public abstract class MultiNodeTypeSwitchOperator extends LeafConsciousTypeTreeO
      * Set all nodeType values in the subtree to a new value.
      * @param node the node that is the root of the subtree we are setting to a new value
      * @param generations how many generations to set, -1 (or any value less than 0) for "all the way to tips"
+     * @return the number of nodes whose type was changed
      */
     protected int setSubtree(Node node, int generations) {
         int changedNodes = 0;
@@ -302,6 +303,7 @@ public abstract class MultiNodeTypeSwitchOperator extends LeafConsciousTypeTreeO
      * Set all nodeType values of direct ancestors of this node.
      * @param node the node that is the root of the subtree we are setting to a new value
      * @param generations how many generations to set, -1 (or any value less than 0) for "all the way to tips"
+     * @return the number of nodes whose type was changed
      */
     protected int setUptree(Node node, int generations) {
         int changedNodes = 0;

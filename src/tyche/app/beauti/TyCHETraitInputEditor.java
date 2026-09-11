@@ -1,0 +1,489 @@
+/*
+ *  Copyright (C) 2025 Hoehn Lab, Dartmouth College
+ *
+ * This file is part of TyCHE.
+ *
+ * TyCHE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * TyCHE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with TyCHE.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+package tyche.app.beauti;
+
+import beast.base.core.BEASTInterface;
+import beast.base.core.Input;
+import beast.base.evolution.alignment.Alignment;
+import beast.base.evolution.alignment.TaxonSet;
+import beast.base.evolution.datatype.UserDataType;
+import beast.base.evolution.tree.TraitSet;
+import beast.base.evolution.tree.TreeInterface;
+import beastclassic.evolution.alignment.AlignmentFromTrait;
+import beastfx.app.inputeditor.BeautiDoc;
+import beastfx.app.inputeditor.GuessPatternDialog;
+import beastfx.app.inputeditor.ListInputEditor;
+import beastfx.app.inputeditor.SmallLabel;
+import beastfx.app.util.FXUtils;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import tyche.evolution.likelihood.AncestralTypeLikelihood;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * @author Jessie Fielding
+ * This file is part of the TyCHE package - https://github.com/hoehnlab/tyche
+ */
+
+/**
+ * Per-taxon editor for a TyCHE discrete trait -- a table of taxon names
+ * and trait values, a field for the trait's own name, and a "Guess"
+ * button that fills in values from a pattern in the taxon names. Taxa
+ * that don't match the pattern are set to "?" rather than left blank.
+ */
+public class TyCHETraitInputEditor extends ListInputEditor {
+
+    public TyCHETraitInputEditor(BeautiDoc doc) {
+        super(doc);
+    }
+
+    @Override
+    public Class<?> baseType() {
+        return AncestralTypeLikelihood.class;
+    }
+
+    AncestralTypeLikelihood likelihood;
+    TreeInterface tree;
+    TraitSet traitSet;
+    TextField traitEntry;
+    List<String> sTaxa;
+
+    public class LocationMap {
+        String taxon;
+        String trait;
+
+        LocationMap(String taxon, String trait) {
+            this.taxon = taxon;
+            this.trait = trait;
+        }
+
+        public String getTaxon() {
+            return taxon;
+        }
+        public void setTaxon(String taxon) {
+            this.taxon = taxon;
+        }
+        public String getTrait() {
+            return trait;
+        }
+        public void setTrait(String trait) {
+            this.trait = trait;
+        }
+    }
+
+    TableView<LocationMap> table;
+    ObservableList<LocationMap> taxonMapping;
+    UserDataType dataType;
+
+    //String m_sPattern = ".*(\\d\\d\\d\\d).*";
+    String m_sPattern = ".*_(..).*";
+
+    @Override
+    public void init(Input<?> input, BEASTInterface plugin, int itemNr, ExpandOption bExpandOption, boolean bAddButtons) {
+        m_bAddButtons = bAddButtons;
+        m_input = input;
+        m_beastObject = plugin;
+        this.itemNr = itemNr;
+        m_bAddButtons = bAddButtons;
+        this.itemNr = itemNr;
+        if (itemNr >= 0) {
+            likelihood = (AncestralTypeLikelihood) ((ArrayList<?>)input.get()).get(itemNr);
+        } else {
+            likelihood = (AncestralTypeLikelihood) ((ArrayList<?>)input.get()).get(0);
+        }
+    }
+
+
+    public void initPanel(AncestralTypeLikelihood likelihood_) {
+        likelihood = likelihood_;
+        m_beastObject = likelihood.dataInput.get();
+        try {
+            m_input = m_beastObject.getInput("traitSet");
+        }catch (Exception e) {
+            // TODO: handle exception
+        }
+
+        tree = likelihood.treeInput.get();
+
+        if (tree != null) {
+            Alignment data = likelihood.dataInput.get();
+            if (!(data instanceof AlignmentFromTrait)) {
+                return;
+            }
+            AlignmentFromTrait traitData = (AlignmentFromTrait) data;
+            m_input = traitData.traitInput;
+            m_beastObject = traitData;
+            traitSet = traitData.traitInput.get();
+
+            if (traitSet == null) {
+                traitSet = new TraitSet();
+                String context = BeautiDoc.parsePartition(likelihood.getID());
+                traitSet.setID("traitSet." + context);
+                try {
+                    traitSet.initByName("traitname", "tycheType",
+                            "taxa", tree.getTaxonset(),
+                            "value", "");
+                    m_input.setValue(traitSet, m_beastObject);
+                    data.initAndValidate();
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
+            }
+
+
+            dataType = (UserDataType)traitData.userDataTypeInput.get();
+
+            VBox box = FXUtils.newVBox();
+
+            CheckBox useTipDates = new CheckBox("Use traits");
+            useTipDates.setSelected(traitSet != null);
+            useTipDates.setOnAction(e -> {
+                try {
+                    Pane comp = (Pane) useTipDates.getParent();
+                    comp.getChildren().removeAll();
+                    if (useTipDates.isSelected()) {
+                        if (traitSet == null) {
+                            traitSet = new TraitSet();
+                            String context = BeautiDoc.parsePartition(likelihood.getID());
+                            traitSet.setID("traitSet." + context);
+                            traitSet.initByName("traitname", "tycheType",
+                                    "taxa", tree.getTaxonset(),
+                                    "value", "");
+                        }
+                        comp.getChildren().add(useTipDates);
+                        comp.getChildren().add(createButtonBox());
+                        comp.getChildren().add(createListBox());
+                        validateInput();
+                        m_input.setValue(traitSet, m_beastObject);
+                    } else {
+                        m_input.setValue(null, m_beastObject);
+                        comp.getChildren().add(useTipDates);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            });
+
+            if (traitSet != null) {
+                box.getChildren().add(createButtonBox());
+                box.getChildren().add(createListBox());
+            }
+            getChildren().add(box);
+            validateInput();
+            // synchronise with table, useful when taxa have been deleted
+            convertTableDataToDataType();
+            convertTableDataToTrait();
+        }
+    } // init
+
+
+
+    private TableView createListBox() {
+        try {
+            traitSet.taxaInput.get().initAndValidate();
+
+            TaxonSet taxa = tree.getTaxonset();
+            taxa.initAndValidate();
+            sTaxa = taxa.asStringList();
+        } catch (Exception e) {
+            // TODO: handle exception
+            sTaxa = traitSet.taxaInput.get().asStringList();
+        }
+        String[] columnData = new String[]{"Name", "Trait"};
+        taxonMapping = FXCollections.observableArrayList();
+        for (String s : sTaxa) {
+            taxonMapping.add(new LocationMap(s, ""));
+        }
+        convertTraitToTableData();
+
+
+        // set up table.
+        // special features: background shading of rows
+        // custom editor allowing only Date column to be edited.
+        table = new TableView<>();
+        table.setPrefWidth(1024);
+        table.setEditable(true);
+        table.setItems(taxonMapping);
+
+        TableColumn<LocationMap, String> col1 = new TableColumn<>("Taxon");
+        col1.setPrefWidth(500);
+        col1.setEditable(false);
+        col1.setCellValueFactory(
+                new PropertyValueFactory<LocationMap,String>("Taxon")
+        );
+        table.getColumns().add(col1);
+
+        TableColumn<LocationMap, String> col2 = new TableColumn<>("Trait");
+        col2.setPrefWidth(500);
+        col2.setEditable(true);
+        col2.setCellValueFactory(
+                new PropertyValueFactory<LocationMap,String>("Trait")
+        );
+        col2.setCellFactory(TextFieldTableCell.forTableColumn());
+        col2.setOnEditCommit(
+                new EventHandler<TableColumn.CellEditEvent<LocationMap, String>>() {
+                    @Override
+                    public void handle(TableColumn.CellEditEvent<LocationMap, String> event) {
+                        String newValue = event.getNewValue();
+                        LocationMap location = event.getRowValue();
+                        location.setTrait(newValue);
+                        convertTableDataToTrait();
+                        validateInput();
+                    }
+                }
+        );
+
+        table.getColumns().add(col2);
+
+        return table;
+    } // createListBox
+
+
+    /* synchronise table with data from traitSet Plugin */
+    private void convertTraitToTableData() {
+        for (int i = 0; i < taxonMapping.size(); i++) {
+            taxonMapping.get(i).taxon = sTaxa.get(i);
+            taxonMapping.get(i).trait = "";
+        }
+        String trait = traitSet.traitsInput.get();
+        if (trait.trim().length() == 0) {
+            return;
+        }
+        String[] sTraits = trait.split(",");
+        for (String sTrait : sTraits) {
+            sTrait = sTrait.replaceAll("\\s+", " ");
+            String[] sStrs = sTrait.split("=");
+            String value = null;
+            if (sStrs.length != 2) {
+                value = "";
+            } else {
+                value = sStrs[1].trim();
+            }
+            String sTaxonID = sStrs[0].trim();
+            int iTaxon = sTaxa.indexOf(sTaxonID);
+            if (iTaxon < 0) {
+                System.err.println(sTaxonID);
+            } else {
+                taxonMapping.get(iTaxon).taxon = sTaxonID;
+                taxonMapping.get(iTaxon).trait = value;
+            }
+        }
+
+        if (table != null) {
+            table.refresh();
+        }
+    } // convertTraitToTableData
+
+    /**
+     * synchronise traitSet Plugin with table data
+     */
+    private void convertTableDataToTrait() {
+        String sTrait = "";
+        for (int i = 0; i < taxonMapping.size(); i++) {
+            sTrait += taxonMapping.get(i).taxon + "=" + taxonMapping.get(i).trait;
+            if (i < taxonMapping.size() - 1) {
+                sTrait += ",\n";
+            }
+        }
+        try {
+            System.err.println("TRAIT=" + sTrait);
+
+            traitSet.traitsInput.setValue(sTrait, traitSet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        convertTableDataToDataType();
+    }
+
+    private void convertTableDataToDataType() {
+        List<String> values = new ArrayList<String>();
+        for (int i = 0; i < taxonMapping.size(); i++) {
+            if (taxonMapping.get(i).trait.trim().length() > 0 && !taxonMapping.get(i).trait.trim().equals("?") && !values.contains(taxonMapping.get(i).trait)) {
+                values.add(taxonMapping.get(i).trait);
+            }
+        }
+        Collections.sort(values);
+        String codeMap = "";
+        int k = 0;
+        for (String value : values) {
+            codeMap += value + "=" + k + ",";
+            k++;
+        }
+        // add unknown/missing character
+        codeMap += "? = ";
+        for (int i = 0; i < values.size(); i++) {
+            codeMap += i + " ";
+        }
+        // System.err.println(codeMap);
+        try {
+            dataType.codeMapInput.setValue(codeMap, dataType);
+            dataType.stateCountInput.setValue(values.size(), dataType);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        validateInput();
+    }
+
+    /** Keeps the four nodeTypes/tree operators' traitName in sync with the
+     *  TraitSet's own traitname -- these must match exactly for
+     *  LeafConsciousTypeTreeOperator (and its siblings) to find the trait
+     *  at all. The user can rename traitname freely via the text field
+     *  above, so this can't be a fixed string or $(n). */
+    protected void syncOperatorTraitNames() {
+        String traitName = traitSet.traitNameInput.get();
+        String context = BeautiDoc.parsePartition(likelihood.getID());
+        String[] operatorIds = {
+                "nodeTypesUniformTreeOperator." + context,
+                "nodeTypesSubtreeTypeSwitchOperator." + context,
+                "nodeTypeHeightOperator." + context,
+                "rootHeightAndTypeOperator." + context
+        };
+        for (String id : operatorIds) {
+            BEASTInterface o = doc.pluginmap.get(id);
+            if (o != null) {
+                try {
+                    o.setInputValue("traitName", traitName);
+                } catch (Exception ignored) {}
+            }
+        }
+    }
+
+    /**
+     * create box with comboboxes for selection units and trait name *
+     * @return the HBox containing the trait-name field and the Guess/Clear buttons
+     */
+    private HBox createButtonBox() {
+        HBox buttonBox = FXUtils.newHBox();
+
+        Label label = new Label("Trait: ");
+        //label.setMaximumSize(new Dimension(1024, 20));
+        buttonBox.getChildren().add(label);
+
+        traitEntry = new TextField(traitSet.traitNameInput.get());
+        traitEntry.setOnKeyReleased(e->{
+            try {
+                traitSet.traitNameInput.setValue(traitEntry.getText(), traitSet);
+                syncOperatorTraitNames();
+            } catch (Exception ex) {
+                // TODO: handle exception
+            }
+        });
+        traitEntry.setMinWidth(12*15);
+        buttonBox.getChildren().add(traitEntry);
+
+        Button guessButton = new Button("Guess");
+        guessButton.setId("guess");
+        guessButton.setOnAction(e->guess());
+        buttonBox.getChildren().add(guessButton);
+
+
+        Button clearButton = new Button("Clear");
+        clearButton.setOnAction(e-> {
+            try {
+                traitSet.traitsInput.setValue("", traitSet);
+                convertTraitToTableData();
+                convertTableDataToDataType();
+                if (table != null) {
+                    table.refresh();
+                }
+            } catch (Exception ex) {
+                // TODO: handle exception
+            }
+            refreshPanel();
+        });
+        buttonBox.getChildren().add(clearButton);
+
+        m_validateLabel = new SmallLabel("x", "orange");
+        m_validateLabel.setVisible(false);
+        buttonBox.getChildren().add(m_validateLabel);
+
+        return buttonBox;
+    } // createButtonBox
+
+
+    private void guess() {
+        GuessPatternDialog dlg = new GuessPatternDialog(this, m_sPattern);
+        String sTrait = "";
+        switch (dlg.showDialog("Guess traits from taxon names")) {
+            case canceled : return;
+            case trait: sTrait = dlg.getTrait();
+                break;
+            case pattern:
+                String sPattern = dlg.getPattern();
+                try {
+                    Pattern pattern = Pattern.compile(sPattern);
+                    for (String sTaxon : sTaxa) {
+                        Matcher matcher = pattern.matcher(sTaxon);
+
+                        String sMatch = matcher.find() ? matcher.group(1) : "?";
+                        if (sTrait.length() > 0) {
+                            sTrait += ",";
+                        }
+                        sTrait += sTaxon + "=" + sMatch;
+
+                        m_sPattern = sPattern;
+                    }
+                } catch (Exception e) {
+                    return;
+                }
+                break;
+        }
+        try {
+            traitSet.traitsInput.setValue(sTrait, traitSet);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        convertTraitToTableData();
+        convertTableDataToTrait();
+        convertTableDataToDataType();
+        repaint();
+    }
+
+    @Override
+    public void validateInput() {
+        // check all values are specified
+        if (taxonMapping == null) {
+            return;
+        }
+        for (int i = 0; i < taxonMapping.size(); i++) {
+            if (taxonMapping.get(i).trait.trim().length() == 0) {
+                m_validateLabel.setVisible(true);
+                m_validateLabel.setTooltip("trait for " + taxonMapping.get(i).taxon + " needs to be specified");
+                return;
+            }
+        }
+        m_validateLabel.setVisible(false);
+        super.validateInput();
+    }
+}
+

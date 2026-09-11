@@ -96,6 +96,7 @@ def generate_rst_for_java_file(java_path, package_prefix=None):
         for inherit in inheritance:
             rst_lines.append(f"   :inheritance: {inherit}")
             rst_lines.append("\n")
+        rst_lines.append("\n")
 
         for line in desc:
             rst_lines.append(f"   {line}\n")

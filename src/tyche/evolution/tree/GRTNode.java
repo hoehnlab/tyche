@@ -164,6 +164,7 @@ public class GRTNode extends Node {
 
     /**
      * assign values to a tree in array representation
+     * @param nodes the array-representation of the tree being assigned into
      */
     @Override
     public void assignTo(final Node[] nodes) {
@@ -176,6 +177,8 @@ public class GRTNode extends Node {
 
     /**
      * assign values from a tree in array representation
+     * @param nodes the array-representation of the tree being assigned from
+     * @param node the corresponding node in that array representation
      */
     @Override
     public void assignFrom(final Node[] nodes, final Node node) {

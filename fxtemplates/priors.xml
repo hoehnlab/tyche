@@ -1,0 +1,109 @@
+<beast version='2.0'
+       namespace='beastfx.app.beauti:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.branchratemodel:beast.base.evolution.speciation:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood:beast.evolution:beast.base.inference.distribution'>
+
+    <mergewith point='parametricDistributions'>
+        <subtemplate id='ElementwiseParametricDistribution'
+                     class='tyche.inference.distribution.ElementwiseParametricDistribution'
+                     mainid='[top]'>
+            <![CDATA[
+    <distr spec="tyche.inference.distribution.ElementwiseParametricDistribution"/>
+]]>
+        </subtemplate>
+    </mergewith>
+
+    <mergewith point='misc'>
+        <fragment id='GRTTreeOperators' spec="beastfx.app.beauti.Fragment">
+            <![CDATA[
+        <operator id="$(m)BICEPSEpochTop.t:$(n)" spec="beast.base.evolution.operator.EpochFlexOperator" tree="@Tree.t:$(n)" weight="2.0" scaleFactor="0.1"/>
+        <operator id="$(m)BICEPSEpochAll.t:$(n)" spec="beast.base.evolution.operator.EpochFlexOperator" tree="@Tree.t:$(n)" weight="2.0" scaleFactor="0.1" fromOldestTipOnly="false"/>
+        <operator id="$(m)BICEPSTreeFlex.t:$(n)" spec="beast.base.evolution.operator.TreeStretchOperator" scaleFactor="0.01" tree="@Tree.t:$(n)" weight="2.0"/>
+        <operator id='$(m)TreeRootScaler.t:$(n)' spec='tyche.evolution.operator.GRTBactrianScaleOperator' scaleFactor="0.1" weight="3" tree="@Tree.t:$(n)" rootOnly='true'/>
+        <operator id='$(m)UniformOperator.t:$(n)' spec='beast.base.evolution.operator.kernel.BactrianNodeOperator' weight="30" tree="@Tree.t:$(n)"/>
+        <operator id='$(m)SubtreeSlide.t:$(n)' spec='tyche.evolution.operator.GRTSubtreeSlide' weight="15" size="1.0" tree="@Tree.t:$(n)"/>
+        <operator id='$(m)Narrow.t:$(n)' spec='tyche.evolution.operator.GRTExchange' isNarrow='true' weight="15" tree="@Tree.t:$(n)"/>
+        <operator id='$(m)Wide.t:$(n)' spec='tyche.evolution.operator.GRTExchange' isNarrow='false' weight="3" tree="@Tree.t:$(n)"/>
+        <operator id='$(m)WilsonBalding.t:$(n)' spec='tyche.evolution.operator.GRTWilsonBalding' weight="3" tree="@Tree.t:$(n)"/>
+        ]]>
+            <connect srcID='$(m)BICEPSEpochTop.t:$(n)'  targetID='mcmc' inputName='operator' if='inposterior($(m).t:$(n)) and Tree.t:$(n)/estimate=true'>Epoch operator that only scale internal nodes above least recent node for tree t:$(n)</connect>
+            <connect srcID='$(m)BICEPSEpochAll.t:$(n)'  targetID='mcmc' inputName='operator' if='inposterior($(m).t:$(n)) and Tree.t:$(n)/estimate=true'>Epoch operator that scales all internal nodes for tree t:$(n)</connect>
+            <connect srcID='$(m)BICEPSTreeFlex.t:$(n)'  targetID='mcmc' inputName='operator' if='inposterior($(m).t:$(n)) and Tree.t:$(n)/estimate=true'>Flex operators for all internal nodes for tree t:$(n)</connect>
+            <connect srcID='$(m)TreeRootScaler.t:$(n)'  targetID='mcmc' inputName='operator' if='inposterior($(m).t:$(n)) and Tree.t:$(n)/estimate=true'>Scales root node for tree t:$(n)</connect>
+            <connect srcID='$(m)UniformOperator.t:$(n)' targetID='mcmc' inputName='operator' if='inposterior($(m).t:$(n)) and Tree.t:$(n)/estimate=true'>Draws new internal node heights uniformally for tree t:$(n)</connect>
+            <connect srcID='$(m)SubtreeSlide.t:$(n)'    targetID='mcmc' inputName='operator' if='inposterior($(m).t:$(n)) and Tree.t:$(n)/estimate=true'>Performs subtree slide rearrangement of tree t:$(n)</connect>
+            <connect srcID='$(m)Narrow.t:$(n)'          targetID='mcmc' inputName='operator' if='inposterior($(m).t:$(n)) and Tree.t:$(n)/estimate=true'>Narrow exchange performs local rearrangement of tree t:$(n)</connect>
+            <connect srcID='$(m)Wide.t:$(n)'            targetID='mcmc' inputName='operator' if='inposterior($(m).t:$(n)) and Tree.t:$(n)/estimate=true'>Wide exchange performs global rearrangement of tree t:$(n)</connect>
+            <connect srcID='$(m)WilsonBalding.t:$(n)'   targetID='mcmc' inputName='operator' if='inposterior($(m).t:$(n)) and Tree.t:$(n)/estimate=true'>Performs Wilson-Balding global rearrangement of tree t:$(n)</connect>
+        </fragment>
+    </mergewith>
+
+    <mergewith point='treePriorTemplates'>
+
+        <!-- Coalescent for GRT-compatible Bayesian skyline -->
+        <subtemplate id='GRTBayesianSkyline' class='beast.base.evolution.tree.coalescent.Coalescent'
+                     mainid='GRTBayesianSkyline.t:$(n)'
+                     suppressInputs='beast.base.inference.distribution.MarkovChainDistribution.parameter,
+                     beast.base.inference.distribution.MarkovChainDistribution.initialMean,
+                     tyche.evolution.tree.GRTBayesianSkyline.tree,
+                     tyche.evolution.tree.GRTBayesianSkyline.treeIntervals
+                     '
+                     hmc='
+GRTBayesianSkylineUniformOperator/index/=Operators/BactrianNodeOperator/index,
+GRTBayesianSkylineSubtreeSlide/index/=Operators/SubtreeSlide/,
+GRTBayesianSkylineNarrow/index/=Operators/Exchange/,
+GRTBayesianSkylineWide/index/=Operators/Exchange/,
+GRTBayesianSkylineWilsonBalding/index/=Operators/WilsonBalding/,
+GRTBayesianSkylineBICEPSEpochTop/index/=Operators/EpochFlexer/,
+GRTBayesianSkylineBICEPSEpochAll/index/=Operators/EpochFlexer/,
+GRTBayesianSkylineBICEPSTreeFlex/index/=Operators/TreeStretcher/,
+GRTBayesianSkylineTreeRootScaler/index/=Operators/BactrianTreeScaler/,
+popSizesScaler/index/=Operators/BactrianRateScaler/,
+groupSizesDelta/index/=Operators/BactrianDeltaExchange/index/'>
+            <![CDATA[
+            <distribution spec="tyche.evolution.tree.GRTBayesianSkyline" id='GRTBayesianSkyline.t:$(n)'>
+                <parameter name='popSizes' id='bPopSizes.t:$(n)' dimension="5" value="380.0" lower="0.0" estimate='true'/>
+                <groupSizes spec='parameter.IntegerParameter' id='bGroupSizes.t:$(n)' dimension='5' value='1' estimate='true'/>
+                <treeIntervals spec='tyche.evolution.tree.GRTIntervals' id='GRTBSPTreeIntervals.t:$(n)' tree='@Tree.t:$(n)'/>
+            </distribution>
+
+            <distribution id='MarkovChainedPopSizes.t:$(n)' spec="beast.base.inference.distribution.MarkovChainDistribution"
+				jeffreys="true"
+				parameter="@bPopSizes.t:$(n)"/>
+
+		    <operator id='popSizesScaler.t:$(n)' spec='kernel.BactrianScaleOperator' scaleFactor="0.75" weight="15" parameter="@bPopSizes.t:$(n)"/>
+		    <operator id='groupSizesDelta.t:$(n)' spec='kernel.BactrianDeltaExchangeOperator' delta="1" weight="6" integer="true"
+		              intparameter="@bGroupSizes.t:$(n)"/>
+
+]]>
+            <plate fragment="GRTTreeOperators" var="m" range="GRTBayesianSkyline"/>
+
+            <connect srcID='GRTBayesianSkyline.t:$(n)' targetID='prior' inputName='distribution'
+                     if='inposterior(GRTBayesianSkyline.t:$(n)) and Tree.t:$(n)/estimate=true'>Coalescent with Germline-Root Tree compatible Bayesian
+                skyline prior tree t:$(n)
+            </connect>
+            <connect srcID='bPopSizes.t:$(n)' targetID='state' inputName='stateNode'
+                     if='inposterior(GRTBayesianSkyline.t:$(n)) and inposterior(bPopSizes.t:$(n))'/>
+            <connect srcID='bGroupSizes.t:$(n)' targetID='state' inputName='stateNode'
+                     if='inposterior(GRTBayesianSkyline.t:$(n)) and inposterior(bGroupSizes.t:$(n))'/>
+
+            <connect srcID='MarkovChainedPopSizes.t:$(n)' targetID='prior' inputName='distribution'
+                     if='inposterior(GRTBayesianSkyline.t:$(n))'>Markov chained prior on population sizes of Bayesian
+                skyline plot
+            </connect>
+
+            <connect srcID='GRTBayesianSkyline.t:$(n)' targetID='tracelog' inputName='log'
+                     if='inposterior(GRTBayesianSkyline.t:$(n))'/>
+            <connect srcID='bPopSizes.t:$(n)' targetID='tracelog' inputName='log'
+                     if='inposterior(GRTBayesianSkyline.t:$(n))'/>
+            <connect srcID='bGroupSizes.t:$(n)' targetID='tracelog' inputName='log'
+                     if='inposterior(GRTBayesianSkyline.t:$(n))'/>
+
+            <connect srcID='popSizesScaler.t:$(n)' targetID='mcmc' inputName='operator'
+                     if='inposterior(GRTBayesianSkyline.t:$(n))'>Scale population size of Coalscent prior of tree t:$(n)
+            </connect>
+            <connect srcID='groupSizesDelta.t:$(n)' targetID='mcmc' inputName='operator'
+                     if='inposterior(GRTBayesianSkyline.t:$(n))'>Exchange group sizes of Coalscent prior of tree t:$(n)
+            </connect>
+        </subtemplate>
+    </mergewith>
+
+</beast>
