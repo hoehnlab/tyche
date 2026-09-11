@@ -29,6 +29,7 @@ jobs:
       - name: Checkout TyCHE
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.tyche_ref || github.ref }}
           path: type-linked-time-trees
 
       # All three sibling repos are pinned to known-good commits.
