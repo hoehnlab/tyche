@@ -1,0 +1,20 @@
+name: Make package zip
+
+# Manually triggered: builds the package exactly like the release
+# workflow does, but makes no changes to version.xml and creates no
+# commit, tag, or release. The build_package.yml reusable workflow uploads the
+# resulting zip as a workflow artifact itself, so there's nothing else
+# to do here.
+on:
+  workflow_dispatch:
+    inputs:
+      dev_build:
+        description: "Build with -Ddev=TRUE (commit-based dev versioning) instead of a plain release build"
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    uses: ./.github/workflows/build_package.yml
+    with:
+      dev_build: ${{ inputs.dev_build }}

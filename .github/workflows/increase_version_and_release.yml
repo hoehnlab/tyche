@@ -1,0 +1,88 @@
+name: Version++ & Release
+
+# Manually triggered: bumps the chosen part of the version in
+# version.xml, commits and tags it, then calls the shared build workflow
+# (build_package.yml) and attaches the resulting zip to a new GitHub Release.
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: "Which part of the version to increment"
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.bump.outputs.new }}
+    steps:
+      - name: Checkout TyCHE
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute new version
+        id: bump
+        run: |
+          current=$(grep -oP '(?<=version=")[^"]+' version.xml | head -1)
+          major=$(echo "$current" | cut -d. -f1)
+          minor=$(echo "$current" | cut -d. -f2)
+          patch=$(echo "$current" | cut -d. -f3)
+          case "${{ inputs.bump_type }}" in
+            major) new="$((major + 1)).0.0" ;;
+            minor) new="${major}.$((minor + 1)).0" ;;
+            patch) new="${major}.${minor}.$((patch + 1))" ;;
+          esac
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "new=$new" >> "$GITHUB_OUTPUT"
+          echo "Bumping $current -> $new (${{ inputs.bump_type }})"
+
+      - name: Update version.xml
+        run: |
+          sed -i "s/version=\"${{ steps.bump.outputs.current }}\"/version=\"${{ steps.bump.outputs.new }}\"/" version.xml
+          grep version= version.xml | head -1
+
+      - name: Commit and tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add version.xml
+          git commit -m "Release v${{ steps.bump.outputs.new }}"
+          git tag "v${{ steps.bump.outputs.new }}"
+          git push origin HEAD
+          git push origin "v${{ steps.bump.outputs.new }}"
+
+  # This checks out TyCHE fresh, so it picks up the commit bump-version
+  # just pushed -- including the updated version.xml -- rather than the
+  # commit that was checked out when the workflow started.
+  build:
+    needs: bump-version
+    uses: ./.github/workflows/build_package.yml
+    with:
+      dev_build: false
+      tyche_ref: "v${{ needs.bump-version.outputs.new_version }}"
+
+  release:
+    needs: [bump-version, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: TyCHE-package
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ needs.bump-version.outputs.new_version }}"
+          name: "v${{ needs.bump-version.outputs.new_version }}"
+          files: ${{ needs.build.outputs.zip_name }}
