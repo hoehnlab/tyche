@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       dev_build:
-        description: "Build with -Ddev=TRUE (dev/git-describe version) instead of a plain release build"
+        description: "Build with -Ddev=TRUE (commit-based dev versioning) instead of a plain release build"
         type: boolean
         default: false
 
