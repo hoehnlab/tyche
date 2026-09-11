@@ -2,7 +2,7 @@ name: Version++ & Release
 
 # Manually triggered: bumps the chosen part of the version in
 # version.xml, commits and tags it, then calls the shared build workflow
-# (build.yml) and attaches the resulting zip to a new GitHub Release.
+# (build_package.yml) and attaches the resulting zip to a new GitHub Release.
 on:
   workflow_dispatch:
     inputs:
@@ -11,6 +11,10 @@ on:
         type: choice
         options: [patch, minor, major]
         default: patch
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -65,6 +69,7 @@ jobs:
     uses: ./.github/workflows/build_package.yml
     with:
       dev_build: false
+      tyche_ref: "v${{ needs.bump-version.outputs.new_version }}"
 
   release:
     needs: [bump-version, build]

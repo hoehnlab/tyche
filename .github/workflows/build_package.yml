@@ -2,7 +2,7 @@ name: Build package
 
 # Reusable workflow: checks out TyCHE and its three pinned sibling repos,
 # builds each of them, then builds the TyCHE package itself. Called by
-# both release.yml and test-build.yml so the checkout/toolchain/build
+# both increment_version_and_release.yml and make_package_zip.yml so the checkout/toolchain/build
 # logic only lives in one place.
 on:
   workflow_call:
@@ -11,6 +11,10 @@ on:
         description: "If true, build with -Ddev=TRUE"
         type: boolean
         default: false
+      tyche_ref:
+        description: "TyCHE branch, tag, or commit SHA to check out (defaults to whatever triggered the caller)"
+        type: string
+        default: ''
     outputs:
       zip_name:
         description: "Filename of the built package zip"
