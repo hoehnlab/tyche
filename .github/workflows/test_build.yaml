@@ -51,6 +51,24 @@ jobs:
       - name: Check Ant is available
         run: ant -version
 
+      - name: Build beast2
+        run: |
+          cd beast2
+          ant build_jar_all_BEAST_NoJUnitTest
+          cd ..
+
+      - name: Build BeastFX
+        run: |
+          cd BeastFX
+          ant build_jar_all_BeastFX_NoJUnitTest
+          cd ..
+
+      - name: Build beast-classic
+        run: |
+          cd beast-classic
+          ant build_jar_all_BEAST_CLASSIC_NoJUnitTest
+          cd ..
+
       # No version bump, no commit, no tag -- version.xml is built
       # exactly as it sits in the checked-out branch/commit.
       - name: Build package
