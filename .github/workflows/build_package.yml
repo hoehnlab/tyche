@@ -1,0 +1,103 @@
+name: Build package
+
+# Reusable workflow: checks out TyCHE and its three pinned sibling repos,
+# builds each of them, then builds the TyCHE package itself. Called by
+# both release.yml and test-build.yml so the checkout/toolchain/build
+# logic only lives in one place.
+on:
+  workflow_call:
+    inputs:
+      dev_build:
+        description: "If true, build with -Ddev=TRUE"
+        type: boolean
+        default: false
+    outputs:
+      zip_name:
+        description: "Filename of the built package zip"
+        value: ${{ jobs.build.outputs.zip_name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      zip_name: ${{ steps.zip.outputs.name }}
+    steps:
+      - name: Checkout TyCHE
+        uses: actions/checkout@v4
+        with:
+          path: type-linked-time-trees
+
+      # All three sibling repos are pinned to known-good commits.
+      - name: Checkout beast2
+        uses: actions/checkout@v4
+        with:
+          repository: CompEvol/beast2
+          ref: 9080c1863e1602e97dfcd4f76189344452b78163
+          path: beast2
+
+      - name: Checkout BeastFX
+        uses: actions/checkout@v4
+        with:
+          repository: CompEvol/BeastFX
+          ref: ced6596ac2f79a92ed369fa618568474f9797b74
+          path: BeastFX
+
+      - name: Checkout beast-classic
+        uses: actions/checkout@v4
+        with:
+          repository: BEAST2-Dev/beast-classic
+          ref: 4264fa692ab1c7c991cc5dd7a99d653935a0530c
+          path: beast-classic
+
+      - name: Set up Zulu FX JDK 17
+        run: |
+          curl -L -o /tmp/zulufx.tar.gz \
+            https://cdn.azul.com/zulu/bin/zulu17.68.203-ca-fx-jdk17.0.20.1-linux_x64.tar.gz
+          mkdir -p /opt/zulufx
+          tar -xzf /tmp/zulufx.tar.gz -C /opt/zulufx --strip-components=1
+          echo "JAVA_HOME=/opt/zulufx" >> "$GITHUB_ENV"
+          echo "/opt/zulufx/bin" >> "$GITHUB_PATH"
+
+      - name: Check Ant is available
+        run: ant -version
+
+      - name: Build beast2
+        run: |
+          cd beast2
+          ant build_jar_all_BEAST_NoJUnitTest
+          cd ..
+
+      - name: Build BeastFX
+        run: |
+          cd BeastFX
+          ant build_jar_all_BeastFX_NoJUnitTest
+          cd ..
+
+      - name: Build beast-classic
+        run: |
+          cd beast-classic
+          ant build_jar_all_BEAST_CLASSIC_NoJUnitTest
+          cd ..
+
+      - name: Build package
+        run: |
+          cd type-linked-time-trees
+          if [ "${{ inputs.dev_build }}" = "true" ]; then
+            echo "Building dev version (-Ddev=TRUE)"
+            ant package -Ddev=TRUE
+          else
+            ant package
+          fi
+
+      - name: Locate built zip
+        id: zip
+        run: |
+          path=$(find type-linked-time-trees -name "TyCHE.v*.zip")
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+          echo "name=$(basename "$path")" >> "$GITHUB_OUTPUT"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TyCHE-package
+          path: ${{ steps.zip.outputs.path }}
