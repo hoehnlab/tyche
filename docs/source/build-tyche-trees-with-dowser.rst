@@ -308,8 +308,8 @@ nucleotide substitution model, and we recommend these values for BCR analyses.
 See ``?getTimeTreesIterate`` and TyCHE and BEAST2 documentation for more details.
 
 
-Visualize the results
-*********************
+Visualize the results and use BEAST2 parameter outputs
+******************************************************
 
 After the analyses have converged, you can visualize the time trees.
 
@@ -324,6 +324,26 @@ so we set ``scale=10`` to make the scale bar more visually interpretable.
     plotTrees(mixed_trees, scale=10)[[1]] + geom_point(aes(fill=location), pch=21, size=3)
 
 .. image:: _static/Building-Time-Trees-mixed-trees.png
+
+If we want to visualize how much of each branch is estimated in each state, we can plot the "expected occupancy" of each branch. This shows how much time TyCHE estimates each branch spends in the GC. The expected occupancy is a value between 0 and 1, so we can use a gradient color scale to visualize it.
+
+
+.. code-block:: r
+
+    colors = RColorBrewer::brewer.pal(3,"Set1")
+    names(colors) = c("GC", "Other", "Ambig.")
+    eo_line_color_scale <- scale_color_gradient(
+        low = colors["Other"],
+        high = colors["GC"],
+        breaks = c(0, 0.25, 0.5, 0.75, 1),
+        limits = c(0, 1)
+    )
+
+    ggtree(mixed_trees$trees[[1]], aes(color = as.numeric(expectedOccupancies)),linewidth = 0.75) +
+      geom_point(aes(fill = location), pch = 21, size = 3, color = "black") +
+      eo_line_color_scale
+
+.. image:: _static/Building-Time-Trees-EO-trees.png
 
 The ``parameters`` column of ``mixed_trees`` contains a table that collates the output from the BEAST2 analysis. Columns include the parameter (item), the posterior mean, standard error, standard deviation, median, 95% highest posterior density interval, autocorrelation time (ACT), effective sample size, and geometric mean.
 
@@ -348,7 +368,7 @@ If we're interested in the estimated tree height, we can filter the parameters t
      1 TreeHeight 236.0621 1.595335 19.36631 234.2536  201.9269  275.1676 122150.1 147.3636       235.2881
 
 
-Our model likely hasn't converged, with multiple parameters having ESS values below 200, particularly the posterior which describes how well the model has converged as a whole. The mean tree height is around 236 time units, with a 95% highest posterior density interval from about 200 to 275 time units. Since we know the data spans 200 time units, this is a high estimate, but this is unsurprising given that the ESS is below 200 and the analysis has likely not converged.
+Our model likely hasn't converged, with multiple parameters having ESS values below 200, particularly the posterior which describes how well the model has converged as a whole. The mean tree height is around 236 days, with a 95% highest posterior density interval from about 200 to 275 days. Since we know the data spans 200 days, this is a high estimate, but this is unsurprising given that the ESS is below 200 and the analysis has likely not converged.
 
 The parameters available will depend on the model you used and what is specified for
 logging in the XML template. In this case, we can see all the items that were logged:

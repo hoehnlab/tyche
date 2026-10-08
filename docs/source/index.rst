@@ -48,6 +48,9 @@ You can also use BEAUti to choose your TyCHE settings: :ref:`beauti-vignette`.
    About TyCHE <self>
    build-tyche-trees-with-dowser.rst
    beauti.rst
+   reversible_vs_irreversible.rst
+   reversible-tyche-with-dowser.rst
+   single-timepoint-tyche-with-dowser.rst
    api/packages_index.rst
 
 .. include:: citing.rst

@@ -1,0 +1,46 @@
+<svg width="100%" viewBox="0 0 680 460" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Decision flowchart: reversible vs irreversible type switching</title>
+<desc>Setup: Type A can become Type B, a direction already established by the data or study design, shown as two circles connected by a solid block arrow. First question: can Type B also become Type A? If no, model as irreversible. If yes, second question: is that return within your sampled data? If no, model as irreversible. If yes, model as reversible, which needs additional constraints.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#5F5E5A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+
+<path d="M196,71 L338,71 L338,66 L368,76 L338,86 L338,81 L196,81 Z" fill="#5F5E5A"/>
+
+<circle cx="160" cy="76" r="34" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="160" y="76" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#26215C">Type A</text>
+
+<circle cx="400" cy="76" r="34" fill="#FBEAF0" stroke="#993556" stroke-width="0.5"/>
+<text x="400" y="76" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#4B1528">Type B</text>
+
+<text x="260" y="128" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#2C2C2A">Given: Type A can become Type B</text>
+
+<rect x="90" y="150" width="340" height="44" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+<text x="260" y="172" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#2C2C2A">Can Type B become Type A?</text>
+
+<rect x="490" y="150" width="140" height="44" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="560" y="172" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#04342C">Irreversible</text>
+
+<line x1="430" y1="172" x2="488" y2="172" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="459" y="164" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#5F5E5A">No</text>
+
+<line x1="260" y1="194" x2="260" y2="248" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="270" y="226" text-anchor="start" font-family="sans-serif" font-size="12" fill="#5F5E5A">Yes</text>
+
+<rect x="70" y="250" width="380" height="56" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+<text x="260" y="268" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#2C2C2A">Is that return within your sampled data?</text>
+<text x="260" y="286" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#5F5E5A">e.g. rare, or outside your sampling window</text>
+
+<rect x="490" y="250" width="140" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="560" y="278" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#04342C">Irreversible</text>
+
+<line x1="450" y1="278" x2="488" y2="278" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="470" y="270" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#5F5E5A">No</text>
+
+<line x1="260" y1="306" x2="260" y2="358" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="270" y="336" text-anchor="start" font-family="sans-serif" font-size="12" fill="#5F5E5A">Yes</text>
+
+<rect x="130" y="360" width="260" height="56" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="260" y="378" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="14" font-weight="500" fill="#4A1B0C">Reversible</text>
+<text x="260" y="396" text-anchor="middle" dominant-baseline="central" font-family="sans-serif" font-size="12" fill="#712B13">Needs additional constraints</text>
+</svg>
