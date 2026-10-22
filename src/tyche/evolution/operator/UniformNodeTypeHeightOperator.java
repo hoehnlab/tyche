@@ -27,6 +27,8 @@ import beast.base.evolution.tree.Tree;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.MachineAccuracy;
 import beast.base.util.Randomizer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Jessie Fielding
@@ -58,15 +60,24 @@ public class UniformNodeTypeHeightOperator extends LeafConsciousTypeTreeOperator
         // randomly select internal node
         final int nodeCount = tree.getNodeCount();
 
-        // Abort if no non-root internal nodes
-        if (tree.getInternalNodeCount()==1)
+        // Eligible nodes are internal, non-root, and have a non-root parent and a non-root grandparent.
+        // Abort if there are not enough internal nodes for any of them to be eligible
+        if (tree.getInternalNodeCount() < 4)
             return Double.NEGATIVE_INFINITY;
 
+        int MAX_TRIES = 20;
+        int currTries = 0;
         Node node;
         do {
+            if (currTries > MAX_TRIES) {
+                // This ensures no infinite loop on small trees where no node is eligible
+                return Double.NEGATIVE_INFINITY;
+            }
             final int nodeNr = nodeCount / 2 + 1 + Randomizer.nextInt(nodeCount / 2);
             node = tree.getNode(nodeNr);
+            currTries++;
         } while (node.isRoot() || node.isLeaf() || node.getParent().isRoot() || node.getParent().getParent().isRoot());
+
 
         Node parent = node.getParent();
         Node sibling = parent.getLeft() == node ? parent.getRight() : parent.getLeft();
