@@ -120,12 +120,12 @@ traitSet="@traitSet.newTrait">
                 <prior id="typeLinkedRatesPrior.c:GLSS-4F0A" name="distribution" x="@typeLinkedRates.c:GLSS-4F0A">
                     <distr id="ElementwiseParametricDistribution.typeLinkedRates.c:GLSS-4F0A" spec="tyche.inference.distribution.ElementwiseParametricDistribution">
                         <Normal id="Normal.typeLinkedRates.1.c:GLSS-4F0A" name="distribution">
-                            <parameter id="mean1.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="mean">3.14E-6</parameter>
-                            <parameter id="sigma1.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="sigma">3.14E-9</parameter>
+                            <parameter id="mean1.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="mean">0.002223</parameter>
+                            <parameter id="sigma1.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="sigma">2.223E-6</parameter>
                         </Normal>
                         <Normal id="Normal.typeLinkedRates.2.c:GLSS-4F0A" name="distribution">
-                            <parameter id="mean2.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="mean">0.002223</parameter>
-                            <parameter id="sigma2.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="sigma">2.223E-6</parameter>
+                            <parameter id="mean2.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="mean">3.14E-6</parameter>
+                            <parameter id="sigma2.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="sigma">3.14E-9</parameter>
                         </Normal>
                     </distr>
                 </prior>
