@@ -27,15 +27,13 @@ package tyche.evolution.operator;
 
 import beast.base.core.Citation;
 import beast.base.core.Description;
+import tyche.TycheCitation;
 
 /**
  * Tree Operator that operates on types associated with internal nodes and ambiguous tips by changing the types of a node and its subtree.
  */
 @Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips by changing the types of a node and its subtree.")
-@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
-        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
-        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
-        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+@Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class SubtreeTypeSwitchOperator extends MultiNodeTypeSwitchOperator {
 
     @Override

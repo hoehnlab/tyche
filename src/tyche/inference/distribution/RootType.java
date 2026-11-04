@@ -26,6 +26,7 @@ import beast.base.inference.CalculationNode;
 import beast.base.inference.parameter.IntegerParameter;
 
 import java.io.PrintStream;
+import tyche.TycheCitation;
 
 /**
  * @author Jessie Fielding
@@ -36,10 +37,7 @@ import java.io.PrintStream;
  * Function to represent the type at the root.
  */
 @Description("Function to represent the type at the root.")
-@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
-        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
-        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
-        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+@Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class RootType extends CalculationNode implements Function, Loggable {
     final public Input<Tree> treeInput = new Input<>("tree", "beast.tree on which this operation is performed", Input.Validate.REQUIRED);
 

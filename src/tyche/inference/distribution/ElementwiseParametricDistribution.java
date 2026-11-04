@@ -12,6 +12,7 @@ import org.apache.commons.math.distribution.Distribution;
 
 import java.util.ArrayList;
 import java.util.List;
+import tyche.TycheCitation;
 
 /**
  * @author Jessie Fielding
@@ -28,10 +29,7 @@ import java.util.List;
  */
 @Description("Applies a different prior distribution to each element of a vector parameter, " +
         "for use as the distribution inside a standard Prior.")
-@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
-        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
-        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
-        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+@Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class ElementwiseParametricDistribution extends ParametricDistribution {
 
     final public Input<List<ParametricDistribution>> distsInput = new Input<>(

@@ -29,6 +29,7 @@ import beast.base.util.MachineAccuracy;
 import beast.base.util.Randomizer;
 import java.util.ArrayList;
 import java.util.List;
+import tyche.TycheCitation;
 
 /**
  * @author Jessie Fielding
@@ -39,10 +40,7 @@ import java.util.List;
  * Tree Operator that operates on a node's and its parent's height and that node, its parent, and its sibling's type together.
  */
 @Description("Tree Operator that operates on a node's and its parent's height and that node, its parent, and its sibling's type together.")
-@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
-        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
-        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
-        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+@Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class UniformNodeTypeHeightOperator extends LeafConsciousTypeTreeOperator {
 
     private int getRandomType() {

@@ -31,15 +31,13 @@ import beast.base.core.Input;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 import tyche.evolution.tree.GRTNode;
+import tyche.TycheCitation;
 
 /**
  * Interface to implement when a class agrees to handle rootOnly scale proposals in such a way that the minimum possible
  * height of the root ignores the height of the germline. Compatible with GermlineRootTree tree classes.
  */
-@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
-        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
-        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
-        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+@Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public interface GRTCompatibleOperator {
 
     /**

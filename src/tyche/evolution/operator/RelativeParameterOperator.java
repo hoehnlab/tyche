@@ -25,16 +25,14 @@ import beast.base.core.Description;
 import beast.base.core.Input;
 import beast.base.evolution.operator.ScaleOperator;
 import beast.base.inference.parameter.RealParameter;
+import tyche.TycheCitation;
 
 
 /**
  * RelativeParameterOperator that will operate on a multiplier and apply the multiplier to the affected parameter.
  */
 @Description("RelativeParameterOperator that will operate on a multiplier and apply the multiplier to the affected parameter.")
-@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
-        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
-        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
-        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+@Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class RelativeParameterOperator extends ScaleOperator {
     public final Input<RealParameter> affectedParameterInput = new Input<>("affectedParameter", "the parameter operated on is assumed to be the multiplier to change the relationship between the values of this affected parameter",
             Input.Validate.REQUIRED);

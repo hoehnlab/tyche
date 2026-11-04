@@ -26,6 +26,7 @@ import beast.base.evolution.operator.kernel.BactrianScaleOperator;
 import beast.base.inference.util.InputUtil;
 import tyche.evolution.tree.GRTNode;
 import tyche.evolution.tree.GermlineRootTree;
+import tyche.TycheCitation;
 
 /**
  * @author Jessie Fielding
@@ -36,10 +37,7 @@ import tyche.evolution.tree.GermlineRootTree;
  * BactrianScaleOperator that will handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
  */
 @Description("BactrianScaleOperator that will handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree.")
-@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
-        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
-        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
-        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+@Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class GRTBactrianScaleOperator extends BactrianScaleOperator implements GRTCompatibleOperator {
 
     /**

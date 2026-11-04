@@ -37,6 +37,7 @@ import tyche.evolution.tree.MetadataTree;
 
 import java.util.Arrays;
 import java.util.Objects;
+import tyche.TycheCitation;
 
 /**
  * @author Jessie Fielding
@@ -47,10 +48,7 @@ import java.util.Objects;
  * Tree Operator that operates on types associated with internal nodes and ambiguous tips but does not operate on known leaf types.
  */
 @Description("Tree Operator that operates on types associated with internal nodes and ambiguous tips but does not operate on known leaf types.")
-@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
-        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
-        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
-        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+@Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class LeafConsciousTypeTreeOperator extends TreeOperator {
     /**
      * input object for the node types parameter to operate on

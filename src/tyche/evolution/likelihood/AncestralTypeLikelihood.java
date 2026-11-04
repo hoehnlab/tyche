@@ -46,6 +46,7 @@ import tyche.evolution.tree.GermlineRootTree;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import tyche.TycheCitation;
 
 /**
  * @author Jessie Fielding
@@ -56,10 +57,7 @@ import java.util.stream.Collectors;
  * AncestralTypeLikelihood to assess likelihood of internal and ambiguous node types.
  */
 @Description("AncestralTypeLikelihood to assess likelihood of internal and ambiguous node types.")
-@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
-        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
-        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
-        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+@Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTraitProvider, StateNodeInitialiser {
     public static final String STATES_KEY = "states";
 

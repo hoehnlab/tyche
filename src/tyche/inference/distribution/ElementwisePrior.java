@@ -30,6 +30,7 @@ import org.apache.commons.math.MathException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import tyche.TycheCitation;
 
 
 /**
@@ -41,10 +42,7 @@ import java.util.Random;
  * ElementwisePrior applies a different prior distribution to each value of a RealParameter with dimension > 1.
  */
 @Description("ElementwisePrior applies a different prior distribution to each value of a RealParameter with dimension > 1.")
-@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
-        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
-        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
-        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+@Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class ElementwisePrior extends Distribution {
     public Input<RealParameter> parameterInput = new Input<>("parameter", "parameter", Input.Validate.REQUIRED);
     final public Input<List<ParametricDistribution>> distsInput = new Input<>("distribution", "distributions used to calculate prior, e.g. normal, beta, gamma.", new ArrayList<>());

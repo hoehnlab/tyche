@@ -29,6 +29,7 @@ import beast.base.inference.operator.kernel.KernelDistribution;
 import beast.base.util.Randomizer;
 
 import java.text.DecimalFormat;
+import tyche.TycheCitation;
 
 /**
  * @author Jessie Fielding
@@ -39,10 +40,7 @@ import java.text.DecimalFormat;
  * Scale operator that scales random epoch in a tree, and proposes type switches for the nodes in that epoch.
  */
 @Description("Scale operator that scales random epoch in a tree, and proposes type switches for the nodes in that epoch.")
-@Citation(value="Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B. (2025).\n" +
-        "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.\n" +
-        "bioRxiv https://doi.org/10.1101/2025.10.21.683591 (2025) doi:10.1101/2025.10.21.683591.",
-        year = 2025, firstAuthorSurname = "Fielding", DOI="10.1101/2025.10.21.683591")
+@Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class EpochFlexAndTypeOperator extends LeafConsciousTypeTreeOperator {
     final public Input<KernelDistribution> kernelDistributionInput = new Input<>("kernelDistribution", "provides sample distribution for proposals",
             KernelDistribution.newDefaultKernelDistribution());
