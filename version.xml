@@ -14,6 +14,7 @@
         <provider classname="tyche.evolution.branchratemodel.TycheInstantSwitchClockModel"/>
         <provider classname="tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel"/>
         <provider classname="tyche.evolution.likelihood.AncestralTypeLikelihood"/>
+        <provider classname="tyche.evolution.likelihood.RootFreqsTreeLikelihood"/>
         <provider classname="tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel"/>
         <provider classname="tyche.evolution.operator.LeafConsciousTypeTreeOperator"/>
         <provider classname="tyche.evolution.operator.CombinedRootOperator"/>
