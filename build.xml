@@ -51,13 +51,30 @@
             <arg value="@"/>
         </exec>
         <echo message="git commit is: ${setDevVersion}"/>
-        <condition property="dev_version" value="-${setDevVersion}-built-${DATETIME}" else="">
+        <!-- "-dirty" if there are uncommitted changes to tracked files (same test as the BEAST 3 release.sh) -->
+        <exec executable="git" outputproperty="gitStatus" failifexecutionfails="false" errorproperty="">
+            <arg value="status"/>
+            <arg value="--porcelain"/>
+            <arg value="--untracked-files=no"/>
+        </exec>
+        <condition property="dev_dirty" value="-dirty">
+            <and>
+                <isset property="gitStatus"/>
+                <length string="${gitStatus}" trim="yes" length="0" when="greater"/>
+            </and>
+        </condition>
+        <property name="dev_dirty" value=""/>
+        <!-- Only the suffix is built here. initTyche puts the base version from version.xml in front of it, giving
+             <version.xml version>-<git hash>[-dirty]-built-<MMddHHmm>, the same form as the BEAST 3 release.sh.
+             The base version is kept so BEAST still sorts a dev build between the previous release and this one.
+             If git gives no commit, dev_suffix stays unset and the plain version.xml version is used. -->
+        <condition property="dev_suffix" value="-${setDevVersion}${dev_dirty}-built-${DATETIME}">
             <and>
                 <isset property="setDevVersion"/>
                 <length string="${setDevVersion}" trim="yes" length="0" when="greater"/>
             </and>
         </condition>
-        <echo message="set package version to: ${dev_version}"/>
+        <echo message="dev version suffix: ${dev_suffix}"/>
     </target>
     <target name="initTyche" depends="setDevVersion">
         <echo message="${ant.project.name}: ${ant.file}" />
@@ -71,10 +88,10 @@
         <xmlproperty file="${TycheDir}/version.xml" prefix="fromVersionFile" />
         <property name="packageName" value="${fromVersionFile.package(name)}" />
         <property name="file_version" value="${fromVersionFile.package(version)}" />
-        <echo message="dev package version to: ${dev_version}"/>
-        <condition property="TYCHE_version" value="${dev_version}" else="${file_version}">
-                <isset property="dev_version"/>
+        <condition property="TYCHE_version" value="${file_version}${dev_suffix}" else="${file_version}">
+                <isset property="dev_suffix"/>
         </condition>
+        <echo message="package version: ${TYCHE_version}"/>
     </target>
     <target name="cleanTyche">
         <delete dir="${buildTyche}" />
@@ -183,11 +200,12 @@
         <copy todir="${Package_dir}">
             <fileset dir="${distTyche}" includes="${packageName}.src.jar" />
         </copy>
-        <replaceregexp file="${TycheDir}/version.xml" match="${file_version}" replace="${TYCHE_version}" />
+        <!-- only the version attribute of <package> is changed, then changed back after copying -->
+        <replaceregexp file="${TycheDir}/version.xml" match="(?&lt;=&lt;package[^&gt;]{0,500}version\s{0,3}=\s{0,3}[&quot;'])[^&quot;']*" replace="${TYCHE_version}" />
         <copy todir="${Package_dir}">
             <fileset dir="${TycheDir}" includes="version.xml" />
         </copy>
-        <replaceregexp file="${TycheDir}/version.xml" match="${TYCHE_version}" replace="${file_version}" />
+        <replaceregexp file="${TycheDir}/version.xml" match="(?&lt;=&lt;package[^&gt;]{0,500}version\s{0,3}=\s{0,3}[&quot;'])[^&quot;']*" replace="${file_version}" />
         <copy todir="${Package_dir}/fxtemplates">
             <fileset file="fxtemplates/tycheTypeAlignment.xml"/>
             <fileset file="fxtemplates/clockModels.xml"/>
