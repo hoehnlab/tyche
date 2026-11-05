@@ -30,6 +30,7 @@ import beast.base.evolution.operator.ScaleOperator;
 import beast.base.evolution.operator.SubtreeSlide;
 import beast.base.evolution.operator.WilsonBalding;
 import beast.base.evolution.operator.kernel.BactrianScaleOperator;
+import beast.base.evolution.operator.kernel.BactrianSubtreeSlide;
 import beast.base.evolution.tree.MRCAPrior;
 import beast.base.evolution.tree.Tree;
 import beast.base.evolution.tree.TreeDistribution;
@@ -71,6 +72,7 @@ public class GermlineRootAlignmentProvider extends BeautiAlignmentProvider {
         PLAIN_TO_GRT.put(BactrianScaleOperator.class, GRTBactrianScaleOperator.class);
         PLAIN_TO_GRT.put(ScaleOperator.class, GRTScaleOperator.class);
         PLAIN_TO_GRT.put(SubtreeSlide.class, GRTSubtreeSlide.class);
+        PLAIN_TO_GRT.put(BactrianSubtreeSlide.class, GRTBactrianSubtreeSlide.class);
     }
 
     @Override

@@ -28,6 +28,7 @@ import beast.base.core.Log;
 import beast.base.evolution.operator.Exchange;
 import beast.base.evolution.operator.ScaleOperator;
 import beast.base.evolution.operator.SubtreeSlide;
+import beast.base.evolution.operator.kernel.BactrianSubtreeSlide;
 import beast.base.evolution.operator.WilsonBalding;
 import beast.base.evolution.operator.kernel.BactrianScaleOperator;
 import beast.base.evolution.tree.Node;
@@ -68,6 +69,7 @@ public class GermlineRootTree extends MetadataTree {
             put(BactrianScaleOperator.class.getName(), GRTBactrianScaleOperator.class.getName());
             put(ScaleOperator.class.getName(), GRTScaleOperator.class.getName());
             put(SubtreeSlide.class.getName(), GRTSubtreeSlide.class.getName());
+            put(BactrianSubtreeSlide.class.getName(), GRTBactrianSubtreeSlide.class.getName());
         }
     };
 
@@ -160,7 +162,7 @@ public class GermlineRootTree extends MetadataTree {
             if (so.rootOnlyInput.get() && so.treeInput.get() != null) {
                 isPotentiallyIncompatible = true;
             }
-        } else if (o instanceof Exchange || o instanceof SubtreeSlide || o instanceof WilsonBalding) {
+        } else if (o instanceof Exchange || o instanceof SubtreeSlide || o instanceof BactrianSubtreeSlide || o instanceof WilsonBalding) {
             isPotentiallyIncompatible = true;
         }
 
