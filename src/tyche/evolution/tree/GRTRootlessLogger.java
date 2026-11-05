@@ -48,9 +48,14 @@ import tyche.TycheCitation;
  * Newick tree, writing out only the MRCA of the observed taxa -- so the
  * logged tree looks like an ordinary rooted tree of samples, without the
  * germline/root structure GermlineRootTree adds.
+ *
+ * @deprecated Deprecated after TyCHE 1.0.1. The tree file it writes (`tree`_MRCA.trees, the tree without the germline) is not read by any
+ * shipped analysis.
+ * It is kept, unchanged, so existing XML keeps working, but will not be maintained and may be removed in future releases.
  */
-@Description("Logs a GermlineRootTree without its germline tip and root branch, showing only the observed-taxa clade.")
+@Description("DEPRECATED. Logs a GermlineRootTree without its germline tip and root branch, showing only the observed-taxa clade.")
 @Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
+@Deprecated
 public class GRTRootlessLogger extends TreeWithMetaDataLogger {
 
     boolean someMetaDataNeedsLogging;
