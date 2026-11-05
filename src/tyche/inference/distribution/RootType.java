@@ -20,53 +20,50 @@
 
 package tyche.inference.distribution;
 
-import beast.base.core.*;
+import beast.base.core.Citation;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.core.Loggable;
 import beast.base.evolution.tree.Tree;
 import beast.base.inference.CalculationNode;
-import beast.base.inference.parameter.IntegerParameter;
-
-import java.io.PrintStream;
+import beast.base.spec.domain.NonNegativeInt;
+import beast.base.spec.inference.parameter.IntVectorParam;
+import beast.base.spec.type.IntScalar;
 import tyche.TycheCitation;
 
+import java.io.PrintStream;
 /**
  * @author Jessie Fielding
  * This class is part of the TyCHE package - https://github.com/hoehnlab/tyche
  */
 
 /**
- * Function to represent the type at the root.
+ * The type at the root of a tree, as a spec integer scalar.
  */
-@Description("Function to represent the type at the root.")
+@Description("Integer scalar representing the type at the root.")
 @Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
-public class RootType extends CalculationNode implements Function, Loggable {
-    final public Input<Tree> treeInput = new Input<>("tree", "beast.tree on which this operation is performed", Input.Validate.REQUIRED);
+public class RootType extends CalculationNode implements IntScalar<NonNegativeInt>, Loggable {
 
-    final public Input<IntegerParameter> nodeTypesInput = new Input<>("nodeTypes", "parameter representing the types", Input.Validate.REQUIRED);
+    final public Input<Tree> treeInput = new Input<>("tree", "beast.tree on which this operation is performed", Input.Validate.REQUIRED);
+    final public Input<IntVectorParam<?>> nodeTypesInput = new Input<>("nodeTypes", "parameter representing the types", Input.Validate.REQUIRED);
 
     protected Tree tree;
-    protected IntegerParameter nodeTypes;
+    protected IntVectorParam<?> nodeTypes;
 
     @Override
     public void initAndValidate() {
         tree = treeInput.get();
         nodeTypes = nodeTypesInput.get();
-
-    }
-    @Override
-    public int getDimension() {
-        return 1;
     }
 
     @Override
-    public double getArrayValue() {
-        return getArrayValue(0);
+    public int get() {
+        return nodeTypes.get(tree.getRoot().getNr());
     }
 
     @Override
-    public double getArrayValue(int iDim) {
-        int root = tree.getRoot().getNr();
-        double value = nodeTypes.getValue(root);
-        return value;
+    public NonNegativeInt getDomain() {
+        return NonNegativeInt.INSTANCE;
     }
 
     @Override
@@ -80,11 +77,11 @@ public class RootType extends CalculationNode implements Function, Loggable {
 
     @Override
     public void log(long nSample, PrintStream out) {
-        out.append(getArrayValue() + "\t");
+        out.append((double) get() + "\t");
     }
 
     @Override
     public void close(PrintStream out) {
-        // nothing to do
-    };
+        // nothing to close
+    }
 }

@@ -20,18 +20,17 @@
 
 package tyche.inference.distribution;
 
-import beast.base.core.*;
-import beast.base.inference.Distribution;
-import beast.base.inference.State;
-import beast.base.inference.distribution.ParametricDistribution;
-import beast.base.inference.parameter.RealParameter;
-import org.apache.commons.math.MathException;
+import beast.base.core.BEASTObject;
+import beast.base.core.Citation;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.spec.inference.distribution.ScalarDistribution;
+import beast.base.spec.inference.distribution.TensorDistribution;
+import beast.base.spec.type.RealVector;
+import tyche.TycheCitation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import tyche.TycheCitation;
-
 
 /**
  * @author Jessie Fielding
@@ -39,98 +38,110 @@ import tyche.TycheCitation;
  */
 
 /**
- * ElementwisePrior applies a different prior distribution to each value of a RealParameter with dimension > 1.
+ * A prior over a vector parameter that has a different distribution for each element. 
+ * 
+ * Written like BEAST 3's IID distribution except that there is one distribution 
+ * per element. The distributions are used without their own "param": 
+ * each one is evaluated at the matching element of this distribution's "param".
+ * 
  */
-@Description("ElementwisePrior applies a different prior distribution to each value of a RealParameter with dimension > 1.")
+@Description("ElementwisePrior applies a different prior distribution to each element of a real vector parameter.")
 @Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
-public class ElementwisePrior extends Distribution {
-    public Input<RealParameter> parameterInput = new Input<>("parameter", "parameter", Input.Validate.REQUIRED);
-    final public Input<List<ParametricDistribution>> distsInput = new Input<>("distribution", "distributions used to calculate prior, e.g. normal, beta, gamma.", new ArrayList<>());
+public class ElementwisePrior extends TensorDistribution<RealVector<?>, Double> {
 
-    private RealParameter parameter;
-    private List<ParametricDistribution> dists;
+    final public Input<List<ScalarDistribution<?, Double>>> distsInput = new Input<>("distribution",
+            "one distribution for each element of the parameter, in order, e.g. normal, beta, gamma.", new ArrayList<>());
+
+    private List<ScalarDistribution<?, Double>> dists;
 
     @Override
     public void initAndValidate() {
-        parameter = parameterInput.get();
+        super.initAndValidate();
         dists = distsInput.get();
-
-        if (parameter.getDimension() != dists.size()) {
-            throw new IllegalArgumentException("Number of prior distributions must match parameter dimension");
+        if (param == null) {
+            throw new IllegalArgumentException("ElementwisePrior requires param, but it is null.");
+        }
+        if (param.size() != dists.size()) {
+            throw new IllegalArgumentException("Number of prior distributions (" + dists.size() + ") must match parameter dimension (" + param.size() + ")");
         }
     }
 
     @Override
     public double calculateLogP() {
+        refresh(); // make sure the distributions' own parameters are up to date if they are sampled during MCMC
         logP = 0.0;
-        // for each parameter value, get the corresponding distribution from the distributions provided
-        // and calculate the logP for that value in that distribution
-        for (int i = 0; i < parameter.getDimension(); i++) {
-            // wrap i-th value of input parameter in its own temp RealParameter object for dist.calcLogP()
-            RealParameter x = new RealParameter(String.valueOf(parameter.getValue(i)));
-            ParametricDistribution dist = dists.get(i); // get i-th distribution
-            logP += dist.calcLogP(x); // log space so we can add
+        for (int i = 0; i < param.size(); i++) {
+            logP += dists.get(i).logDensity(param.get(i)); // log space so we can add
         }
-
         return logP;
     }
 
-    /**
-     * return name of the parameter this prior is applied to *
-     * @return the wrapped parameter's ID, or the string "null" if no parameter is set
-     */
-    public String getParameterName() {
-        if (parameter != null) {
-            return ((BEASTObject) parameter).getID();
+    @Override
+    public void refresh() {
+        for (ScalarDistribution<?, Double> dist : dists) {
+            dist.refresh();
         }
-        return parameter + "";
     }
 
     @Override
-    public List<String> getArguments() {
-        List<String> arguments = new ArrayList<>();
-
-        if (parameter != null) {
-            arguments.add(((BEASTInterface) parameter).getID());
+    protected double calcLogP(Double... value) {
+        refresh();
+        double sum = 0.0;
+        for (int i = 0; i < value.length; i++) {
+            sum += dists.get(i).logDensity(value[i]);
         }
-
-        return arguments;
+        return sum;
     }
 
     @Override
-    public List<String> getConditions() {
-        List<String> conditions = new ArrayList<>();
-        for (ParametricDistribution dist : dists) {
-            conditions.add(dist.getID());
-        }
-        return conditions;
-    }
-
-    @Override
-    public void sample(State state, Random random) {
-
-        if (sampledFlag)
-            return;
-
-        sampledFlag = true;
-
-        // Cause conditional parameters to be sampled
-        sampleConditions(state, random);
-
-        Double[] newx = new Double[parameter.getDimension()];
-        for (int i = 0; i < parameter.getDimension(); i++) {
-            ParametricDistribution dist = dists.get(i);
-            try {
-                newx[i] = dist.sample(1)[0][0];
-                // keep resampling until we get a new value that is between upper and lower
-                while (parameter.getLower() > newx[i] || parameter.getUpper() < newx[i]) {
-                    newx[i] = dist.sample(1)[0][0];
-                }
-            } catch (MathException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Failed to sample!");
+    public List<Double> sample() {
+        List<Double> newX = new ArrayList<>(dists.size());
+        for (ScalarDistribution<?, Double> dist : dists) {
+            Double x = dist.sample().getFirst();
+            while (!param.isValid(x)) {
+                x = dist.sample().getFirst();
             }
+            newX.add(x);
         }
+        return newX;
     }
 
+    /** the largest lower bound of any element's distribution: a value valid for every element must respect all of them */
+    @Override
+    public Double getLowerBoundOfParameter() {
+        Double lower = null;
+        for (ScalarDistribution<?, Double> dist : dists) {
+            Double l = dist.getLowerBoundOfParameter();
+            if (l != null && (lower == null || l > lower)) lower = l;
+        }
+        return lower;
+    }
+
+    /** the smallest upper bound of any element's distribution */
+    @Override
+    public Double getUpperBoundOfParameter() {
+        Double upper = null;
+        for (ScalarDistribution<?, Double> dist : dists) {
+            Double u = dist.getUpperBoundOfParameter();
+            if (u != null && (upper == null || u < upper)) upper = u;
+        }
+        return upper;
+    }
+
+    @Override
+    public Double getLower() {
+        return getLowerBoundOfParameter();
+    }
+
+    @Override
+    public Double getUpper() {
+        return getUpperBoundOfParameter();
+    }
+
+    public String getParameterName() {
+        if (param != null) {
+            return ((BEASTObject) param).getID();
+        }
+        return String.valueOf(param);
+    }
 }

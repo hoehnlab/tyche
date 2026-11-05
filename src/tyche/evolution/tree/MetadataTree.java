@@ -52,7 +52,7 @@ public class MetadataTree extends Tree {
      * @param traitList List of trait sets.
      */
     @Override
-    protected void processTraits(List<TraitSet> traitList) {
+    public void processTraits(List<TraitSet> traitList) {
         for (TraitSet traitSet : traitList) {
             HashMap<String, Object> currentTrait = new HashMap<>();
             for (Node node : getExternalNodes()) {

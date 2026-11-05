@@ -21,7 +21,7 @@ import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 
 @Description("Tree-likelihood that allows site specific root frequencies")
-public class RootFreqsTreeLikelihood extends beast.base.evolution.likelihood.TreeLikelihood {
+public class RootFreqsTreeLikelihood extends beast.base.spec.evolution.likelihood.TreeLikelihood {
 
     final public Input<Sequence> rootFrequenciesSequenceInput = new Input<>("rootfreqseq",
             "If defined, specifies site specific root frequencies instead of uniform root frequencies. "

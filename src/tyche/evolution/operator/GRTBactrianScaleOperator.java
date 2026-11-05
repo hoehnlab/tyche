@@ -22,7 +22,7 @@ package tyche.evolution.operator;
 
 import beast.base.core.Citation;
 import beast.base.core.Description;
-import beast.base.evolution.operator.kernel.BactrianScaleOperator;
+import beast.base.spec.evolution.operator.ScaleTreeOperator;
 import beast.base.inference.util.InputUtil;
 import tyche.evolution.tree.GRTNode;
 import tyche.evolution.tree.GermlineRootTree;
@@ -34,11 +34,11 @@ import tyche.TycheCitation;
  */
 
 /**
- * BactrianScaleOperator that will handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
+ * ScaleTreeOperator (Bactrian) that will handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
  */
-@Description("BactrianScaleOperator that will handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree.")
+@Description("ScaleTreeOperator (Bactrian) that will handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree.")
 @Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
-public class GRTBactrianScaleOperator extends BactrianScaleOperator implements GRTCompatibleOperator {
+public class GRTBactrianScaleOperator extends ScaleTreeOperator implements GRTCompatibleOperator {
 
     /**
      * handle rootOnly scale appropriately if the provided Tree is a GermlineRootTree
@@ -67,7 +67,7 @@ public class GRTBactrianScaleOperator extends BactrianScaleOperator implements G
     @Override
     public double proposal() {
         try {
-            if (isTreeScaler() && rootOnlyInput.get() && treeInput.get() instanceof GermlineRootTree) {
+            if (rootOnlyInput.get() && treeInput.get() instanceof GermlineRootTree) {
                 return doGRTProposal();
             }
             else {

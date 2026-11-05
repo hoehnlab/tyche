@@ -230,7 +230,7 @@ public abstract class MultiNodeTypeSwitchOperator extends LeafConsciousTypeTreeO
         switch (typeSwitchMode) {
             case TYPE_FLIP:
                 // if mode is type flip, make sure it's not the old value (i.e. we're always flipping). works best in 2 state case
-                int oldValue = nodeTypes.getValue(nodeNum);
+                int oldValue = nodeTypes.get(nodeNum);
                 while (newValue == oldValue) {
                     newValue = Randomizer.nextInt(upperInt - lowerInt + 1) + lowerInt; // from 0 to n-1, n must > 0
                 }
@@ -267,7 +267,7 @@ public abstract class MultiNodeTypeSwitchOperator extends LeafConsciousTypeTreeO
     }
 
     protected void setRelatedNodeType(int nodeNum, int newValue) {
-        updateIsHomogenous(nodeTypes.getValue(nodeNum), newValue);
+        updateIsHomogenous(nodeTypes.get(nodeNum), newValue);
         setNodeType(nodeNum, newValue);
     }
 

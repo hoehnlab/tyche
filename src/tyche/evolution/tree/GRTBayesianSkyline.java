@@ -23,8 +23,11 @@ package tyche.evolution.tree;
 import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.evolution.tree.TreeIntervals;
-import beast.base.evolution.tree.coalescent.BayesianSkyline;
-import beast.base.inference.parameter.IntegerParameter;
+import beast.base.inference.StateNode;
+import beast.base.spec.domain.PositiveInt;
+import beast.base.spec.evolution.tree.coalescent.BayesianSkyline;
+import beast.base.spec.inference.parameter.IntSimplexParam;
+import beast.base.spec.type.IntSimplex;
 import tyche.TycheCitation;
 
 /**
@@ -43,37 +46,31 @@ import tyche.TycheCitation;
 public class GRTBayesianSkyline extends BayesianSkyline {
 
     @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public void initAndValidate() {
         super.initAndValidate();
-
         if (treeInput.get() != null) {
             throw new IllegalArgumentException("only tree intervals (not tree) should not be specified");
         }
+
         TreeIntervals intervals = treeIntervalsInput.get();
         if (intervals instanceof GRTIntervals) {
-            // make sure that the sum of groupsizes == number of coalescent events
+            // the number of coalescent events of a germline-rooted tree is not its internal node count, so the
+            // equal split the parent class made from the node count is replaced by one from the event count
             int events = ((GRTIntervals) intervals).getTotalCoalescentEvents();
-
-            IntegerParameter groupSizes = groupSizeParamInput.get();
-            int paramDim2 = groupSizes.getDimension();
-
-
-            // We assume that the XML has not
-            // specified initial group sizes because
-            // the super function will have broken if that's the case
+            IntSimplex<? extends PositiveInt> groupSizes = groupSizeParamInput.get();
+            int paramDim2 = groupSizes.size();
             int eventsEach = events / paramDim2;
             int eventsExtras = events % paramDim2;
-            Integer[] values = new Integer[paramDim2];
+
+            int[] values = new int[paramDim2];
             for (int i = 0; i < paramDim2; i++) {
-                if (i < eventsExtras) {
-                    values[i] = eventsEach + 1;
-                } else {
-                    values[i] = eventsEach;
-                }
+                values[i] = i < eventsExtras ? eventsEach + 1 : eventsEach;
             }
-            IntegerParameter parameter = new IntegerParameter(values);
-            parameter.setBounds(1, Integer.MAX_VALUE);
-            groupSizes.assignFromWithoutID(parameter);
+            IntSimplexParam parameter = new IntSimplexParam(values, groupSizes.getDomain(), events);
+            if (groupSizes instanceof StateNode stateNode) {
+                stateNode.assignFromWithoutID(parameter);
+            }
             prepare();
         }
     }

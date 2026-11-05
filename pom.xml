@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  BEAST 3 build of TyCHE (headless core + module-info.java). `mvn package` builds the package ZIP (target/dist/).
+  - Keeps the existing src/ layout (no file moves), so merges from the BEAST 2.7 line (main) stay clean.
+  - Excludes tyche/app/** (BEAUti/JavaFX GUI) from compilation; the pom drops those providers from the packaged
+    version.xml (property tyche.drop.providers).
+  - The package name and version come from version.xml (single source of truth). The <version> below only has to
+    read "<version.xml version>-SNAPSHOT": release.sh warns when it does not. Update it with every version bump.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.hoehnlab</groupId>
+    <artifactId>tyche</artifactId>
+    <!-- Keep in sync with <package version=...> in version.xml (release.sh warns if they differ). -->
+    <version>1.0.1-SNAPSHOT</version>
+    <name>TyCHE</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>25</maven.compiler.release>
+        <!-- adjust to whatever is installed locally / on Maven Central -->
+        <beast.version>2.8.0-beta6</beast.version>
+        <beast.classic.version>1.7.1</beast.classic.version>
+        <!-- Lines of version.xml matching this regex are left out of the packaged version.xml (those classes are
+             not built while tyche/app is excluded from compilation). Clear/adjust when the BEAUti code is built. -->
+        <tyche.drop.providers>tyche\.app\.beauti</tyche.drop.providers>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.github.compevol</groupId>
+            <artifactId>beast-base</artifactId>
+            <version>${beast.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.beast2-dev</groupId>
+            <artifactId>beast-classic</artifactId>
+            <version>${beast.classic.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- Jar is named TyCHE.package.jar (as `ant package` did); the version lives in version.xml and the ZIP name. -->
+        <finalName>TyCHE.package</finalName>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <!-- version.xml must sit at the jar root so BEAST can discover services -->
+            <resource>
+                <directory>${project.basedir}</directory>
+                <includes><include>version.xml</include></includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.15.0</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                    <excludes>
+                        <exclude>tyche/app/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <!-- Builds target/dist/<name>.v<version>.zip as part of `mvn package` (port of the Ant `package` target).
+                 Package name and version are read from version.xml. Dev build: mvn package -Ddev
+                 Skip this step (e.g. when release.sh does the packaging): -Dmaven.antrun.skip=true -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>beast-package-zip</id>
+                        <phase>package</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <!-- 1. name + version from version.xml (single source of truth) -> package.name, package.version -->
+                                <xmlproperty file="${project.basedir}/version.xml" collapseAttributes="true"/>
+                                <fail unless="package.version" message="Could not read package name/version from version.xml (expected package.name / package.version after xmlproperty)"/>
+
+                                <!-- 2. dev build?  -Ddev  -> version-<git hash>[-dirty]-built-<MMddHHmm> -->
+                                <condition property="is.dev">
+                                    <and>
+                                        <isset property="dev"/>
+                                        <not><isfalse value="${dev}"/></not>
+                                    </and>
+                                </condition>
+                                <tstamp><format property="build.stamp" pattern="MMddHHmm"/></tstamp>
+                                <exec executable="git" dir="${project.basedir}" outputproperty="git.hash" resultproperty="git.rc" failifexecutionfails="false">
+                                    <arg value="rev-parse"/><arg value="--short"/><arg value="@"/>
+                                </exec>
+                                <exec executable="git" dir="${project.basedir}" outputproperty="git.status" failifexecutionfails="false">
+                                    <arg value="status"/><arg value="--porcelain"/><arg value="--untracked-files=no"/>
+                                </exec>
+                                <condition property="git.ok">
+                                    <and>
+                                        <isset property="git.hash"/>
+                                        <equals arg1="${git.rc}" arg2="0"/>
+                                        <not><equals arg1="${git.hash}" arg2="" trim="true"/></not>
+                                    </and>
+                                </condition>
+                                <condition property="is.dirty">
+                                    <and>
+                                        <isset property="git.status"/>
+                                        <not><equals arg1="${git.status}" arg2="" trim="true"/></not>
+                                    </and>
+                                </condition>
+                                <condition property="dev.suffix" value="-${git.hash}-dirty-built-${build.stamp}" else="-${git.hash}-built-${build.stamp}">
+                                    <isset property="is.dirty"/>
+                                </condition>
+                                <condition property="pkg.version" value="${package.version}${dev.suffix}" else="${package.version}">
+                                    <and>
+                                        <isset property="is.dev"/>
+                                        <isset property="git.ok"/>
+                                    </and>
+                                </condition>
+                                <condition property="pkg.note" value="  [WARNING: -Ddev given but no usable git commit, so no dev suffix]" else="">
+                                    <and>
+                                        <isset property="is.dev"/>
+                                        <not><isset property="git.ok"/></not>
+                                    </and>
+                                </condition>
+                                <echo message="Packaging ${package.name} version ${pkg.version}${pkg.note}"/>
+
+                                <!-- 3. checks on the jar: an empty or non-modular jar silently breaks loading in BEAST -->
+                                <property name="tyche.jar" value="${project.build.directory}/${project.build.finalName}.jar"/>
+                                <fail message="${tyche.jar} not found (did the jar step run?)">
+                                    <condition><not><available file="${tyche.jar}"/></not></condition>
+                                </fail>
+                                <fail message="${tyche.jar} contains no tyche classes (compile step produced nothing); not packaging.">
+                                    <condition>
+                                        <resourcecount count="0" when="equal">
+                                            <zipfileset src="${tyche.jar}" includes="tyche/**/*.class"/>
+                                        </resourcecount>
+                                    </condition>
+                                </fail>
+                                <condition property="modinfo.msg" value="module-info.class present in jar" else="WARNING: no module-info.class in the jar; BEAST 3 may load TyCHE before beast-classic.">
+                                    <resourcecount count="1" when="ge">
+                                        <zipfileset src="${tyche.jar}" includes="module-info.class"/>
+                                    </resourcecount>
+                                </condition>
+                                <echo message="${modinfo.msg}"/>
+
+                                <!-- 4. stage the package (same layout as the Ant build) -->
+                                <property name="tyche.stage" value="${project.build.directory}/package"/>
+                                <delete dir="${tyche.stage}"/>
+                                <mkdir dir="${tyche.stage}/lib"/>
+                                <mkdir dir="${tyche.stage}/fxtemplates"/>
+                                <mkdir dir="${tyche.stage}/examples"/>
+                                <copy file="${tyche.jar}" todir="${tyche.stage}/lib"/>
+                                <jar destfile="${tyche.stage}/${package.name}.src.jar" basedir="${project.basedir}/src" includes="**/*.java,**/*.png,**/*.xsl"/>
+                                <copy todir="${tyche.stage}/fxtemplates">
+                                    <fileset dir="${project.basedir}/fxtemplates" includes="*.xml"/>
+                                </copy>
+                                <copy todir="${tyche.stage}/examples">
+                                    <fileset dir="${project.basedir}/examples"/>
+                                </copy>
+                                <copy file="${project.basedir}/LICENSE" todir="${tyche.stage}"/>
+
+                                <!-- 5. version.xml for the package: drop providers whose classes are not built, drop emptied
+                                        <service> blocks, then set the (possibly dev) version on the <package> element -->
+                                <copy file="${project.basedir}/version.xml" tofile="${tyche.stage}/version.xml" overwrite="true">
+                                    <filterchain>
+                                        <linecontainsregexp negate="true">
+                                            <regexp pattern="${tyche.drop.providers}"/>
+                                        </linecontainsregexp>
+                                    </filterchain>
+                                </copy>
+                                <replaceregexp file="${tyche.stage}/version.xml" flags="g"
+                                               match="\s*&lt;service\b[^&gt;]*&gt;\s*&lt;/service&gt;" replace=""/>
+                                <replaceregexp file="${tyche.stage}/version.xml"
+                                               match="(&lt;package\b[^&gt;]*\bversion\s*=\s*[&apos;&quot;])[^&apos;&quot;]*([&apos;&quot;])"
+                                               replace="\1${pkg.version}\2"/>
+
+                                <!-- 6. zip (flat: version.xml and lib/ at the top level, as BEAST requires) -->
+                                <mkdir dir="${project.build.directory}/dist"/>
+                                <delete file="${project.build.directory}/dist/${package.name}.v${pkg.version}.zip"/>
+                                <zip destfile="${project.build.directory}/dist/${package.name}.v${pkg.version}.zip" basedir="${tyche.stage}"/>
+                                <echo message="Built: target/dist/${package.name}.v${pkg.version}.zip"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

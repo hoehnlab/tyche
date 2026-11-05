@@ -29,8 +29,6 @@ import beast.base.evolution.alignment.Taxon;
 import beast.base.evolution.operator.TreeOperator;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
-import beast.base.inference.parameter.IntegerParameter;
-import beast.base.inference.parameter.Parameter;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
 import tyche.evolution.tree.GRTNode;
@@ -129,9 +127,9 @@ public class CombinedRootOperator extends LeafConsciousTypeTreeOperator {
         double newHeight = getNewHeight(root.getHeight(), heightMRCA);
         int newType = getRandomType();
 
-        nodeTypes.setValue(root.getNr(), newType);
+        nodeTypes.set(root.getNr(), newType);
         if (germlineNum > 0) {
-            nodeTypes.setValue(germlineNum, newType);
+            nodeTypes.set(germlineNum, newType);
         }
 
         if (markCladesInput.get()) {

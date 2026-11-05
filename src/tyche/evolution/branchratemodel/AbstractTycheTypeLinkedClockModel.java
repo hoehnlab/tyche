@@ -22,15 +22,18 @@ package tyche.evolution.branchratemodel;
 
 import beast.base.core.Citation;
 import beast.base.core.Description;
-import beast.base.core.Function;
 import beast.base.core.Input;
-import beast.base.evolution.branchratemodel.BranchRateModel;
+import beast.base.spec.evolution.branchratemodel.Base;
 import beast.base.util.MachineAccuracy;
+import tyche.evolution.NodeTypeBounds;
 import tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel;
 import beast.base.evolution.tree.Node;
-import beast.base.inference.parameter.IntegerParameter;
-import beast.base.inference.parameter.RealParameter;
+import beast.base.spec.domain.NonNegativeReal;
+import beast.base.spec.inference.parameter.IntVectorParam;
+import beast.base.spec.type.RealVector;
 import tyche.TycheCitation;
+import beast.base.spec.domain.Real;
+import beast.base.spec.type.RealScalar;
 
 /**
  * @author Jessie Fielding
@@ -42,42 +45,34 @@ import tyche.TycheCitation;
  */
 @Description("Abstract branch rate model for type-linked mutation rates")
 @Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
-public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.Base {
+public abstract class AbstractTycheTypeLinkedClockModel extends Base {
 
     /**
      * input object for the mutation rate for each type
      */
-    public Input<RealParameter> typeLinkedRatesInput = new Input<RealParameter>("typeLinkedRates", "the mutation rate for each type", Input.Validate.REQUIRED);
+    public Input<RealVector<? extends NonNegativeReal>> typeLinkedRatesInput = new Input<>("typeLinkedRates", "the mutation rate for each type", Input.Validate.REQUIRED);
 
     /**
      * input object for the type for each node
      */
-    public Input<IntegerParameter> nodeTypesInput = new Input<IntegerParameter>("nodeTypes", "the type for each node", Input.Validate.REQUIRED);
+    public Input<IntVectorParam<?>> nodeTypesInput = new Input<>("nodeTypes", "the type for each node", Input.Validate.REQUIRED);
 
     /**
      * input object for the clock rate for the Ancestral Reconstruction Tree Likelihood
      */
-    public Input<Function> typeSwitchClockRateInput = new Input<Function>("typeSwitchClockRate", "the clock rate for the Ancestral Reconstruction Tree Likelihood");
+    public Input<RealScalar<? extends Real>> typeSwitchClockRateInput = new Input<>("typeSwitchClockRate", "the clock rate for the Ancestral Reconstruction Tree Likelihood");
 
     /**
      * input object for the substitution model describing type substitutions
      */
     public Input<TycheSVSGeneralSubstitutionModel> svsInput = new Input<TycheSVSGeneralSubstitutionModel>("substitutionModel", "the substitution model input");
 
-    /**
-     * input object for a real parameter to log branch rates
-     */
-    public Input<RealParameter> branchRatesInput = new Input<>("branchRates", "a real parameter to log branch rates");
 
-    /**
-     * input object for a real parameter to log expected occupancy
-     */
-    public Input<RealParameter> occupanciesInput = new Input<>("expectedOccupancy", "a real parameter to log expected occupancy");
 
     /**
      * the clock rate for the Ancestral Reconstruction Tree Likelihood
      */
-    protected Function typeSwitchClockRate;
+    protected RealScalar<? extends Real> typeSwitchClockRate;
     /**
      * the substitution model describing type substitutions
      */
@@ -91,23 +86,13 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
     /**
      * the mutation rate for each type
      */
-    protected RealParameter typeLinkedRates;
-
-    /**
-     * a real parameter to log branch rates
-     */
-    protected RealParameter branchRates;
-    /**
-     * a real parameter to log expected occupancy
-     */
-    protected RealParameter occupancies;
+    protected RealVector<? extends NonNegativeReal> typeLinkedRates;
 
     /**
      * the type for each node
      */
-    protected IntegerParameter nodeTypes;
+    protected IntVectorParam<?> nodeTypes;
 
-    Function muParameter;
 
     /**
      * Initialize and validate inputs that are required for all TyCHE branch models
@@ -116,24 +101,22 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
         // get inputs
         nodeTypes = nodeTypesInput.get();
         typeLinkedRates = typeLinkedRatesInput.get();
-        branchRates = branchRatesInput.get();
 
-        // ensure we have enough type-linked rates for the types in nodeTypes
-        if (nodeTypes.getUpper() != null) {
-            if (typeLinkedRates.getDimension() != nodeTypes.getUpper() + 1) {
-                throw new IllegalArgumentException("Number of type rates should match possible types. nodeTypes has " + (nodeTypes.getUpper()+1) + " possible values but typeLinkedRates has " + typeLinkedRates.getDimension() + " values. Try setting nodeTypes \"upper\" value or adjusting dimension of typeLinkedRates.");
+        // ensure we have enough type-linked rates for the types in nodeTypes (when nodeTypes states how many there are)
+        if (NodeTypeBounds.hasUpper(nodeTypes)) {
+            int possibleTypes = NodeTypeBounds.upper(nodeTypes, null) + 1;
+            if (typeLinkedRates.size() != possibleTypes) {
+                throw new IllegalArgumentException("Number of type rates should match possible types. nodeTypes has " + possibleTypes + " possible values but typeLinkedRates has " + typeLinkedRates.size() + " values. Try setting nodeTypes \"upper\" value or adjusting dimension of typeLinkedRates.");
             }
         }
 
-        // if this is an expected occupancy model, more inputs are required
         if (isExpectedOccupancy()) {
             svsInput.setRule(Input.Validate.REQUIRED);
             typeSwitchClockRateInput.setRule(Input.Validate.REQUIRED);
             typeSwitchClockRate = typeSwitchClockRateInput.get();
             svs = svsInput.get();
-            occupancies = occupanciesInput.get();
-            if (nodeTypes.getUpper() != 1 && nodeTypes.getLower() != 0) {
-                throw new IllegalArgumentException("Node types should have upper of 1 and lower of 0 for expected occupancy models.");
+            if (typeLinkedRates.size() != 2 || NodeTypeBounds.lower(nodeTypes) != 0) {
+                throw new IllegalArgumentException("Expected occupancy models need exactly two types, numbered 0 and 1: typeLinkedRates must have dimension 2 and nodeTypes must start at 0.");
             }
             qMatrix = svs.getRateMatrix();
         }
@@ -146,7 +129,7 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
      */
     public double getTypeLinkedRate(int type) {
         // get the rate that corresponds to that integer position in the rate array/list
-        return typeLinkedRates.getArrayValue(type);
+        return typeLinkedRates.get(type);
     }
 
     /**
@@ -154,10 +137,9 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
      * @param parentType  an integer representing the type of the parent of this branch
      * @param currentType an integer representing the type of the child of this branch (current node)
      * @param time        a Double representing the timespan of the branch
-     * @param nodeNum     an integer representing the node number of the child of this branch (current node)
      * @return      a double array listing the expected occupancy for each type
      */
-    public double[] getOccupancy(final int parentType, final int currentType, final Double time, final int nodeNum) {
+    public double[] getOccupancy(final int parentType, final int currentType, final Double time) {
 
         if (time < MachineAccuracy.SQRT_EPSILON) {
             return new double[]{0.5, 0.5};
@@ -206,12 +188,28 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
 
         // set occupancy of second type so that occupancies sum to 1
         occupancy[1] = 1 - occupancy[0];
-
-        // record occupancies if a parameter was provided for logging
-        if (occupancies != null) {
-            occupancies.setValue(nodeNum, occupancy[0]);
-        }
         return occupancy;
+    }
+
+    /**
+     * Get the occupancy in each of two types for the branch above a node, for the current state of the model.
+     * Calculated on demand and without side effects (nothing is stored), so it is always consistent with the
+     * current tree and node types. The default assumes the branch is entirely in the child's type; the expected
+     * occupancy models override this.
+     * @param node  the current node (child of this branch), not the root
+     * @return      a double array listing the occupancy for each type
+     */
+    public double[] getBranchOccupancy(final Node node) {
+        return nodeTypes.get(node.getNr()) == 0 ? new double[]{1.0, 0.0} : new double[]{0.0, 1.0};
+    }
+
+    /**
+     * Get the proportion of the branch above a node that is expected to be spent in type 0, for the current state.
+     * @param node  the node
+     * @return      the occupancy of type 0, or 0.0 for the root (which has no branch above it)
+     */
+    public double getNodeOccupancy(final Node node) {
+        return node.isRoot() ? 0.0 : getBranchOccupancy(node)[0];
     }
 
     /**
@@ -222,17 +220,13 @@ public abstract class AbstractTycheTypeLinkedClockModel extends BranchRateModel.
     public abstract double getBranchRate(Node node);
 
     /**
-     * Get the rate for this branch by calling helper getBranchRate method, handling extra logging
+     * Get the rate for this branch by calling helper getBranchRate method
      * @param node  the current node (child of this branch)
      * @return      the rate to be used for this branch
      */
     @Override
     public double getRateForBranch(Node node) {
-        double branchRate = getBranchRate(node);
-        if (branchRates != null) {
-            branchRates.setValue(node.getNr(), branchRate);
-        }
-        return branchRate;
+        return getBranchRate(node);
     }
 
 

@@ -29,9 +29,9 @@ import beast.base.core.Input.Validate;
 import beast.base.evolution.alignment.Alignment;
 import beast.base.evolution.datatype.DataType;
 import beast.base.evolution.datatype.UserDataType;
-import beast.base.evolution.likelihood.TreeLikelihood;
-import beast.base.evolution.sitemodel.SiteModel;
-import beast.base.evolution.substitutionmodel.GeneralSubstitutionModel;
+import beast.base.spec.evolution.likelihood.TreeLikelihood;
+import beast.base.spec.evolution.sitemodel.SiteModel;
+import beast.base.spec.evolution.substitutionmodel.BasicGeneralSubstitutionModel;
 import beast.base.evolution.substitutionmodel.SubstitutionModel;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
@@ -40,7 +40,7 @@ import beast.base.inference.StateNodeInitialiser;
 import beast.base.inference.StateNode;
 import beastclassic.evolution.tree.TreeTrait;
 import beastclassic.evolution.tree.TreeTraitProvider;
-import beast.base.inference.parameter.IntegerParameter;
+import beast.base.spec.inference.parameter.IntVectorParam;
 import tyche.evolution.tree.GermlineRootTree;
 
 import java.util.Arrays;
@@ -75,10 +75,10 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
     /**
      * input object, the type associated with each node
      */
-    public Input<IntegerParameter> nodeTypesInput = new Input<IntegerParameter>("nodeTypes", "the type associated with each node", Validate.REQUIRED);
+    public Input<IntVectorParam<?>> nodeTypesInput = new Input<>("nodeTypes", "the type associated with each node", Validate.REQUIRED);
 
 
-    IntegerParameter nodeTypes;
+    IntVectorParam<?> nodeTypes;
     double[][] qMatrix;
     int patternCount;
     int stateCount;
@@ -132,7 +132,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
                 throw new IllegalArgumentException ("siteModel input should be of type SiteModel.Base");
             }
             m_siteModel = (SiteModel.Base) siteModelInput.get();
-            substitutionModel = (SubstitutionModel.Base) m_siteModel.substModelInput.get();
+            substitutionModel = m_siteModel.substModelInput.get();
             int nStateCount = dataInput.get().getMaxStateCount();
             probabilities = new double[(nStateCount + 1) * (nStateCount + 1)];
         }
@@ -146,8 +146,8 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
         if (m_siteModel.getCategoryCount() > 1)
             throw new RuntimeException("Reconstruction not implemented for multiple categories yet.");
 
-        if (substitutionModel instanceof GeneralSubstitutionModel) {
-            qMatrix = ((GeneralSubstitutionModel) substitutionModel).getRateMatrix();
+        if (substitutionModel instanceof BasicGeneralSubstitutionModel) {
+            qMatrix = ((BasicGeneralSubstitutionModel) substitutionModel).getRateMatrix();
         } else {
             throw new RuntimeException("Reconstruction not implemented for substitution models which do not inherit from the GeneralSubstitutionModel class.");
         }
@@ -197,7 +197,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
                 likelihoodCore.getNodeStates(node.getNr(), tipStates[node.getNr()]);
                 // set the nodeTypes parameter to the tipStates data for all known (not ambiguous) leaves
                 if (!dataType.isAmbiguousCode(tipStates[node.getNr()][0])) {
-                    nodeTypes.setValue(node.getNr(), tipStates[node.getNr()][0]);
+                    nodeTypes.set(node.getNr(), tipStates[node.getNr()][0]);
                 }
             } else {
                 int [] states = tipStates[node.getNr()];
@@ -208,7 +208,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
                 } else {
                     states[0] = code; // Causes ambiguous states to be ignored.
                 }
-                nodeTypes.setValue(node.getNr(), states[0]);
+                nodeTypes.set(node.getNr(), states[0]);
             }
         }
     }
@@ -250,7 +250,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
 
         boolean isDirty = super.requiresRecalculation();
 
-        isDirty |= nodeTypes.isDirty(nodeTypes.getLastDirty());
+        isDirty |= nodeTypes.somethingIsDirty();
 
         return isDirty;
 
@@ -284,7 +284,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
         }
 
         double conditionalProbability;
-        final int thisState = nodeTypes.getValue(nodeNum);
+        final int thisState = nodeTypes.get(nodeNum);
         int parentIndex = parentState * stateCount; // not used if root
 
         final double branchRate = branchRateModel.getRateForBranch(node);
@@ -396,7 +396,7 @@ public class AncestralTypeLikelihood extends TreeLikelihood implements TreeTrait
             throw new RuntimeException("Can only reconstruct states on treeModel given to constructor");
         }
 
-        return new int[] {nodeTypes.getValue(node.getNr())};
+        return new int[] {nodeTypes.get(node.getNr())};
     }
 
     /**

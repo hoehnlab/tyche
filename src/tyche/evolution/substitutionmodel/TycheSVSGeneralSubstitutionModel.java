@@ -24,7 +24,7 @@ import beast.base.core.Citation;
 import beast.base.core.Description;
 import beast.base.core.Log;
 import beast.base.evolution.tree.Node;
-import beast.base.inference.parameter.BooleanParameter;
+import beast.base.spec.inference.parameter.BoolVectorParam;
 import beastclassic.evolution.substitutionmodel.SVSGeneralSubstitutionModel;
 
 import java.util.Arrays;
@@ -44,7 +44,7 @@ import tyche.TycheCitation;
 @Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class TycheSVSGeneralSubstitutionModel extends SVSGeneralSubstitutionModel {
     private double[][] storedRateMatrix;
-    private BooleanParameter rateIndicator;
+    private BoolVectorParam rateIndicator;
 
     /**
      * Initialize and validate using SVSGeneralSubstitutionModel initAndValidate, and then set up storedRateMatrix.
@@ -86,7 +86,7 @@ public class TycheSVSGeneralSubstitutionModel extends SVSGeneralSubstitutionMode
                 if (i == j) {
                     continue;
                 }
-                if (!rateIndicator.getValue(count)) {
+                if (!rateIndicator.get(count)) {
                     if (matrix[index] < -MachineAccuracy.EPSILON || matrix[index] > MachineAccuracy.EPSILON) {
                         Log.warning.println("Non-zero probability calculated for transition where rate indicator is 0: " + matrix[index]);
                     }

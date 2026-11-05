@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><beast beautitemplate='Standard' beautistatus='' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.base.evolution.alignment:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.tree.coalescent:beast.pkgmgmt:beast.base.core:beast.base.inference.util:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood" required="BEAST.base v2.7.7:TyCHE v-52a7be9-built-09081406:BEAST_CLASSIC v1.6.4" version="2.7">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><beast beautitemplate='Standard' beautistatus='' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.base.evolution.alignment:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.tree.coalescent:beast.pkgmgmt:beast.base.core:beast.base.inference.util:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood" version="2.8">
 
     <data
 id="GLSS-4F0A"
@@ -54,13 +54,13 @@ GLSS-HF-4F0A_R2_H_3772=3772,
 GLSS-HF-4F0A_TP_N_0=0</trait>
                 <taxonset idref="TaxonSet.GLSS-4F0A"/>
             </stateNode>
-            <parameter id="bPopSizes.t:GLSS-4F0A" spec="parameter.RealParameter" lower="0.0" name="stateNode">380.0</parameter>
-            <stateNode id="bGroupSizes.t:GLSS-4F0A" spec="parameter.IntegerParameter">1</stateNode>
-            <stateNode id="nodeTypes.newTrait" spec="parameter.IntegerParameter" dimension="7" lower="0" upper="1">1</stateNode>
-            <stateNode id="rateIndicator.s:newTrait" spec="parameter.BooleanParameter" dimension="2">false true</stateNode>
-            <parameter id="relativeGeoRates.s:newTrait" spec="parameter.RealParameter" dimension="2" name="stateNode">1.0 1.0</parameter>
-            <parameter id="traitClockRate.c:newTrait" spec="parameter.RealParameter" name="stateNode">0.004</parameter>
-            <parameter id="typeLinkedRates.c:GLSS-4F0A" spec="parameter.RealParameter" dimension="2" lower="0.0" name="stateNode">0.002223 3.14E-6</parameter>
+            <parameter id="bPopSizes.t:GLSS-4F0A" spec="beast.base.spec.inference.parameter.RealVectorParam" domain="PositiveReal" dimension="1" name="stateNode">380.0</parameter>
+            <stateNode id="bGroupSizes.t:GLSS-4F0A" spec="beast.base.spec.inference.parameter.IntSimplexParam" domain="PositiveInt" dimension="1">1</stateNode>
+            <stateNode id="nodeTypes.newTrait" spec="beast.base.spec.inference.parameter.IntVectorParam" domain="NonNegativeInt" dimension="7">1</stateNode>
+            <stateNode id="rateIndicator.s:newTrait" spec="beast.base.spec.inference.parameter.BoolVectorParam" dimension="2">false true</stateNode>
+            <parameter id="relativeGeoRates.s:newTrait" spec="beast.base.spec.inference.parameter.RealVectorParam" domain="PositiveReal" dimension="2" name="stateNode">1.0 1.0</parameter>
+            <parameter id="traitClockRate.c:newTrait" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" name="stateNode">0.004</parameter>
+            <parameter id="typeLinkedRates.c:GLSS-4F0A" spec="beast.base.spec.inference.parameter.RealVectorParam" domain="NonNegativeReal" dimension="2" name="stateNode">0.002223 3.14E-6</parameter>
             <parameter id="kappa.s:GLSS-4F0A" spec="parameter.RealParameter" lower="0.0" name="stateNode">2.0</parameter>
             <parameter id="freqParameter.s:GLSS-4F0A" spec="parameter.RealParameter" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>
         </state>
@@ -76,24 +76,24 @@ spec="beastclassic.evolution.alignment.AlignmentFromTrait"
 traitSet="@traitSet.newTrait">
                 <userDataType id="traitDataType.newTrait" spec="beast.base.evolution.datatype.UserDataType" codeMap="H=0,N=1,? = 0 1 " codelength="-1" states="2"/>
             </data>
-            <siteModel id="geoSiteModel.s:newTrait" spec="SiteModel" gammaCategoryCount="1">
-                <parameter id="mutationRate.s:newTrait" spec="parameter.RealParameter" estimate="false" name="mutationRate">1.0</parameter>
-                <parameter id="gammaShape.s:newTrait" spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
-                <parameter id="proportionInvariant.s:newTrait" spec="parameter.RealParameter" estimate="false" lower="0.0" name="proportionInvariant" upper="1.0">0.0</parameter>
+            <siteModel id="geoSiteModel.s:newTrait" spec="beast.base.spec.evolution.sitemodel.SiteModel" gammaCategoryCount="1">
+                <parameter id="mutationRate.s:newTrait" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" name="mutationRate">1.0</parameter>
+                <parameter id="gammaShape.s:newTrait" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" name="shape">1.0</parameter>
+                <parameter id="proportionInvariant.s:newTrait" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="UnitInterval" estimate="false" name="proportionInvariant">0.0</parameter>
                 <substModel id="svs.s:newTrait" spec="tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel" rateIndicator="@rateIndicator.s:newTrait" rates="@relativeGeoRates.s:newTrait" symmetric="false">
-                    <frequencies id="traitfreqs.s:newTrait" spec="Frequencies">
-                        <parameter id="traitfrequencies.s:newTrait" spec="parameter.RealParameter" dimension="2" name="frequencies">0.5 0.5</parameter>
+                    <frequencies id="traitfreqs.s:newTrait" spec="beast.base.spec.evolution.substitutionmodel.Frequencies">
+                        <frequencies id="traitfrequencies.s:newTrait" spec="beast.base.spec.inference.parameter.SimplexParam" dimension="2" estimate="false" value="0.5"/>
                     </frequencies>
                 </substModel>
             </siteModel>
-            <branchRateModel id="StrictClockModel.c:newTrait" spec="beast.base.evolution.branchratemodel.StrictClockModel" clock.rate="@traitClockRate.c:newTrait"/>
+            <branchRateModel id="StrictClockModel.c:newTrait" spec="beast.base.spec.evolution.branchratemodel.StrictClockModel" clock.rate="@traitClockRate.c:newTrait"/>
         </init>
         <distribution id="posterior" spec="CompoundDistribution">
             <distribution id="prior" spec="CompoundDistribution">
                 <distribution id="GRTBayesianSkyline.t:GLSS-4F0A" spec="tyche.evolution.tree.GRTBayesianSkyline" groupSizes="@bGroupSizes.t:GLSS-4F0A" popSizes="@bPopSizes.t:GLSS-4F0A">
                     <treeIntervals id="GRTBSPTreeIntervals.t:GLSS-4F0A" spec="tyche.evolution.tree.GRTIntervals" tree="@Tree.t:GLSS-4F0A"/>
                 </distribution>
-                <distribution id="MarkovChainedPopSizes.t:GLSS-4F0A" spec="distribution.MarkovChainDistribution" jeffreys="true" parameter="@bPopSizes.t:GLSS-4F0A"/>
+                <distribution id="MarkovChainedPopSizes.t:GLSS-4F0A" spec="beast.base.spec.inference.distribution.MarkovChainDistribution" jeffreys="true" param="@bPopSizes.t:GLSS-4F0A"/>
                 <prior id="FrequenciesPrior.s:GLSS-4F0A" name="distribution" x="@freqParameter.s:GLSS-4F0A">
                     <distr id="Dirichlet.0" spec="distribution.Dirichlet">
                         <parameter id="RealParameter.7" spec="parameter.RealParameter" dimension="4" estimate="false" name="alpha">4.0 4.0 4.0 4.0</parameter>
@@ -105,30 +105,26 @@ traitSet="@traitSet.newTrait">
                         <parameter id="RealParameter.6" spec="parameter.RealParameter" estimate="false" name="S">0.5</parameter>
                     </LogNormal>
                 </prior>
-                <prior id="relativeGeoRatesPrior.s:newTrait" name="distribution" x="@relativeGeoRates.s:newTrait">
-                    <Gamma id="Gamma.1" name="distr">
-                        <parameter id="RealParameter.3" spec="parameter.RealParameter" estimate="false" name="alpha">0.1</parameter>
-                        <parameter id="RealParameter.4" spec="parameter.RealParameter" estimate="false" name="beta">1.0</parameter>
-                    </Gamma>
-                </prior>
-                <prior id="geoclockPrior.c:newTrait" name="distribution" x="@traitClockRate.c:newTrait">
-                    <Gamma id="Gamma.0" name="distr">
-                        <parameter id="RealParameter.1" spec="parameter.RealParameter" estimate="false" name="alpha">0.001</parameter>
-                        <parameter id="RealParameter.2" spec="parameter.RealParameter" estimate="false" name="beta">5.0</parameter>
-                    </Gamma>
-                </prior>
-                <prior id="typeLinkedRatesPrior.c:GLSS-4F0A" name="distribution" x="@typeLinkedRates.c:GLSS-4F0A">
-                    <distr id="ElementwiseParametricDistribution.typeLinkedRates.c:GLSS-4F0A" spec="tyche.inference.distribution.ElementwiseParametricDistribution">
-                        <Normal id="Normal.typeLinkedRates.1.c:GLSS-4F0A" name="distribution">
-                            <parameter id="mean1.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="mean">0.002223</parameter>
-                            <parameter id="sigma1.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="sigma">2.223E-6</parameter>
-                        </Normal>
-                        <Normal id="Normal.typeLinkedRates.2.c:GLSS-4F0A" name="distribution">
-                            <parameter id="mean2.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="mean">3.14E-6</parameter>
-                            <parameter id="sigma2.c:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" name="sigma">3.14E-9</parameter>
-                        </Normal>
+                <distribution id="relativeGeoRatesPrior.s:newTrait" spec="beast.base.spec.inference.distribution.IID" param="@relativeGeoRates.s:newTrait">
+                    <distr id="Gamma.1" spec="beast.base.spec.inference.distribution.Gamma">
+                        <alpha spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="0.1"/>
+                        <theta spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="1.0"/>
                     </distr>
-                </prior>
+                </distribution>
+                <distribution id="geoclockPrior.c:newTrait" spec="beast.base.spec.inference.distribution.Gamma" param="@traitClockRate.c:newTrait">
+                    <alpha spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="0.001"/>
+                    <theta spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="5.0"/>
+                </distribution>
+                <distribution id="typeLinkedRatesPrior.c:GLSS-4F0A" spec="tyche.inference.distribution.ElementwisePrior" param="@typeLinkedRates.c:GLSS-4F0A">
+                    <distribution id="typeLinkedRatesPriorNormal.1" spec="beast.base.spec.inference.distribution.Normal">
+                        <mean spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="0.002223"/>
+                        <sigma spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="2.223E-6"/>
+                    </distribution>
+                    <distribution id="typeLinkedRatesPriorNormal.2" spec="beast.base.spec.inference.distribution.Normal">
+                        <mean spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" estimate="false" value="3.14E-6"/>
+                        <sigma spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" value="3.14E-9"/>
+                    </distribution>
+                </distribution>
                 <distribution id="Germline.prior.t:GLSS-4F0A" spec="beast.base.evolution.tree.MRCAPrior" tipsonly="true" tree="@Tree.t:GLSS-4F0A">
                     <taxonset id="germSet.t:GLSS-4F0A" spec="TaxonSet">
                         <taxon id="Germline" spec="Taxon"/>
@@ -144,18 +140,17 @@ traitSet="@traitSet.newTrait">
                 </distribution>
             </distribution>
             <distribution id="likelihood" spec="CompoundDistribution" useThreads="true">
-                <distribution id="treeLikelihood.GLSS-4F0A" spec="ThreadedTreeLikelihood" data="@GLSS-4F0A" tree="@Tree.t:GLSS-4F0A">
-                    <siteModel id="SiteModel.s:GLSS-4F0A" spec="SiteModel">
-                        <parameter id="mutationRate.s:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" lower="0.0" name="mutationRate">1.0</parameter>
-                        <parameter id="gammaShape.s:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" lower="0.1" name="shape">1.0</parameter>
-                        <parameter id="proportionInvariant.s:GLSS-4F0A" spec="parameter.RealParameter" estimate="false" lower="0.0" name="proportionInvariant" upper="1.0">0.0</parameter>
+                <distribution id="treeLikelihood.GLSS-4F0A" spec="beast.base.spec.evolution.likelihood.TreeLikelihood" data="@GLSS-4F0A" tree="@Tree.t:GLSS-4F0A">
+                    <siteModel id="SiteModel.s:GLSS-4F0A" spec="beast.base.spec.evolution.sitemodel.SiteModel">
+                        <parameter id="mutationRate.s:GLSS-4F0A" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" name="mutationRate">1.0</parameter>
+                        <parameter id="gammaShape.s:GLSS-4F0A" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" estimate="false" name="shape">1.0</parameter>
+                        <parameter id="proportionInvariant.s:GLSS-4F0A" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="UnitInterval" estimate="false" name="proportionInvariant">0.0</parameter>
                         <substModel id="hky.s:GLSS-4F0A" spec="HKY" kappa="@kappa.s:GLSS-4F0A">
                             <frequencies id="estimatedFreqs.s:GLSS-4F0A" spec="Frequencies" frequencies="@freqParameter.s:GLSS-4F0A"/>
                         </substModel>
                     </siteModel>
                     <branchRateModel id="tycheBranchRates.c:GLSS-4F0A" spec="tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel" nodeTypes="@nodeTypes.newTrait" substitutionModel="@svs.s:newTrait" typeLinkedRates="@typeLinkedRates.c:GLSS-4F0A" typeSwitchClockRate="@traitClockRate.c:newTrait">
-                        <parameter id="expectedOccupancies.c:GLSS-4F0A" spec="parameter.RealParameter" dimension="7" lower="0.0" name="expectedOccupancy" upper="1.0">0.0 0.0 0.0 0.0 0.0 0.0 0.0</parameter>
-                        <parameter id="tycheDummyClock.rate:GLSS-4F0A" spec="parameter.RealParameter" name="clock.rate">1.0</parameter>
+                        <parameter id="tycheDummyClock.rate:GLSS-4F0A" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" name="clock.rate">1.0</parameter>
                     </branchRateModel>
                 </distribution>
                 <distribution idref="traitedtreeLikelihood.newTrait"/>
@@ -163,25 +158,22 @@ traitSet="@traitSet.newTrait">
         </distribution>
         <operator id="GRTBayesianSkylineBICEPSEpochTop.t:GLSS-4F0A" spec="EpochFlexOperator" scaleFactor="0.1" tree="@Tree.t:GLSS-4F0A" weight="2.0"/>
         <operator id="GRTBayesianSkylineBICEPSEpochAll.t:GLSS-4F0A" spec="EpochFlexOperator" fromOldestTipOnly="false" scaleFactor="0.1" tree="@Tree.t:GLSS-4F0A" weight="2.0"/>
-        <operator id="GRTBayesianSkylineBICEPSTreeFlex.t:GLSS-4F0A" spec="TreeStretchOperator" scaleFactor="0.01" tree="@Tree.t:GLSS-4F0A" weight="2.0"/>
         <operator id="GRTBayesianSkylineTreeRootScaler.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTBactrianScaleOperator" rootOnly="true" scaleFactor="0.1" tree="@Tree.t:GLSS-4F0A" weight="3.0"/>
         <operator id="GRTBayesianSkylineUniformOperator.t:GLSS-4F0A" spec="kernel.BactrianNodeOperator" tree="@Tree.t:GLSS-4F0A" weight="30.0"/>
-        <operator id="GRTBayesianSkylineSubtreeSlide.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTSubtreeSlide" tree="@Tree.t:GLSS-4F0A" weight="15.0"/>
+        <operator id="GRTBayesianSkylineSubtreeSlide.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTBactrianSubtreeSlide" tree="@Tree.t:GLSS-4F0A" weight="15.0"/>
         <operator id="GRTBayesianSkylineNarrow.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTExchange" tree="@Tree.t:GLSS-4F0A" weight="15.0"/>
         <operator id="GRTBayesianSkylineWide.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTExchange" isNarrow="false" tree="@Tree.t:GLSS-4F0A" weight="3.0"/>
         <operator id="GRTBayesianSkylineWilsonBalding.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTWilsonBalding" tree="@Tree.t:GLSS-4F0A" weight="3.0"/>
-        <operator id="popSizesScaler.t:GLSS-4F0A" spec="kernel.BactrianScaleOperator" parameter="@bPopSizes.t:GLSS-4F0A" weight="15.0"/>
-        <operator id="groupSizesDelta.t:GLSS-4F0A" spec="operator.kernel.BactrianDeltaExchangeOperator" integer="true" weight="6.0">
-            <intparameter idref="bGroupSizes.t:GLSS-4F0A"/>
-        </operator>
-        <operator id="georateScaler.s:newTrait" spec="ScaleOperator" parameter="@relativeGeoRates.s:newTrait" scaleAllIndependently="true" scaleFactor="0.99" weight="30.0"/>
-        <operator id="geoMuScaler.c:newTrait" spec="ScaleOperator" parameter="@traitClockRate.c:newTrait" scaleFactor="0.9" weight="3.0"/>
-        <operator id="nodeTypesUniformTreeOperator.newTrait" spec="tyche.evolution.operator.LeafConsciousTypeTreeOperator" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
-        <operator id="nodeTypesSubtreeTypeSwitchOperator.newTrait" spec="tyche.evolution.operator.SubtreeTypeSwitchOperator" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
-        <operator id="nodeTypeHeightOperator.newTrait" spec="tyche.evolution.operator.UniformNodeTypeHeightOperator" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
-        <operator id="rootHeightAndTypeOperator.newTrait" spec="tyche.evolution.operator.CombinedRootOperator" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
-        <operator id="typeLinkedRatesScaler.c:GLSS-4F0A" spec="ScaleOperator" parameter="@typeLinkedRates.c:GLSS-4F0A" scaleFactor="0.9" weight="2.0">
-            <indicator id="typeLinkedRatesIndicator.c:GLSS-4F0A" spec="parameter.BooleanParameter" dimension="2" estimate="false">true true</indicator>
+        <operator id="popSizesScaler.t:GLSS-4F0A" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@bPopSizes.t:GLSS-4F0A" weight="15.0"/>
+        <operator id="groupSizesDelta.t:GLSS-4F0A" spec="beast.base.spec.inference.operator.DeltaExchangeOperator" integer="true" weight="6.0" ivparameter="@bGroupSizes.t:GLSS-4F0A"/>
+        <operator id="georateScaler.s:newTrait" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@relativeGeoRates.s:newTrait" scaleAllIndependently="true" scaleFactor="0.99" weight="30.0"/>
+        <operator id="geoMuScaler.c:newTrait" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@traitClockRate.c:newTrait" scaleFactor="0.9" weight="3.0"/>
+        <operator id="nodeTypesUniformTreeOperator.newTrait" spec="tyche.evolution.operator.LeafConsciousTypeTreeOperator" numberOfTypes="2" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
+        <operator id="nodeTypesSubtreeTypeSwitchOperator.newTrait" spec="tyche.evolution.operator.SubtreeTypeSwitchOperator" numberOfTypes="2" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
+        <operator id="nodeTypeHeightOperator.newTrait" spec="tyche.evolution.operator.UniformNodeTypeHeightOperator" numberOfTypes="2" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
+        <operator id="rootHeightAndTypeOperator.newTrait" spec="tyche.evolution.operator.CombinedRootOperator" numberOfTypes="2" nodeTypes="@nodeTypes.newTrait" traitName="tycheType" tree="@Tree.t:GLSS-4F0A" weight="20.0"/>
+        <operator id="typeLinkedRatesScaler.c:GLSS-4F0A" spec="beast.base.spec.inference.operator.ScaleOperator" parameter="@typeLinkedRates.c:GLSS-4F0A" scaleFactor="0.9" weight="2.0">
+            <indicator id="typeLinkedRatesIndicator.c:GLSS-4F0A" spec="beast.base.spec.inference.parameter.BoolVectorParam" dimension="2" estimate="false">true true</indicator>
         </operator>
         <operator id="KappaScaler.s:GLSS-4F0A" spec="AdaptableOperatorSampler" weight="0.05">
             <parameter idref="kappa.s:GLSS-4F0A"/>
@@ -233,7 +225,7 @@ traitSet="@traitSet.newTrait">
             <log id="treeWithTraitLoggerItem.t:GLSS-4F0A" spec="beastclassic.evolution.tree.TreeWithTraitLogger" tree="@Tree.t:GLSS-4F0A">
                 <metadata idref="posterior"/>
                 <metadata idref="traitedtreeLikelihood.newTrait"/>
-                <metadata idref="expectedOccupancies.c:GLSS-4F0A"/>
+                <metadata id="expectedOccupancies" spec="tyche.evolution.branchratemodel.TycheBranchValueView" clockModel="@tycheBranchRates.c:GLSS-4F0A" tree="@Tree.t:GLSS-4F0A" value="expectedOccupancy"/>
             </log>
         </logger>
         <operatorschedule id="OperatorSchedule" spec="OperatorSchedule"/>

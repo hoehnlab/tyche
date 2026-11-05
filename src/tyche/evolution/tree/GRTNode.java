@@ -387,6 +387,56 @@ public class GRTNode extends Node {
         return dof;
     }
 
+    /**
+     * Interval scaling (BEAST 3's {@code Tree.scale} calls this, not {@link #scale(double)}): multiply each internal
+     * node's margin (its height above its tallest child) by {@code scale}, keeping tip heights fixed.
+     * <p>
+     * For the root of a germline-rooted tree the germline is not a child in this sense: its height is always the root
+     * height minus {@code EPSILON}, so it follows the root rather than constraining it. The root's margin is therefore
+     * measured from its non-germline child, only that margin is scaled, and the germline is moved together with the
+     * root. The germline's {@code EPSILON} offset is never scaled.
+     * <p>
+     * On a tree whose tips are all at height 0 this gives the same result as {@link #scale(double)}.
+     * @param scale positive, finite scale factor
+     * @throws IllegalArgumentException if the factor is zero, negative, NaN or infinite. BEAST's {@code Node.intervalScale}
+     *         assumes a positive factor and does not check, and {@code Tree.scale} returns NaN or -infinity for it, so a
+     *         caller that proposes such a factor (e.g. a multivariate normal move on the tree's scalable value) would be left
+     *         with negative branch lengths. Throwing before anything is changed is the rejection signal the {@code Scalable}
+     *         contract uses.
+     * @return number of margins scaled (for the Hastings ratio): one per internal non-fake node, including the root
+     */
+    @Override
+    public int intervalScale(final double scale) {
+        if (!(scale > 0) || Double.isInfinite(scale)) {
+            throw new IllegalArgumentException("Scale gives negative branch length: the scale factor must be positive and finite, but is " + scale);
+        }
+        if (isLeaf() || !(isRoot() && hasGermline())) {
+            // everything except the root of a germline-rooted tree behaves as in BEAST
+            return super.intervalScale(scale);
+        }
+        final Node other;
+        if (getLeft() == germline) {
+            other = getRight();
+        } else if (getRight() == germline) {
+            other = getLeft();
+        } else {
+            throw new RuntimeException("GRTNode has germline associated but neither left nor right child matches germline.");
+        }
+        if (other == null) {
+            // the germline is the only child: there is no interval to scale
+            return 0;
+        }
+        startEditing();
+        final double oldMargin = height - other.getHeight();
+        int scaledNodeCount = 1;
+        scaledNodeCount += other.intervalScale(scale);
+        // the root and the germline move together
+        adjustRootAndGermline(oldMargin * scale + other.getHeight());
+        isDirty |= Tree.IS_DIRTY;
+        germline.isDirty |= Tree.IS_DIRTY;
+        return scaledNodeCount;
+    }
+
     public List<Node> getSubtreeNodesAsArray() {
         List<Node> nodes = new ArrayList<>();
         nodes.add(this);

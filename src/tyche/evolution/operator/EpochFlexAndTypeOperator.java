@@ -77,7 +77,7 @@ public class EpochFlexAndTypeOperator extends LeafConsciousTypeTreeOperator {
         int newType;
         do {
             newType = getRandomType();
-        } while (newType == nodeTypes.getValue(nodeNum));
+        } while (newType == nodeTypes.get(nodeNum));
         return newType;
     }
     protected void changeType(Node node) {

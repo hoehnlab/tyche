@@ -27,10 +27,10 @@ import beast.base.core.Log;
 import beast.base.evolution.operator.TreeOperator;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
-import beast.base.inference.parameter.IntegerParameter;
-import beast.base.inference.parameter.Parameter;
+import beast.base.spec.inference.parameter.IntVectorParam;
 import beast.base.inference.util.InputUtil;
 import beast.base.util.Randomizer;
+import tyche.evolution.NodeTypeBounds;
 import tyche.evolution.tree.GRTNode;
 import tyche.evolution.tree.GermlineRootTree;
 import tyche.evolution.tree.MetadataTree;
@@ -53,16 +53,17 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
     /**
      * input object for the node types parameter to operate on
      */
-    final public Input<IntegerParameter> nodeTypesInput = new Input<>("nodeTypes", "a real or integer parameter to sample individual values for", Input.Validate.REQUIRED, Parameter.class);
+    final public Input<IntVectorParam<?>> nodeTypesInput = new Input<>("nodeTypes", "the integer vector parameter holding the type of each node", Input.Validate.REQUIRED);
 
     /**
      * input object for the traitName if the original tip traits are stored on the tree -- for checking ambiguity
      */
+    final public Input<Integer> numberOfTypesInput = new Input<>("numberOfTypes", "the number of different types, e.g. 2 for GC and non-GC. Needed unless nodeTypes carries an upper bound.", Input.Validate.OPTIONAL);
     final public Input<String> traitNameInput = new Input<>("traitName", "a string of the traitname", Input.Validate.OPTIONAL);
     /**
      * the node types parameter to operate on
      */
-    protected IntegerParameter nodeTypes;
+    protected IntVectorParam<?> nodeTypes;
     protected int lowerInt, upperInt;
 
     protected int germlineNum = -1;
@@ -118,8 +119,8 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
     public void initAndValidate() {
         nodeTypes = nodeTypesInput.get();
 
-        lowerInt = nodeTypes.getLower();
-        upperInt = nodeTypes.getUpper();
+        lowerInt = NodeTypeBounds.lower(nodeTypes);
+        upperInt = NodeTypeBounds.upper(nodeTypes, numberOfTypesInput.get());
 
         traitName = traitNameInput.get();
 
@@ -160,13 +161,13 @@ public class LeafConsciousTypeTreeOperator extends TreeOperator {
             boolean nodeIsGermline = nodeNum == germlineNum;
             boolean nodeIsRoot = nodeNum == tree.getRoot().getNr();
             if (nodeIsGermline || nodeIsRoot) {
-                nodeTypes.setValue(germlineNum, newValue);
-                nodeTypes.setValue(tree.getRoot().getNr(), newValue);
+                nodeTypes.set(germlineNum, newValue);
+                nodeTypes.set(tree.getRoot().getNr(), newValue);
                 return;
             }
             // if this is GRT with germline, but this node isn't root or germline, we can just set value normally
         }
-        nodeTypes.setValue(nodeNum, newValue);
+        nodeTypes.set(nodeNum, newValue);
     }
 
     /**

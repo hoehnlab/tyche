@@ -52,14 +52,25 @@ public class TycheMixedSwitchClockModel extends AbstractTycheTypeLinkedClockMode
             return 1.0;
         }
 
-        int type = (int) nodeTypes.getArrayValue(node.getNr());
-        int parentType = (int) nodeTypes.getArrayValue(node.getParent().getNr());
+        int type = nodeTypes.get(node.getNr());
+        int parentType = nodeTypes.get(node.getParent().getNr());
         if (type == parentType) {
             return getTypeLinkedRate(type);
         }
-        double typeTime = node.getLength() * typeSwitchClockRate.getArrayValue();
-        double[] occupancy = getOccupancy(parentType, type, typeTime, node.getNr());
+        double[] occupancy = getBranchOccupancy(node);
         return (getTypeLinkedRate(0)*occupancy[0] + getTypeLinkedRate(1)*occupancy[1]);
+    }
+
+    @Override
+    public double[] getBranchOccupancy(final Node node) {
+        int type = nodeTypes.get(node.getNr());
+        int parentType = nodeTypes.get(node.getParent().getNr());
+        if (type == parentType) {
+            // same type at both ends: the branch is assumed to be entirely in that type
+            return type == 0 ? new double[]{1.0, 0.0} : new double[]{0.0, 1.0};
+        }
+        double typeTime = node.getLength() * typeSwitchClockRate.get();
+        return getOccupancy(parentType, type, typeTime);
     }
 
 }

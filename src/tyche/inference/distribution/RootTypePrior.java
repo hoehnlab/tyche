@@ -20,17 +20,21 @@
 
 package tyche.inference.distribution;
 
-import beast.base.core.*;
+import beast.base.core.BEASTInterface;
+import beast.base.core.Citation;
+import beast.base.core.Description;
+import beast.base.core.Input;
 import beast.base.inference.Distribution;
 import beast.base.inference.State;
-import beast.base.inference.distribution.ParametricDistribution;
-import beast.base.inference.parameter.RealParameter;
-import org.apache.commons.math.MathException;
+import beast.base.spec.type.IntScalar;
+import beast.base.spec.type.IntVector;
+import beast.base.spec.type.Simplex;
+import beast.base.spec.type.Tensor;
+import tyche.TycheCitation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import tyche.TycheCitation;
 
 /**
  * @author Jessie Fielding
@@ -44,56 +48,51 @@ import tyche.TycheCitation;
 @Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
 public class RootTypePrior extends Distribution {
 
-    public Input<Function> argInput = new Input<Function>("arg", "argument of distribution, recommend root trait");
+    public Input<Tensor<?, ?>> argInput = new Input<>("arg", "argument of distribution, recommend root trait (an integer scalar such as tyche.inference.distribution.RootType)");
+    public Input<Simplex> typeProbabilitiesInput = new Input<>("typeProbabilities", "probabilities representing the probability of the type represented by the index, i.e. the 0-indexed value of this parameter should be the probability that root = type 0", Input.Validate.REQUIRED);
 
-    public Input<RealParameter> typeProbabilitiesInput = new Input<>("typeProbabilities", "probabilities representing the probability of the type represented by the index, i.e. the 0-indexed value of this parameter should be the probability that root = type 0", Input.Validate.REQUIRED);
-
-    protected Function arg;
-    protected RealParameter typeProbabilities;
+    protected Tensor<?, ?> arg;
+    protected Simplex typeProbabilities;
 
     @Override
     public void initAndValidate() {
         arg = argInput.get();
         typeProbabilities = typeProbabilitiesInput.get();
-        // TODO: check type probabilities sum to 1 (or close enough)
-
-//            throw new IllegalArgumentException("Number of prior distributions must match parameter dimension");
-
+        if (arg != null && !(arg instanceof IntScalar) && !(arg instanceof IntVector)) {
+            throw new IllegalArgumentException("arg must be an integer scalar or an integer vector, but is " + arg.getClass().getName());
+        }
     }
 
     @Override
     public double calculateLogP() {
         logP = 0.0;
-        double prob = 1.0;
-        int [] x = new int[arg.getDimension()];
-        for (int i = 0; i < x.length; i++) {
-            x[i] = (int) arg.getArrayValue(i);
-            prob *= typeProbabilities.getArrayValue(x[i]);
+        if (arg instanceof IntScalar<?> scalar) {
+            logP = Math.log(typeProbabilities.get(scalar.get()));
+        } else if (arg instanceof IntVector<?> vector) {
+            double prob = 1.0;
+            for (int i = 0; i < vector.size(); i++) {
+                prob *= typeProbabilities.get(vector.get(i));
+            }
+            logP = Math.log(prob);
         }
-        logP = Math.log(prob);
         return logP;
     }
-
 
     @Override
     public List<String> getArguments() {
         List<String> arguments = new ArrayList<>();
-
         if (arg != null) {
             arguments.add(((BEASTInterface) arg).getID());
         }
-
         return arguments;
     }
 
     @Override
     public List<String> getConditions() {
         List<String> conditions = new ArrayList<>();
-
         if (typeProbabilities != null) {
             conditions.add(((BEASTInterface) typeProbabilities).getID());
         }
-
         return conditions;
     }
 
@@ -101,14 +100,7 @@ public class RootTypePrior extends Distribution {
     public void sample(State state, Random random) {
         if (sampledFlag)
             return;
-
         sampledFlag = true;
-
-        // Cause conditional parameters to be sampled
         sampleConditions(state, random);
-        Double[] newx = new Double[arg.getDimension()];
-
-        // wait if we can't set an arg, does it even matter?
-
     }
 }

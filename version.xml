@@ -1,7 +1,6 @@
 <package name="TyCHE" version="1.0.1">
-    <depends on='BEAST.base' atleast='2.7.6'/>
-    <depends on='BEAST.app' atleast='2.7.6'/>
-    <depends on='BEAST_CLASSIC' atleast='1.6.2'/>
+    <depends on='BEAST.base' atleast='2.8.0'/>
+    <depends on='BEAST_CLASSIC' atleast='1.7.0'/>
 
     <service type="beast.base.evolution.datatype.DataType">
         <provider classname="beast.base.evolution.datatype.Nucleotide"/>
@@ -27,6 +26,7 @@
         <provider classname="tyche.evolution.operator.GRTWilsonBalding"/>
         <provider classname="tyche.inference.distribution.ElementwisePrior"/>
         <provider classname="tyche.evolution.branchratemodel.TycheMixedSwitchClockModel"/>
+        <provider classname="tyche.evolution.branchratemodel.TycheBranchValueView"/>
         <provider classname="tyche.evolution.tree.GRTNode"/>
         <provider classname="tyche.evolution.tree.GermlineRootTree"/>
         <provider classname="tyche.evolution.tree.MetadataTree"/>

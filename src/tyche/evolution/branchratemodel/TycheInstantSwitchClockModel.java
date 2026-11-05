@@ -48,7 +48,7 @@ public class TycheInstantSwitchClockModel extends AbstractTycheTypeLinkedClockMo
             return 1.0;
         }
 //        get this node's type
-        int type = (int) nodeTypes.getArrayValue(node.getNr());
+        int type = nodeTypes.get(node.getNr());
         return getTypeLinkedRate(type);
 
     }

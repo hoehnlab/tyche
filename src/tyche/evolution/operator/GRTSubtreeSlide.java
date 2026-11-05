@@ -35,17 +35,16 @@ import tyche.evolution.tree.GermlineRootTree;
 import java.text.DecimalFormat;
 import java.util.*;
 
-
-import java.util.ArrayList;
-import java.util.List;
 import tyche.TycheCitation;
 
 
 /**
  * SubtreeSlide Operator that will appropriately handle if the provided Tree is a GermlineRootTree
+ * @deprecated BEAST 3 replaces the SubtreeSlide this extends with BactrianSubtreeSlide. Use {@link GRTBactrianSubtreeSlide}.
  */
-@Description("SubtreeSlide Operator that will appropriately handle if the provided Tree is a GermlineRootTree.")
+@Description("Deprecated: SubtreeSlide Operator that will appropriately handle if the provided Tree is a GermlineRootTree. Use GRTBactrianSubtreeSlide, which is built on BEAST 3's BactrianSubtreeSlide.")
 @Citation(value = TycheCitation.TEXT, year = TycheCitation.YEAR, firstAuthorSurname = TycheCitation.FIRST_AUTHOR, DOI = TycheCitation.DOI)
+@Deprecated
 public class GRTSubtreeSlide extends SubtreeSlide implements GRTCompatibleOperator {
 
 

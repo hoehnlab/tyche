@@ -24,16 +24,14 @@ package tyche.evolution.tree;
 import beast.base.core.BEASTInterface;
 import beast.base.core.Citation;
 import beast.base.core.Description;
+import beast.base.core.Input;
 import beast.base.core.Log;
 import beast.base.evolution.operator.Exchange;
-import beast.base.evolution.operator.ScaleOperator;
-import beast.base.evolution.operator.SubtreeSlide;
 import beast.base.evolution.operator.kernel.BactrianSubtreeSlide;
 import beast.base.evolution.operator.WilsonBalding;
-import beast.base.evolution.operator.kernel.BactrianScaleOperator;
 import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
-import beast.base.evolution.tree.coalescent.RandomTree;
+import beast.base.spec.evolution.tree.coalescent.RandomTree;
 import beast.base.inference.Operator;
 import beast.base.inference.StateNode;
 import beast.pkgmgmt.BEASTClassLoader;
@@ -62,17 +60,30 @@ public class GermlineRootTree extends MetadataTree {
 
     protected String nodeType;
 
+    // Operators are matched by class name so that this class never refers to a class BEAST 3 has deprecated.
+    private static final String LEGACY_SCALE = "beast.base.evolution.operator.ScaleOperator";
+    private static final String LEGACY_BACTRIAN_SCALE = "beast.base.evolution.operator.kernel.BactrianScaleOperator";
+    private static final String LEGACY_SUBTREE_SLIDE = "beast.base.evolution.operator.SubtreeSlide";
+    private static final String SPEC_SCALE_TREE = "beast.base.spec.evolution.operator.ScaleTreeOperator";
     private static final Map<String, String> GRTCompatibleOperatorsSuggestions = new HashMap<>(){
         {
             put(WilsonBalding.class.getName(), GRTWilsonBalding.class.getName());
             put(Exchange.class.getName(), GRTExchange.class.getName());
-            put(BactrianScaleOperator.class.getName(), GRTBactrianScaleOperator.class.getName());
-            put(ScaleOperator.class.getName(), GRTScaleOperator.class.getName());
-            put(SubtreeSlide.class.getName(), GRTSubtreeSlide.class.getName());
+            put(SPEC_SCALE_TREE, GRTBactrianScaleOperator.class.getName());
+            put(LEGACY_BACTRIAN_SCALE, GRTBactrianScaleOperator.class.getName());
+            put(LEGACY_SCALE, GRTBactrianScaleOperator.class.getName());
+            put(LEGACY_SUBTREE_SLIDE, GRTBactrianSubtreeSlide.class.getName());
             put(BactrianSubtreeSlide.class.getName(), GRTBactrianSubtreeSlide.class.getName());
         }
     };
 
+    /** whether the class, or any class it extends, has this name */
+    private static boolean hasAncestorNamed(Class<?> c, String name) {
+        for (Class<?> k = c; k != null; k = k.getSuperclass()) {
+            if (k.getName().equals(name)) return true;
+        }
+        return false;
+    }
 
     /**
      * Initialize and validate the tree.
@@ -156,19 +167,19 @@ public class GermlineRootTree extends MetadataTree {
      */
     protected boolean isIncompatibleOperator(BEASTInterface o) {
         boolean isPotentiallyIncompatible = false;
-        if (o instanceof ScaleOperator) {
-            ScaleOperator so = (ScaleOperator) o;
+        Class<?> c = o.getClass();
+        if (hasAncestorNamed(c, SPEC_SCALE_TREE) || hasAncestorNamed(c, LEGACY_SCALE) || hasAncestorNamed(c, LEGACY_BACTRIAN_SCALE)) {
             // if it's not an explicitly compatible scale operator, check if it's a case that breaks (i.e. rootOnly tree scaler)
-            if (so.rootOnlyInput.get() && so.treeInput.get() != null) {
+            Input<?> rootOnly = o.getInput("rootOnly");
+            Input<?> tree = o.getInput("tree");
+            if (rootOnly != null && Boolean.TRUE.equals(rootOnly.get()) && tree != null && tree.get() != null) {
                 isPotentiallyIncompatible = true;
             }
-        } else if (o instanceof Exchange || o instanceof SubtreeSlide || o instanceof BactrianSubtreeSlide || o instanceof WilsonBalding) {
+        } else if (o instanceof Exchange || o instanceof BactrianSubtreeSlide || o instanceof WilsonBalding || hasAncestorNamed(c, LEGACY_SUBTREE_SLIDE)) {
             isPotentiallyIncompatible = true;
         }
-
         return isPotentiallyIncompatible && !(o instanceof GRTCompatibleOperator);
     }
-
 
     /**
      * checks all beast "outputs" associated with this tree to identify scale operators that are not GRTCompatibleOperators
@@ -212,6 +223,70 @@ public class GermlineRootTree extends MetadataTree {
         if (root instanceof GRTNode) {
             ((GRTNode) root).resetGermline();
         }
+    }
+
+    /**
+     * BEAST's {@code Tree.scale}, followed by a check that no node ended up above its parent (or at NaN/infinity).
+     * {@link GRTNode#intervalScale} already refuses a zero, negative or non-finite factor before changing anything; this
+     * second check catches any other way a scale could leave a negative branch length, and names the node. It throws
+     * {@link IllegalArgumentException}, which is the rejection signal the {@code Scalable} contract uses: a scale
+     * operator turns it into a rejected proposal instead of evaluating an invalid tree (which crashed MRCAPrior).
+     */
+    @Override
+    public double scale(final double scale) {
+        final double logJacobian = super.scale(scale);
+        for (final Node node : getNodesAsArray()) {
+            if (node.isRoot()) continue;
+            final double h = node.getHeight();
+            final double parentHeight = node.getParent().getHeight();
+            if (!(Double.isFinite(h) && Double.isFinite(parentHeight) && parentHeight >= h)) {
+                throw new IllegalArgumentException("Scale gives negative branch length: node " + node.getNr()
+                        + " (height " + h + ") is above its parent " + node.getParent().getNr()
+                        + " (height " + parentHeight + ") after scaling by " + scale);
+            }
+        }
+        return logJacobian;
+    }
+
+    /**
+     * The tree's position on its dilation axis (BEAST 3's {@code Scalable} contract): the sum of the margins (height
+     * above the tallest child) of all internal nodes. It is exactly {@code s}-equivariant under {@link #scale(double)},
+     * which scales the same margins.
+     * <p>
+     * BEAST's version measures the root's margin from its tallest child, which here is the germline, sitting
+     * {@code GRTNode.EPSILON} below the root. That would leave the real root branch out of the sum and put a constant
+     * 1e-7 in its place. Here the root's margin is measured from its non-germline child (see
+     * {@link GRTNode#getMinimumHeight()}), so the root branch is included and the germline offset is not.
+     * @return the sum of margins, in the tree's time units
+     */
+    @Override
+    public double getScalableValue() {
+        return sumMargins(getRoot());
+    }
+
+    private double sumMargins(final Node node) {
+        if (node.isLeaf()) {
+            return 0.0;
+        }
+        if (node.isFake()) {
+            // sampled-ancestor fake node: skip it and follow the child that is not the direct ancestor (as BEAST does)
+            return sumMargins(node.getLeft().isDirectAncestor() ? node.getRight() : node.getLeft());
+        }
+        final double minHeight;
+        if (node instanceof GRTNode) {
+            minHeight = ((GRTNode) node).getMinimumHeight();
+        } else {
+            double m = 0.0;
+            for (final Node child : node.getChildren()) {
+                m = Math.max(m, child.getHeight());
+            }
+            minHeight = m;
+        }
+        double sum = node.getHeight() - minHeight;
+        for (final Node child : node.getChildren()) {
+            sum += sumMargins(child);
+        }
+        return sum;
     }
 
     /**

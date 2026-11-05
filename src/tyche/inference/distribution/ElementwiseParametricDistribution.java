@@ -7,8 +7,6 @@ import beast.base.core.Input;
 import beast.base.inference.distribution.ParametricDistribution;
 import beast.base.inference.parameter.RealParameter;
 import beast.base.util.Randomizer;
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.Distribution;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +42,7 @@ public class ElementwiseParametricDistribution extends ParametricDistribution {
     }
 
     @Override
-    public Distribution getDistribution() {
+    public Object getDistribution() {
         return null;   // same as Dirichlet: no single-value shape exists
     }
 
@@ -69,11 +67,7 @@ public class ElementwiseParametricDistribution extends ParametricDistribution {
         for (int s = 0; s < size; s++) {
             Double[] x = new Double[dists.size()];
             for (int i = 0; i < dists.size(); i++) {
-                try {
-                    x[i] = dists.get(i).sample(1)[0][0];
-                } catch (MathException e) {
-                    throw new RuntimeException("Failed to sample element " + i, e);
-                }
+                x[i] = dists.get(i).sample(1)[0][0];
             }
             samples[s] = x;
         }
