@@ -75,6 +75,8 @@ public class GRTSubtreeSlide extends SubtreeSlide implements GRTCompatibleOperat
         } while (i.isRoot());
 
         final Node p = i.getParent();
+
+        if (p.isRoot()) return Double.NEGATIVE_INFINITY; // GRT root cannot move down, so moving it up would
         final Node CiP = getOtherChild(p, i);
         final Node PiP = p.getParent();
 
