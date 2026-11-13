@@ -1,0 +1,97 @@
+
+<beast version='2.0'
+       namespace='beastfx.app.beauti:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.branchratemodel:beast.base.evolution.speciation:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood:beast.evolution:beast.base.inference.distribution:tyche.evolution.branchratemodel:tyche.evolution.likelihood:tyche.evolution.substitutionmodel'>
+
+    <!-- TyCHE Clock Models -->
+    <mergewith point='clockModelTemplates'>
+
+        <!-- TyCHE Instant Switch Clock Model -->
+        <subtemplate id='TycheInstantSwitchClock' class='tyche.evolution.branchratemodel.TycheInstantSwitchClockModel'
+                     mainid='TycheInstantSwitchClock.c:$(n)'
+                     hmc='TycheClockRateScaler/index/=Operators/BactrianRateScaler/index/'>
+            <![CDATA[
+                <branchRateModel spec='tyche.evolution.branchratemodel.TycheInstantSwitchClockModel' id='TycheInstantSwitchClock.c:$(n)'>
+                    <typeLinkedRates id='typeLinkedRates.c:$(n)' spec='parameter.RealParameter' value='1.0' lower="0.0" estimate='false'/>
+                    <nodeTypes id='nodeTypes.c:$(n)' spec='parameter.IntegerParameter' value='0' estimate='false'/>
+                    <substitutionModel id='tycheSVS.c:$(n)' spec='tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel'/>
+                </branchRateModel>
+
+                <operator id='TycheClockRateScaler.c:$(n)' spec='kernel.BactrianScaleOperator' scaleFactor="0.1" weight="1" parameter='@typeLinkedRates.c:$(n)'/>
+            ]]>
+            <connect srcID='typeLinkedRates.c:$(n)' targetID='state' inputName='stateNode'
+                     if='inlikelihood(typeLinkedRates.c:$(n)) and typeLinkedRates.c:$(n)/estimate=true'/>
+            <connect srcID='nodeTypes.c:$(n)' targetID='state' inputName='stateNode'
+                     if='inlikelihood(nodeTypes.c:$(n)) and nodeTypes.c:$(n)/estimate=true'/>
+            <connect srcID='TycheClockRateScaler.c:$(n)' targetID='mcmc' inputName='operator'
+                     if='inlikelihood(typeLinkedRates.c:$(n)) and typeLinkedRates.c:$(n)/estimate=true'>Scale type-linked rates of
+                partition c:$(n)
+            </connect>
+        </subtemplate>
+
+        <!-- TyCHE Expected Occupancy Clock Model -->
+        <subtemplate id='TycheExpectedOccupancyClock' class='tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel'
+                     mainid='TycheExpectedOccupancyClock.c:$(n)'
+                     hmc='TycheOccupancyRateScaler/index/=Operators/BactrianRateScaler/index/'>
+            <![CDATA[
+                <branchRateModel spec='tyche.evolution.branchratemodel.TycheExpectedOccupancyClockModel' id='TycheExpectedOccupancyClock.c:$(n)'>
+                    <typeLinkedRates id='typeLinkedRatesOcc.c:$(n)' spec='parameter.RealParameter' value='1.0' lower="0.0" estimate='false'/>
+                    <nodeTypes id='nodeTypesOcc.c:$(n)' spec='parameter.IntegerParameter' value='0' estimate='false'/>
+                    <substitutionModel id='tycheSVSOcc.c:$(n)' spec='tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel'/>
+                </branchRateModel>
+
+                <operator id='TycheOccupancyRateScaler.c:$(n)' spec='kernel.BactrianScaleOperator' scaleFactor="0.1" weight="1" parameter='@typeLinkedRatesOcc.c:$(n)'/>
+            ]]>
+            <connect srcID='typeLinkedRatesOcc.c:$(n)' targetID='state' inputName='stateNode'
+                     if='inlikelihood(typeLinkedRatesOcc.c:$(n)) and typeLinkedRatesOcc.c:$(n)/estimate=true'/>
+            <connect srcID='nodeTypesOcc.c:$(n)' targetID='state' inputName='stateNode'
+                     if='inlikelihood(nodeTypesOcc.c:$(n)) and nodeTypesOcc.c:$(n)/estimate=true'/>
+            <connect srcID='TycheOccupancyRateScaler.c:$(n)' targetID='mcmc' inputName='operator'
+                     if='inlikelihood(typeLinkedRatesOcc.c:$(n)) and typeLinkedRatesOcc.c:$(n)/estimate=true'>Scale expected occupancy rates of
+                partition c:$(n)
+            </connect>
+        </subtemplate>
+
+        <!-- TyCHE Mixed Switch Clock Model -->
+        <subtemplate id='TycheMixedSwitchClock' class='tyche.evolution.branchratemodel.TycheMixedSwitchClockModel'
+                     mainid='TycheMixedSwitchClock.c:$(n)'
+                     hmc='TycheMixedRateScaler/index/=Operators/BactrianRateScaler/index/'>
+            <![CDATA[
+                <branchRateModel spec='tyche.evolution.branchratemodel.TycheMixedSwitchClockModel' id='TycheMixedSwitchClock.c:$(n)'>
+                    <typeLinkedRates id='typeLinkedRatesMix.c:$(n)' spec='parameter.RealParameter' value='1.0' lower="0.0" estimate='false'/>
+                    <nodeTypes id='nodeTypesMix.c:$(n)' spec='parameter.IntegerParameter' value='0' estimate='false'/>
+                    <substitutionModel id='tycheSVSMix.c:$(n)' spec='tyche.evolution.substitutionmodel.TycheSVSGeneralSubstitutionModel'/>
+                </branchRateModel>
+
+                <operator id='TycheMixedRateScaler.c:$(n)' spec='kernel.BactrianScaleOperator' scaleFactor="0.1" weight="1" parameter='@typeLinkedRatesMix.c:$(n)'/>
+            ]]>
+            <connect srcID='typeLinkedRatesMix.c:$(n)' targetID='state' inputName='stateNode'
+                     if='inlikelihood(typeLinkedRatesMix.c:$(n)) and typeLinkedRatesMix.c:$(n)/estimate=true'/>
+            <connect srcID='nodeTypesMix.c:$(n)' targetID='state' inputName='stateNode'
+                     if='inlikelihood(nodeTypesMix.c:$(n)) and nodeTypesMix.c:$(n)/estimate=true'/>
+            <connect srcID='TycheMixedRateScaler.c:$(n)' targetID='mcmc' inputName='operator'
+                     if='inlikelihood(typeLinkedRatesMix.c:$(n)) and typeLinkedRatesMix.c:$(n)/estimate=true'>Scale mixed switch rates of
+                partition c:$(n)
+            </connect>
+        </subtemplate>
+
+    </mergewith>
+
+    <!-- TyCHE Likelihoods and Substitution Models -->
+    <mergewith point='likelihoodTemplates'>
+        <subtemplate id='AncestralTypeLikelihood' class='tyche.evolution.likelihood.AncestralTypeLikelihood'
+                     mainid='ancestralTypeLikelihood.s:$(n)'>
+            <![CDATA[
+                <distribution spec='tyche.evolution.likelihood.AncestralTypeLikelihood' id='ancestralTypeLikelihood.s:$(n)'
+                              data='@$(n)' tree='@Tree.t:$(n)' siteModel='@SiteModel.s:$(n)' useJava='true' tag='states'>
+                    <nodeTypes id='ancestralTypes.s:$(n)' spec='parameter.IntegerParameter' value='0' estimate='false'/>
+                </distribution>
+            ]]>
+            <connect srcID='ancestralTypes.s:$(n)' targetID='state' inputName='stateNode'
+                     if='inlikelihood(ancestralTypeLikelihood.s:$(n)) and ancestralTypes.s:$(n)/estimate=true'/>
+            <connect srcID='ancestralTypeLikelihood.s:$(n)' targetID='likelihood' inputName='distribution'
+                     if='inlikelihood(ancestralTypeLikelihood.s:$(n))'/>
+        </subtemplate>
+    </mergewith>
+
+</beast>
+
