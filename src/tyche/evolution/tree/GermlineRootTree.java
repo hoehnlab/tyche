@@ -28,6 +28,7 @@ import beast.base.core.Log;
 import beast.base.evolution.operator.Exchange;
 import beast.base.evolution.operator.ScaleOperator;
 import beast.base.evolution.operator.SubtreeSlide;
+import beast.base.evolution.operator.TreeStretchOperator;
 import beast.base.evolution.operator.kernel.BactrianSubtreeSlide;
 import beast.base.evolution.operator.WilsonBalding;
 import beast.base.evolution.operator.kernel.BactrianScaleOperator;
@@ -162,7 +163,7 @@ public class GermlineRootTree extends MetadataTree {
             if (so.rootOnlyInput.get() && so.treeInput.get() != null) {
                 isPotentiallyIncompatible = true;
             }
-        } else if (o instanceof Exchange || o instanceof SubtreeSlide || o instanceof BactrianSubtreeSlide || o instanceof WilsonBalding) {
+        } else if (o instanceof Exchange || o instanceof SubtreeSlide || o instanceof BactrianSubtreeSlide || o instanceof WilsonBalding || o instanceof TreeStretchOperator) {
             isPotentiallyIncompatible = true;
         }
 
@@ -189,6 +190,10 @@ public class GermlineRootTree extends MetadataTree {
                         String suggestedClass = GRTCompatibleOperatorsSuggestions.getOrDefault(o.getClass().getName(), "");
                         String suggestion = (Objects.equals(suggestedClass, "")) ? "" : suggestedClass + " or";
                         // now we're sure it applies to this tree, and it's a case that will break things, so throw an error
+                        if (o instanceof TreeStretchOperator) {
+                            // TreeStretchOperator treats the germline as a fixed tip, so its root move is not reversible
+                            throw new IllegalArgumentException(this.getID() + ": " + this.getClass() + " has found a germline, and is therefore incompatible with TreeStretchOperator " + o.getID() + " of class " + o.getClass() + ".\nRemove it, or use a class that implements " + GRTCompatibleOperator.class.getName());
+                        }
                         throw new IllegalArgumentException(this.getID() + ": " + this.getClass() + " has found a germline, and is therefore incompatible with rootOnly scale operator " + o.getID() + " of class " + o.getClass() + ".\nTry using " + suggestion + " a class that implements " + GRTCompatibleOperator.class.getName());
                     }
                 }

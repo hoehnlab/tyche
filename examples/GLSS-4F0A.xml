@@ -163,7 +163,6 @@ traitSet="@traitSet.newTrait">
         </distribution>
         <operator id="GRTBayesianSkylineBICEPSEpochTop.t:GLSS-4F0A" spec="EpochFlexOperator" scaleFactor="0.1" tree="@Tree.t:GLSS-4F0A" weight="2.0"/>
         <operator id="GRTBayesianSkylineBICEPSEpochAll.t:GLSS-4F0A" spec="EpochFlexOperator" fromOldestTipOnly="false" scaleFactor="0.1" tree="@Tree.t:GLSS-4F0A" weight="2.0"/>
-        <operator id="GRTBayesianSkylineBICEPSTreeFlex.t:GLSS-4F0A" spec="TreeStretchOperator" scaleFactor="0.01" tree="@Tree.t:GLSS-4F0A" weight="2.0"/>
         <operator id="GRTBayesianSkylineTreeRootScaler.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTBactrianScaleOperator" rootOnly="true" scaleFactor="0.1" tree="@Tree.t:GLSS-4F0A" weight="3.0"/>
         <operator id="GRTBayesianSkylineUniformOperator.t:GLSS-4F0A" spec="kernel.BactrianNodeOperator" tree="@Tree.t:GLSS-4F0A" weight="30.0"/>
         <operator id="GRTBayesianSkylineSubtreeSlide.t:GLSS-4F0A" spec="tyche.evolution.operator.GRTSubtreeSlide" tree="@Tree.t:GLSS-4F0A" weight="15.0"/>
