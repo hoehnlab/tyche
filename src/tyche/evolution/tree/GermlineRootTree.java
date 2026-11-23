@@ -30,7 +30,6 @@ import beast.base.evolution.operator.Exchange;
 import beast.base.evolution.operator.kernel.BactrianSubtreeSlide;
 import beast.base.evolution.operator.WilsonBalding;
 import beast.base.evolution.tree.Node;
-import beast.base.evolution.tree.Tree;
 import beast.base.spec.evolution.tree.coalescent.RandomTree;
 import beast.base.inference.Operator;
 import beast.base.inference.StateNode;
@@ -65,6 +64,7 @@ public class GermlineRootTree extends MetadataTree {
     private static final String LEGACY_BACTRIAN_SCALE = "beast.base.evolution.operator.kernel.BactrianScaleOperator";
     private static final String LEGACY_SUBTREE_SLIDE = "beast.base.evolution.operator.SubtreeSlide";
     private static final String SPEC_SCALE_TREE = "beast.base.spec.evolution.operator.ScaleTreeOperator";
+    private static final String LEGACY_TREE_STRETCH = "beast.base.evolution.operator.TreeStretchOperator";
     private static final Map<String, String> GRTCompatibleOperatorsSuggestions = new HashMap<>(){
         {
             put(WilsonBalding.class.getName(), GRTWilsonBalding.class.getName());
@@ -175,7 +175,7 @@ public class GermlineRootTree extends MetadataTree {
             if (rootOnly != null && Boolean.TRUE.equals(rootOnly.get()) && tree != null && tree.get() != null) {
                 isPotentiallyIncompatible = true;
             }
-        } else if (o instanceof Exchange || o instanceof BactrianSubtreeSlide || o instanceof WilsonBalding || hasAncestorNamed(c, LEGACY_SUBTREE_SLIDE)) {
+        } else if (o instanceof Exchange || o instanceof BactrianSubtreeSlide || o instanceof WilsonBalding || hasAncestorNamed(c, LEGACY_SUBTREE_SLIDE) || hasAncestorNamed(c, LEGACY_TREE_STRETCH)) {
             isPotentiallyIncompatible = true;
         }
         return isPotentiallyIncompatible && !(o instanceof GRTCompatibleOperator);
@@ -200,6 +200,10 @@ public class GermlineRootTree extends MetadataTree {
                         String suggestedClass = GRTCompatibleOperatorsSuggestions.getOrDefault(o.getClass().getName(), "");
                         String suggestion = (Objects.equals(suggestedClass, "")) ? "" : suggestedClass + " or";
                         // now we're sure it applies to this tree, and it's a case that will break things, so throw an error
+                        if (hasAncestorNamed(o.getClass(), LEGACY_TREE_STRETCH)) {
+                            // TreeStretchOperator treats the germline as a fixed tip, so its root move is not reversible
+                            throw new IllegalArgumentException(this.getID() + ": " + this.getClass() + " has found a germline, and is therefore incompatible with TreeStretchOperator " + o.getID() + " of class " + o.getClass() + ".\nRemove it, or use a class that implements " + GRTCompatibleOperator.class.getName());
+                        }
                         throw new IllegalArgumentException(this.getID() + ": " + this.getClass() + " has found a germline, and is therefore incompatible with rootOnly scale operator " + o.getID() + " of class " + o.getClass() + ".\nTry using " + suggestion + " a class that implements " + GRTCompatibleOperator.class.getName());
                     }
                 }

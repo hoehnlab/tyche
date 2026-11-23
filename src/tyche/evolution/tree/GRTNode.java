@@ -93,9 +93,6 @@ public class GRTNode extends Node {
 //                if ((child.getID() + " ").contains("germline".toUpperCase())) addGermline((GRTNode) child);
 //            }
 //        }
-        if (germline == null && hasGermChild) {
-            System.out.println("Howwwww");
-        }
         return (germline != null) && hasGermChild;
     }
 
