@@ -1,0 +1,283 @@
+name: Release both lines
+
+# Not yet run on GitHub. See the test plan before the first real release.
+# Releases main (BEAST 2.7, tag vX.Y.Z) and beast3 (BEAST 3, tag vX.Y.Z-beast3) together.
+# Nothing real is pushed until BOTH builds pass.
+#
+# Order:
+#   1. prepare:   work out the new version. Bump main. Merge it into beast3. Edit pom.
+#                 Push the two candidate commits to throw-away branches release-candidate/*.
+#   2. build-*:   build both candidates (existing Ant workflow + new Maven workflow).
+#   3. publish:   (only if dry_run is false) one atomic push of both branches and both tags.
+#                 Then two GitHub Releases. Print URLs and ZIP names.
+#   4. finish:    delete the throw-away branches. Print a dry-run report if dry_run is true.
+#
+# If any step fails before step 3, main and beast3 do not change.
+# Must live on main (the default branch) so it shows in the Actions tab.
+# Start it from main.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump'
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+      dry_run:
+        description: 'Dry run: prepare and build only. Push and release nothing.'
+        type: boolean
+        default: true
+      beast_version:
+        description: 'BEAST 3 version for the beast3 build (empty = pom pin)'
+        type: string
+        default: ''
+
+# Same group name as increase_version_and_release.yml, so the two never run together.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.ver.outputs.new }}
+      tag: ${{ steps.ver.outputs.tag }}
+      tag_beast3: ${{ steps.ver.outputs.tag_beast3 }}
+      main_branch: ${{ steps.cand.outputs.main_branch }}
+      beast3_branch: ${{ steps.cand.outputs.beast3_branch }}
+      main_sha: ${{ steps.cand.outputs.main_sha }}
+      beast3_sha: ${{ steps.cand.outputs.beast3_sha }}
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Check the start state
+        run: |
+          set -euo pipefail
+          if ! git fetch origin beast3; then
+            echo "::error::Branch beast3 is not on GitHub. Push it first."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor origin/main origin/beast3; then
+            echo "::error::main is not contained in beast3. Merge main into beast3 (merge commit, no squash) first."
+            exit 1
+          fi
+          # Because main is already in beast3, the merge in this run brings in only the version bump.
+          # So it cannot change workflow files (GITHUB_TOKEN may not push those).
+
+      - name: Work out the new version
+        id: ver
+        env:
+          BUMP: ${{ inputs.bump_type }}
+        run: |
+          set -euo pipefail
+          OLD=$(grep -oP '(?<=version=")[^"]+' version.xml | head -1)
+          [[ "$OLD" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Cannot read version x.y.z from version.xml (got '$OLD')."; exit 1; }
+          IFS=. read -r MA MI PA <<< "$OLD"
+          case "$BUMP" in
+            major) MA=$((MA+1)); MI=0; PA=0 ;;
+            minor) MI=$((MI+1)); PA=0 ;;
+            patch) PA=$((PA+1)) ;;
+          esac
+          NEW="$MA.$MI.$PA"
+          for t in "v$NEW" "v$NEW-beast3"; do
+            if [ -n "$(git ls-remote --tags origin "refs/tags/$t")" ]; then
+              echo "::error::Tag $t already exists."
+              exit 1
+            fi
+          done
+          echo "Old $OLD -> new $NEW"
+          echo "old=$OLD" >> "$GITHUB_OUTPUT"
+          echo "new=$NEW" >> "$GITHUB_OUTPUT"
+          echo "tag=v$NEW" >> "$GITHUB_OUTPUT"
+          echo "tag_beast3=v$NEW-beast3" >> "$GITHUB_OUTPUT"
+
+      - name: Make the main candidate (bump version.xml)
+        env:
+          OLD: ${{ steps.ver.outputs.old }}
+          NEW: ${{ steps.ver.outputs.new }}
+        run: |
+          set -euo pipefail
+          git checkout -B rc-main origin/main
+          sed -i "0,/version=\"$OLD\"/s//version=\"$NEW\"/" version.xml
+          GOT=$(grep -oP '(?<=version=")[^"]+' version.xml | head -1)
+          [ "$GOT" = "$NEW" ] || { echo "::error::version.xml edit failed (got $GOT)."; exit 1; }
+          git commit -am "Release v$NEW"
+
+      - name: Make the beast3 candidate (merge main, edit pom)
+        env:
+          OLD: ${{ steps.ver.outputs.old }}
+          NEW: ${{ steps.ver.outputs.new }}
+        run: |
+          set -euo pipefail
+          git checkout -B rc-beast3 origin/beast3
+          git merge --no-ff rc-main -m "Merge main (release v$NEW) into beast3"
+          FROM="<version>${OLD}-SNAPSHOT</version>"
+          TO="<version>${NEW}-SNAPSHOT</version>"
+          N=$(grep -cF "$FROM" pom.xml || true)
+          if [ "$N" != "1" ]; then
+            echo "::error::Expected exactly one '$FROM' in pom.xml, found $N."
+            exit 1
+          fi
+          sed -i "s|$FROM|$TO|" pom.xml
+          git commit -am "Set pom version to ${NEW}-SNAPSHOT"
+
+      - name: Push candidate branches (throw-away)
+        id: cand
+        env:
+          NEW: ${{ steps.ver.outputs.new }}
+        run: |
+          set -euo pipefail
+          MB="release-candidate/v$NEW-main"
+          BB="release-candidate/v$NEW-beast3"
+          git push --force origin "rc-main:refs/heads/$MB" "rc-beast3:refs/heads/$BB"
+          echo "main_branch=$MB" >> "$GITHUB_OUTPUT"
+          echo "beast3_branch=$BB" >> "$GITHUB_OUTPUT"
+          echo "main_sha=$(git rev-parse rc-main)" >> "$GITHUB_OUTPUT"
+          echo "beast3_sha=$(git rev-parse rc-beast3)" >> "$GITHUB_OUTPUT"
+
+  build-main:
+    needs: prepare
+    uses: ./.github/workflows/build_package.yml
+    with:
+      dev_build: false
+      tyche_ref: ${{ needs.prepare.outputs.main_branch }}
+
+  build-beast3:
+    needs: prepare
+    uses: ./.github/workflows/build_package_beast3.yml
+    with:
+      dev_build: false
+      tyche_ref: ${{ needs.prepare.outputs.beast3_branch }}
+      beast_version: ${{ inputs.beast_version }}
+
+  publish:
+    needs: [prepare, build-main, build-beast3]
+    if: ${{ !inputs.dry_run }}
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+      TAG_B3: ${{ needs.prepare.outputs.tag_beast3 }}
+      MAIN_SHA: ${{ needs.prepare.outputs.main_sha }}
+      BEAST3_SHA: ${{ needs.prepare.outputs.beast3_sha }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download the main package
+        uses: actions/download-artifact@v8
+        with:
+          name: TyCHE-package
+          path: zip-main
+
+      - name: Download the beast3 package
+        uses: actions/download-artifact@v8
+        with:
+          name: TyCHE-package-beast3
+          path: zip-beast3
+
+      - name: Check ZIP names
+        run: |
+          set -euo pipefail
+          EXPECT="TyCHE.v$VERSION.zip"
+          ls -R zip-main zip-beast3
+          [ -f "zip-main/$EXPECT" ]   || { echo "::error::zip-main/$EXPECT missing"; exit 1; }
+          [ -f "zip-beast3/$EXPECT" ] || { echo "::error::zip-beast3/$EXPECT missing"; exit 1; }
+
+      - name: Tag and push both branches and both tags (atomic)
+        env:
+          MAIN_BRANCH: ${{ needs.prepare.outputs.main_branch }}
+          BEAST3_BRANCH: ${{ needs.prepare.outputs.beast3_branch }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin "$MAIN_BRANCH" "$BEAST3_BRANCH"
+          git cat-file -e "$MAIN_SHA^{commit}"
+          git cat-file -e "$BEAST3_SHA^{commit}"
+          git tag "$TAG" "$MAIN_SHA"
+          git tag "$TAG_B3" "$BEAST3_SHA"
+          # Fast-forward only. If main or beast3 moved since prepare, this fails and nothing changes.
+          git push --atomic origin \
+            "$MAIN_SHA:refs/heads/main" \
+            "$BEAST3_SHA:refs/heads/beast3" \
+            "refs/tags/$TAG" \
+            "refs/tags/$TAG_B3"
+
+      - name: Make the two GitHub Releases
+        run: |
+          set -euo pipefail
+          ZIP="TyCHE.v$VERSION.zip"
+          URL="https://github.com/${{ github.repository }}/releases/tag"
+          gh release create "$TAG_B3" "zip-beast3/$ZIP" \
+            --title "$TAG_B3" --latest=false \
+            --notes "TyCHE $VERSION for BEAST 3 (branch beast3). For BEAST 2.7 use [$TAG]($URL/$TAG)."
+          # --latest on the 2.7 release is a choice. Change if you want beast3 to be "Latest".
+          gh release create "$TAG" "zip-main/$ZIP" \
+            --title "$TAG" --latest \
+            --notes "TyCHE $VERSION for BEAST 2.7 (branch main). For BEAST 3 use [$TAG_B3]($URL/$TAG_B3)."
+
+      - name: Print release URLs and ZIP names (for the CBAN submission, done by hand)
+        run: |
+          ZIP="TyCHE.v$VERSION.zip"
+          URL="https://github.com/${{ github.repository }}/releases"
+          {
+            echo "## Released TyCHE $VERSION"
+            echo ""
+            echo "| Line | Tag | Release URL | ZIP |"
+            echo "|---|---|---|---|"
+            echo "| BEAST 2.7 | $TAG | $URL/tag/$TAG | $ZIP |"
+            echo "| BEAST 3 | $TAG_B3 | $URL/tag/$TAG_B3 | $ZIP |"
+            echo ""
+            echo "ZIP download (BEAST 3): $URL/download/$TAG_B3/$ZIP"
+            echo "ZIP download (BEAST 2.7): $URL/download/$TAG/$ZIP"
+            echo ""
+            echo "CBAN: submit by hand. Use the BEAST 3 line for packages2.8.xml."
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+  finish:
+    needs: [prepare, build-main, build-beast3, publish]
+    if: ${{ always() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      MAIN_BRANCH: ${{ needs.prepare.outputs.main_branch }}
+      BEAST3_BRANCH: ${{ needs.prepare.outputs.beast3_branch }}
+    steps:
+      - name: Delete the throw-away branches
+        run: |
+          for b in "$MAIN_BRANCH" "$BEAST3_BRANCH"; do
+            gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$b" || echo "Could not delete $b (ignored)."
+          done
+
+      - name: Dry-run report
+        if: ${{ inputs.dry_run }}
+        run: |
+          {
+            echo "## Dry run for TyCHE ${{ needs.prepare.outputs.version }}"
+            echo ""
+            echo "- prepare: ${{ needs.prepare.result }}"
+            echo "- build main (Ant): ${{ needs.build-main.result }}"
+            echo "- build beast3 (Maven): ${{ needs.build-beast3.result }}"
+            echo ""
+            echo "Nothing was pushed or released. Main and beast3 are unchanged."
+            echo "Would have tagged: ${{ needs.prepare.outputs.tag }} and ${{ needs.prepare.outputs.tag_beast3 }}."
+          } | tee -a "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,116 @@
+name: Check branch sync
+
+# Not yet run on GitHub. See the test plan before the first real release.
+# Checks that the beast3 branch is correct. It does NOT build.
+# (Build is build_package_beast3.yml. Two separate checks on purpose.)
+# Manual start for now. To run it on PRs later, enable the block below.
+
+on:
+  workflow_dispatch:
+    inputs:
+      downstream:
+        description: 'Branch that must contain upstream'
+        type: string
+        default: beast3
+      upstream:
+        description: 'Branch that must be an ancestor'
+        type: string
+        default: main
+  # pull_request:
+  #   branches: [beast3]
+  # (For PRs, check out the PR head and read the base branch from github.base_ref.)
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      DOWN: ${{ inputs.downstream || 'beast3' }}
+      UP: ${{ inputs.upstream || 'main' }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.downstream || 'beast3' }}
+
+      - name: Upstream is an ancestor
+        run: |
+          set -euo pipefail
+          git fetch origin "$UP"
+          if git merge-base --is-ancestor "origin/$UP" HEAD; then
+            echo "OK: origin/$UP is contained in $DOWN."
+          else
+            echo "::error::origin/$UP is NOT contained in $DOWN. Merge $UP into $DOWN first."
+            echo "Commits on $UP that $DOWN lacks:"
+            git log --oneline "HEAD..origin/$UP" | head -50
+            exit 1
+          fi
+
+      - name: Version equals upstream version
+        run: |
+          set -euo pipefail
+          V_DOWN=$(grep -oP '(?<=version=")[^"]+' version.xml | head -1)
+          V_UP=$(git show "origin/$UP:version.xml" | grep -oP '(?<=version=")[^"]+' | head -1)
+          echo "version.xml: $DOWN=$V_DOWN  $UP=$V_UP"
+          [ "$V_DOWN" = "$V_UP" ] || { echo "::error::Versions differ."; exit 1; }
+
+      # The next steps are a minimal, inline version of check-beast3-after-rebase.sh.
+      # No script file goes in the repo. Left out on purpose: check 5 (pom BEAUti drop pattern,
+      # BEAUti work has not begun) and check 8 (build; that is build_package_beast3.yml).
+
+      - name: No leftover conflict markers
+        run: |
+          set -euo pipefail
+          HITS=$(grep -rIl -E '^(<<<<<<<|>>>>>>>) ' src version.xml pom.xml release.sh build.xml 2>/dev/null || true)
+          if [ -n "$HITS" ]; then echo "::error::Conflict markers in: $HITS"; exit 1; fi
+          echo "OK: none"
+
+      - name: No BEAST 2.7 dependency lines in version.xml
+        run: |
+          set -euo pipefail
+          if grep -n -E "BEAST\.app|atleast='2\.7|atleast=\"2\.7" version.xml; then
+            echo "::error::version.xml still has a BEAST 2.7 dependency line. Keep the BEAST 3 lines."
+            exit 1
+          fi
+          echo "OK: none"
+
+      - name: Classes in version.xml match module-info.java
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, re, sys
+          v = open('version.xml').read()
+          blk = re.search(r'<service type="beast\.base\.core\.BEASTInterface">(.*?)</service>', v, re.S).group(1)
+          vp = set(re.findall(r'classname="([^"]+)"', blk))
+          m = open('src/module-info.java').read()
+          mp = set(x.strip() for x in re.search(r'provides\s+beast\.base\.core\.BEASTInterface\s+with(.*?);', m, re.S).group(1).replace('\n', ' ').split(',') if x.strip())
+          gui = set(c for c in vp if c.startswith('tyche.app.beauti'))
+          miss = sorted(vp - mp - gui)
+          extra = sorted(mp - vp)
+          nosrc = sorted(c for c in mp if not os.path.exists('src/' + c.replace('.', '/') + '.java'))
+          for label, items in (('in version.xml, not in module-info', miss), ('in module-info, not in version.xml', extra), ('in module-info, no source file', nosrc)):
+              if items:
+                  print('::error::' + label + ': ' + ', '.join(c.split('.')[-1] for c in items))
+          if miss or extra or nosrc:
+              sys.exit(1)
+          print('OK: %d classes registered in both lists' % len(mp))
+          PY
+
+      - name: No source uses the legacy TreeLikelihood (rule D9)
+        run: |
+          set -euo pipefail
+          HITS=$(grep -rIl -E 'beast\.base\.evolution\.likelihood\.TreeLikelihood' src --include=*.java 2>/dev/null | grep -v '^src/tyche/app/' || true)
+          if [ -n "$HITS" ]; then echo "::error::Legacy TreeLikelihood used in: $HITS"; exit 1; fi
+          echo "OK: none"
+
+      - name: pom version equals version.xml version plus -SNAPSHOT
+        run: |
+          set -euo pipefail
+          V=$(grep -oP '(?<=version=")[^"]+' version.xml | head -1)
+          P=$(python3 -c "
+          import xml.etree.ElementTree as ET
+          r = ET.parse('pom.xml').getroot()
+          ns = r.tag[:r.tag.index('}') + 1] if r.tag.startswith('{') else ''
+          print((r.find(ns + 'version').text or '').strip())")
+          echo "version.xml=$V  pom=$P"
+          [ "$P" = "${V}-SNAPSHOT" ] || { echo "::error::pom version must be ${V}-SNAPSHOT"; exit 1; }
