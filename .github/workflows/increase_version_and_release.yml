@@ -30,6 +30,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      # This workflow releases the BEAST 2.7 line only. The BEAST 3 line has a pom.xml.
+      - name: Stop if this is the BEAST 3 line
+        run: |
+          if [ -f pom.xml ]; then
+            echo "::error::pom.xml found. This is the beast3 branch. Use release_both.yml from main."
+            exit 1
+          fi
+
       - name: Compute new version
         id: bump
         run: |

@@ -1,0 +1,147 @@
+name: Build package (BEAST 3)
+
+# Not yet run on GitHub. See the test plan before the first real release.
+# Builds the TyCHE package for the BEAST 3 line (branch beast3).
+# Uses JDK 25 and Maven. BEAST 3 libraries come from Maven Central.
+# Goes on main (so it shows in the Actions tab). It checks out beast3.
+# Manual start for now. To also require it for PRs, add a pull_request trigger later.
+
+on:
+  workflow_call:
+    inputs:
+      dev_build:
+        type: boolean
+        default: false
+      tyche_ref:
+        type: string
+        default: ''
+      beast_version:
+        type: string
+        default: ''   # empty = use the version pinned in pom.xml (OPEN QUESTION: beta6 or rc2)
+      packaging:
+        type: string
+        default: 'maven'   # 'maven' or 'release_sh'
+    outputs:
+      zip_name:
+        value: ${{ jobs.build.outputs.zip_name }}
+  workflow_dispatch:
+    inputs:
+      dev_build:
+        description: 'Dev build (adds hash and time to the version)'
+        type: boolean
+        default: false
+      tyche_ref:
+        description: 'Branch, tag or SHA to build (empty = beast3)'
+        type: string
+        default: ''
+      beast_version:
+        description: 'BEAST 3 version, for example 2.8.0-rc2 (empty = use pom pin)'
+        type: string
+        default: ''
+      packaging:
+        description: "'maven' (mvn package, antrun ZIP step) or 'release_sh' (tested fallback)"
+        type: string
+        default: 'maven'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      zip_name: ${{ steps.zip.outputs.zip_name }}
+    steps:
+      - name: Check out TyCHE
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tyche_ref || 'beast3' }}
+
+      - name: Stop if this is not the BEAST 3 line
+        run: |
+          if [ ! -f pom.xml ]; then
+            echo "::error::No pom.xml here. This workflow builds the beast3 branch only. Use build_package.yml for main."
+            exit 1
+          fi
+
+      # setup-java v6 README lists Temurin 25 (checked 2026-11-13). v1-v4 are deprecated.
+      - name: Set up JDK 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Show tool versions
+        run: |
+          java -version
+          mvn -version
+
+      - name: Check versions
+        id: ver
+        run: |
+          set -euo pipefail
+          VERSION_XML=$(grep -oP '(?<=version=")[^"]+' version.xml | head -1)
+          POM_VERSION=$(mvn -B -q -N help:evaluate -Dexpression=project.version -DforceStdout)
+          echo "version.xml: $VERSION_XML"
+          echo "pom.xml:     $POM_VERSION"
+          if [ "$POM_VERSION" != "${VERSION_XML}-SNAPSHOT" ]; then
+            echo "::error::pom version ($POM_VERSION) must be version.xml version plus -SNAPSHOT (${VERSION_XML}-SNAPSHOT)."
+            exit 1
+          fi
+          echo "version=$VERSION_XML" >> "$GITHUB_OUTPUT"
+
+      - name: Build with Maven
+        if: ${{ inputs.packaging != 'release_sh' }}
+        env:
+          DEV_BUILD: ${{ inputs.dev_build }}
+          BEAST_VERSION: ${{ inputs.beast_version }}
+        run: |
+          set -euo pipefail
+          ARGS=(-B -DskipTests)
+          if [ "$DEV_BUILD" = "true" ]; then ARGS+=(-Ddev); fi
+          if [ -n "$BEAST_VERSION" ]; then ARGS+=("-Dbeast.version=$BEAST_VERSION"); fi
+          mvn "${ARGS[@]}" package
+
+      # release.sh usage (from its own header): ./release.sh [--dev] [--skip-build] [-- <mvn args>]
+      # It writes target/dist/TyCHE.v<version>.zip, the same place as the Maven antrun step.
+      - name: Build with release.sh
+        if: ${{ inputs.packaging == 'release_sh' }}
+        env:
+          DEV_BUILD: ${{ inputs.dev_build }}
+          BEAST_VERSION: ${{ inputs.beast_version }}
+        run: |
+          set -euo pipefail
+          ARGS=()
+          if [ "$DEV_BUILD" = "true" ]; then ARGS+=(--dev); fi
+          if [ -n "$BEAST_VERSION" ]; then ARGS+=(-- "-Dbeast.version=$BEAST_VERSION"); fi
+          bash release.sh "${ARGS[@]}"
+
+      - name: Find the ZIP
+        id: zip
+        run: |
+          set -euo pipefail
+          mapfile -t ZIPS < <(find . -name 'TyCHE.v*.zip' -not -path './.git/*')
+          if [ "${#ZIPS[@]}" -ne 1 ]; then
+            echo "::error::Expected one TyCHE.v*.zip. Found ${#ZIPS[@]}: ${ZIPS[*]:-none}"
+            exit 1
+          fi
+          ZIP="${ZIPS[0]}"
+          echo "zip_path=$ZIP" >> "$GITHUB_OUTPUT"
+          echo "zip_name=$(basename "$ZIP")" >> "$GITHUB_OUTPUT"
+
+      - name: Check ZIP contents
+        env:
+          ZIP_PATH: ${{ steps.zip.outputs.zip_path }}
+        run: |
+          set -euo pipefail
+          unzip -l "$ZIP_PATH"
+          for f in lib/TyCHE.package.jar version.xml; do
+            unzip -l "$ZIP_PATH" | grep -q " $f\$" || { echo "::error::$f missing from ZIP"; exit 1; }
+          done
+
+      # The name differs from build_package.yml (TyCHE-package) on purpose.
+      # release_both.yml uses both in one run. Artifact names must be unique per run.
+      - name: Upload package
+        uses: actions/upload-artifact@v7
+        with:
+          name: TyCHE-package-beast3
+          path: ${{ steps.zip.outputs.zip_path }}
+          if-no-files-found: error

@@ -32,6 +32,14 @@ jobs:
           ref: ${{ inputs.tyche_ref || github.ref }}
           path: type-linked-time-trees
 
+      # This workflow builds the BEAST 2.7 line (Ant). The BEAST 3 line has a pom.xml.
+      - name: Stop if this is the BEAST 3 line
+        run: |
+          if [ -f type-linked-time-trees/pom.xml ]; then
+            echo "::error::pom.xml found. This is the beast3 branch. Use build_package_beast3.yml."
+            exit 1
+          fi
+
       # All three sibling repos are pinned to known-good commits.
       - name: Checkout beast2
         uses: actions/checkout@v4
