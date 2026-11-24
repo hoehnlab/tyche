@@ -10,7 +10,7 @@ TyCHE stands for Type-linked Clocks for Heterogeneous Evolution, and is named in
 
 To cite the TyCHE package in publications, please use:
 
-Fielding J, Wu S, Melton H, Du Plessis L, Fisk N, Hoehn K (2025). "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations." bioRxiv 2025.10.21.683591 doi:10.1101/2025.10.21.683591 https://doi.org/10.1101/2025.10.21.683591
+Fielding JJ, Wu S, Melton HJ, Wang CZ, Fisk N, du Plessis L, Hoehn KB (2026). "TyCHE enables time-resolved lineage tracing of B cells and other heterogeneously-evolving populations." Molecular Biology and Evolution, msag281. doi:10.1093/molbev/msag281 https://doi.org/10.1093/molbev/msag281
 
 ## Getting started
 

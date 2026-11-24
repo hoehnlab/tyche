@@ -10,11 +10,11 @@ package tyche;
 public final class TycheCitation {
     private TycheCitation() {}
 
-    public static final String AUTHORS = "Fielding, J. J., Wu, S., Melton, H. J., Fisk, N., du Plessis, L., & Hoehn, K. B.";
-    public static final int YEAR = 2025;
-    public static final String TITLE = "TyCHE enables time-resolved lineage tracing of heterogeneously-evolving populations.";
-    public static final String VENUE = "bioRxiv https://doi.org/10.1101/2025.10.21.683591";      // e.g. "Nature Methods 23:123-130" once published
-    public static final String DOI = "10.1101/2025.10.21.683591";
+    public static final String AUTHORS = "Fielding, J. J., Wu, S., Melton, H. J., Wang, C. Z., Fisk, N., du Plessis, L., & Hoehn, K. B.";
+    public static final int YEAR = 2026;
+    public static final String TITLE = "TyCHE enables time-resolved lineage tracing of B cells and other heterogeneously-evolving populations.";
+    public static final String VENUE = "Molecular Biology and Evolution, msag281";
+    public static final String DOI = "10.1093/molbev/msag281";
     public static final String FIRST_AUTHOR = "Fielding";
 
     /** The full text BEAST prints (compile-time constant built from the parts above). */
