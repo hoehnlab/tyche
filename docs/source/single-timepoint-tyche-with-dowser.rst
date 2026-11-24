@@ -144,7 +144,7 @@ from this approach should be read as conditioned on the provided clock
 rate.
 
 For more discussion on the sensitivity of TyCHE to the GC rate prior,
-see `our paper <https://www.biorxiv.org/content/10.1101/2025.10.21.683591v2.full>`_
+see `our paper <https://doi.org/10.1093/molbev/msag281>`_
 
 Irreversibility
 ***************
